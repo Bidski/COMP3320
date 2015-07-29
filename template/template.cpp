@@ -3,9 +3,15 @@
 #include <GL/glew.h>                // Include this first
 #include <GLFW/glfw3.h>
 
-int main()
+int main(void)
 {
-    glfwInit();
+    // Initialise GLFW.
+    if (glfwInit() == GL_FALSE)
+    {
+        std::cerr << "Failed to initialize GLFW" << std::endl;
+
+        return(-1);
+    }
 
     // Set up OpenGL version,
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -24,33 +30,65 @@ int main()
     // Work in fullscreen.
     //GLFWwindow* window = glfwCreateWindow(800, 600, "OpenGL", glfwGetPrimaryMonitor(), nullptr); // Fullscreen
 
+    if (window == NULL)
+    {
+        std::cerr << "Failed to create window." << std::endl;
+
+        glfwTerminate();
+        return(-1);
+    }
+
     // Make the new context the active context.
     glfwMakeContextCurrent(window);
 
-    // Initialise GLEW.
+    // Tell GLEW to use the new (experimental) stuff.
     glewExperimental = GL_TRUE;
-    glewInit();
+
+    // Make sure the context was created.
+    GLenum err = glGetError();
+
+    if (err != GL_NO_ERROR)
+    {
+        std::cerr << "OpenGL Error: " << err << std::endl;
+    }
+
+    // Initialise GLEW.
+    err = glewInit();
+
+    if (err != GLEW_OK)
+    {
+        std::cerr << "Failed to initialize GLEW" << std::endl;
+        std::cerr << "Error: " <<  err << " - " << glewGetErrorString(err) << std::endl;
+
+        glfwTerminate();
+        return(-1);
+    }
+
+    GLuint vertexBuffer;
+    glGenBuffers(1, &vertexBuffer);
+    std::cout << vertexBuffer << std::endl;
 
     // Main event loop.
-    while(!glfwWindowShouldClose(window))
+    while(glfwWindowShouldClose(window) == GL_FALSE)
     {
-        // Swap front and back buffers.
-        glfwSwapBuffers(window);
-
-        // Poll for window events.
-        glfwPollEvents();
-
         // Check for the escape key.
         if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         {
             glfwSetWindowShouldClose(window, GL_TRUE);
         }
 
-        GLuint vertexBuffer;
-        glGenBuffers(1, &vertexBuffer);
-        std::cout << vertexBuffer << std::endl;
+        // Swap front and back buffers.
+        glfwSwapBuffers(window);
+
+        // Poll for window events.
+        glfwPollEvents();
     }
 
+    // Cleanup.
+    glDeleteBuffers(1, &vertexBuffer);
+
     glfwTerminate();
+
+    return(0);
 }
 
