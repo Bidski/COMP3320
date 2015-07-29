@@ -2,10 +2,10 @@ CPPFLAGS = -std=c++11 -Werror -Wall -DGLEW_STATIC
 INC_DIR = -I ./
 LDLIBS = -lglfw -lGL -lGLEW
 CPP = g++ -fdiagnostics-color=always
-EXECUTABLE = template
+EXECUTABLE = uniforms
 
 vpath %.cpp ./
-src = template.cpp
+src = uniforms.cpp
 objects = $(patsubst %.cpp,build/%.o,$(src))
 
 all: $(EXECUTABLE)
