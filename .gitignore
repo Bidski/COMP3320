@@ -1,1 +1,6 @@
 template/build
+polygons/vertices/build
+polygons/uniforms/build
+polygons/colours/build
+polygons/elementBuffers/build
+
