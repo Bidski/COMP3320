@@ -12,7 +12,7 @@ all: $(EXECUTABLE)
 
 $(EXECUTABLE): $(objects)
 	@echo $<
-	@$(CPP) $(CPPFLAGS) $^ -o $(EXECUTABLE) $(LDLIBS)
+	@$(CPP) $(CPPFLAGS) $^ -o build/$(EXECUTABLE) $(LDLIBS)
 
 $(objects): | build
 
