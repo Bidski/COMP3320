@@ -91,7 +91,7 @@ int main(void)
 
     // Create the vertex shader.
     std::ifstream vertexSourceFile("vertexShader.glsl");
-    std::vector<char> vertexSource;
+    std::string vertexSource;
 
     vertexSourceFile.seekg(0, std::ios::end);   
     vertexSource.reserve(vertexSourceFile.tellg());
@@ -100,7 +100,7 @@ int main(void)
     vertexSource.assign((std::istreambuf_iterator<char>(vertexSourceFile)), std::istreambuf_iterator<char>());
 
     vertexSourceFile.close();
-    const char* vertexShaderSource = vertexSource.data();
+    const char* vertexShaderSource = vertexSource.c_str();
 
     // Compile vertex shader.
     GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
@@ -125,7 +125,7 @@ int main(void)
 
     // Create the fragment shader.
     std::ifstream fragmentSourceFile("fragmentShader.glsl");
-    std::vector<char> fragmentSource;
+    std::string fragmentSource;
 
     fragmentSourceFile.seekg(0, std::ios::end);   
     fragmentSource.reserve(fragmentSourceFile.tellg());
@@ -134,7 +134,7 @@ int main(void)
     fragmentSource.assign((std::istreambuf_iterator<char>(fragmentSourceFile)), std::istreambuf_iterator<char>());
 
     fragmentSourceFile.close();
-    const char* fragmentShaderSource = fragmentSource.data();
+    const char* fragmentShaderSource = fragmentSource.c_str();
 
     // Compile fragment shader.
     GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
@@ -203,7 +203,7 @@ int main(void)
     glDeleteShader(fragmentShader);
     glDeleteShader(vertexShader);
     glDeleteBuffers(1, &vbo);
-    glDeleteBuffers(1, &vao);
+    glDeleteVertexArrays(1, &vao);
 
     glfwTerminate();
 
