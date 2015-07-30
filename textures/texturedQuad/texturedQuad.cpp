@@ -109,7 +109,7 @@ int main(void)
 
     // Create the vertex shader.
     std::ifstream vertexSourceFile("vertexShader.glsl");
-    std::vector<char> vertexSource;
+    std::string vertexSource;
 
     vertexSourceFile.seekg(0, std::ios::end);   
     vertexSource.reserve(vertexSourceFile.tellg());
@@ -118,7 +118,7 @@ int main(void)
     vertexSource.assign((std::istreambuf_iterator<char>(vertexSourceFile)), std::istreambuf_iterator<char>());
 
     vertexSourceFile.close();
-    const char* vertexShaderSource = vertexSource.data();
+    const char* vertexShaderSource = vertexSource.c_str();
 
     // Compile vertex shader.
     GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
@@ -143,7 +143,7 @@ int main(void)
 
     // Create the fragment shader.
     std::ifstream fragmentSourceFile("fragmentShader.glsl");
-    std::vector<char> fragmentSource;
+    std::string fragmentSource;
 
     fragmentSourceFile.seekg(0, std::ios::end);   
     fragmentSource.reserve(fragmentSourceFile.tellg());
@@ -152,7 +152,7 @@ int main(void)
     fragmentSource.assign((std::istreambuf_iterator<char>(fragmentSourceFile)), std::istreambuf_iterator<char>());
 
     fragmentSourceFile.close();
-    const char* fragmentShaderSource = fragmentSource.data();
+    const char* fragmentShaderSource = fragmentSource.c_str();
 
     // Compile fragment shader.
     GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
@@ -192,25 +192,40 @@ int main(void)
     // There are 7 elements for each vector, the first two are the (X, Y) coordinates.
     GLint posAttrib = glGetAttribLocation(shaderProgram, "position");
     glEnableVertexAttribArray(posAttrib);
-    glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(float), 0);
+    glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(GLfloat), 0);
 
     // Tell OpenGL where to find the colour attributes in the vertex data.
     // There are 7 elements for each vector, the 3rd, 4th, and 5th are the (R, G, B) values.
     GLint colAttrib = glGetAttribLocation(shaderProgram, "colour");
     glEnableVertexAttribArray(colAttrib);
-    glVertexAttribPointer(colAttrib, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(2 * sizeof(float)));
+    glVertexAttribPointer(colAttrib, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(GLfloat), (void*)(2 * sizeof(GLfloat)));
 
     // Tell OpenGL where to find the texture attributes in the vertex data.
     // There are 7 elements for each vector, the last two are the (S, T) values.
     GLint texAttrib = glGetAttribLocation(shaderProgram, "textureCoord");
     glEnableVertexAttribArray(texAttrib);
-    glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(5 * sizeof(float)));
+    glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(GLfloat), (void*)(5 * sizeof(GLfloat)));
+
+    // Load the texture.
+    GLuint tex;
+    glGenTextures(1, &tex);
 
     // Load the image for the texture.
     int width, height;
-    unsigned char* image = SOIL_load_image("../../sample.png", &width, &height, 0, SOIL_LOAD_RGB);
+    unsigned char* image = SOIL_load_image("../sample.png", &width, &height, 0, SOIL_LOAD_RGB);
+
+    if (image == NULL)
+    {
+        std::cout << "crap" << std::endl;
+    }
+
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
     SOIL_free_image_data(image);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
     // Main event loop.
     while(glfwWindowShouldClose(window) == GL_FALSE)
@@ -236,11 +251,13 @@ int main(void)
     }
 
     // Cleanup.
+    glDeleteTextures(1, &tex);
     glDeleteProgram(shaderProgram);
     glDeleteShader(fragmentShader);
     glDeleteShader(vertexShader);
+    glDeleteBuffers(1, &ebo);
     glDeleteBuffers(1, &vbo);
-    glDeleteBuffers(1, &vao);
+    glDeleteVertexArrays(1, &vao);
 
     glfwTerminate();
 
