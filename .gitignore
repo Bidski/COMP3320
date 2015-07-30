@@ -3,4 +3,5 @@ polygons/vertices/build
 polygons/uniforms/build
 polygons/colours/build
 polygons/elementBuffers/build
+textures/texturedQuad/build
 
