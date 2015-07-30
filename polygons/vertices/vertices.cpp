@@ -184,6 +184,10 @@ int main(void)
             glfwSetWindowShouldClose(window, GL_TRUE);
         }
 
+        // Clear the screen to black.
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+
         // Draw a triangle from the 3 vertices.
         glDrawArrays(GL_TRIANGLES, 0, 3);
 

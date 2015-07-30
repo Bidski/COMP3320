@@ -81,9 +81,9 @@ int main(void)
     // Specify the vertices.
     float vertices[] = 
     {
-         0.0f,  0.5f, // Vertex 1 (X, Y)
-         0.5f, -0.5f, // Vertex 2 (X, Y)
-        -0.5f, -0.5f  // Vertex 3 (X, Y)
+         0.0f,  0.5f, 1.0, 0.0, 0.0, // Vertex 1: Red
+         0.5f, -0.5f, 0.0, 1.0, 0.0, // Vertex 2: Green
+        -0.5f, -0.5f, 0.0, 0.0, 1.0  // Vertex 3: Blue
     };
 
     // Copy vertex data into the VBO.
@@ -172,24 +172,29 @@ int main(void)
     glUseProgram(shaderProgram);
 
     // Tell OpenGL where to find the position attributes in the vertex data.
+    // There are 5 elements for each vector, the first two are the (X, Y) coordinates.
     GLint posAttrib = glGetAttribLocation(shaderProgram, "position");
-    glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 0, 0);
     glEnableVertexAttribArray(posAttrib);
+    glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), 0);
+
+    // Tell OpenGL where to find the colour attributes in the vertex data.
+    // There are 5 elements for each vector, the last three are the (R, G, B) values.
+    GLint colAttrib = glGetAttribLocation(shaderProgram, "colour");
+    glEnableVertexAttribArray(colAttrib);
+    glVertexAttribPointer(colAttrib, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(2 * sizeof(float)));
 
     // Main event loop.
     while(glfwWindowShouldClose(window) == GL_FALSE)
     {
-        // Calculate new triangle alpha for current frame.
-        GLint uniformColor = glGetUniformLocation(shaderProgram, "triangleColour");
-        float time = (float)glfwGetTime();
-        float adjfactor = std::sin(time) - 0.5f;
-        glUniform3f(uniformColor, adjfactor, adjfactor, adjfactor);
-        
         // Check for the escape key.
         if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         {
             glfwSetWindowShouldClose(window, GL_TRUE);
         }
+
+        // Clear the screen to black.
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
 
         // Draw a triangle from the 3 vertices.
         glDrawArrays(GL_TRIANGLES, 0, 3);
