@@ -77,6 +77,10 @@ int main(void)
             glfwSetWindowShouldClose(window, GL_TRUE);
         }
 
+        // Clear the screen to black.
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+        
         // Swap front and back buffers.
         glfwSwapBuffers(window);
 
