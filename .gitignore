@@ -5,4 +5,6 @@ polygons/colours/build
 polygons/elementBuffers/build
 textures/texturedQuad/build
 textures/multipleTextures/build
+transformations/simple/build
+transformations/3D/build
 
