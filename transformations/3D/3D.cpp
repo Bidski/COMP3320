@@ -279,9 +279,8 @@ int main(void)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
     // Create the model transform.
-    glm::mat4 model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-
-    // Get access to the uniform in the vertex shader.
+    glm::mat4 model;
+    model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0f, 0.0f, 1.0f));
     GLint uniTrans = glGetUniformLocation(shaderProgram, "model");
 
     // Create the view transform.
@@ -289,7 +288,6 @@ int main(void)
                                  glm::vec3(0.0f, 0.0f, 0.0f), 
                                  glm::vec3(0.0f, 0.0f, 1.0f));
     GLint uniView = glGetUniformLocation(shaderProgram, "view");
-
 
     // Create the projection transform.
     glm::mat4 proj = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 1.0f, 10.0f);
