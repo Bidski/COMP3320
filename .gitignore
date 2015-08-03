@@ -6,5 +6,7 @@ polygons/elementBuffers/build
 textures/texturedQuad/build
 textures/multipleTextures/build
 transformations/simple/build
+transformations/simple_timed/build
 transformations/3D/build
+transformations/3D_timed/build
 
