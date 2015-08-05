@@ -9,4 +9,6 @@ transformations/simple/build
 transformations/simple_timed/build
 transformations/3D/build
 transformations/3D_timed/build
+depthAndStencil/depth/build
+depthAndStencil/stencil/build
 
