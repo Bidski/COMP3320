@@ -8,7 +8,7 @@
 GLFWwindow* init(bool windowed, size_t width, size_t height);
 static void error_callback(int error, const char* description);
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
-bool loadShader(GLuint* shader, const std::string& file);
+bool loadShader(GLuint* shader, GLenum type, const std::string& file);
 bool getShaderCompileStatus(GLuint shader);
 
 int main(void)
@@ -147,7 +147,7 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
     }
 }
 
-bool loadShader(GLuint* shader, const std::string& file)
+bool loadShader(GLuint* shader, GLenum type, const std::string& file)
 {
     // Create the vertex shader.
     std::ifstream sourceStream(file);
@@ -163,7 +163,7 @@ bool loadShader(GLuint* shader, const std::string& file)
 
     // Compile shader.
     const char* shaderSource = source.c_str();
-    *shader = glCreateShader(GL_VERTEX_SHADER);
+    *shader = glCreateShader(type);
     glShaderSource(*shader, 1, &shaderSource, nullptr);
     glCompileShader(*shader);
 
