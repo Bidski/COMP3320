@@ -1,14 +1,4 @@
-template/build
-polygons/vertices/build
-polygons/uniforms/build
-polygons/colours/build
-polygons/elementBuffers/build
-textures/texturedQuad/build
-textures/multipleTextures/build
-transformations/simple/build
-transformations/simple_timed/build
-transformations/3D/build
-transformations/3D_timed/build
-depthAndStencil/depth/build
-depthAndStencil/stencil/build
+*/build*
+
+*sublime-workspace
 
