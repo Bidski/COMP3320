@@ -1,6 +1,7 @@
 #include <cmath>
 #include <fstream>
 #include <iostream>
+#include <limits>
 #include <string>
 #include <vector>
 
@@ -8,9 +9,11 @@
 #include <GLFW/glfw3.h>
 
 #include <glm/glm.hpp>
+#include <glm/gtc/epsilon.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/rotate_vector.hpp>
+#include <glm/gtx/string_cast.hpp>
 
 GLFWwindow* init(bool windowed, size_t width, size_t height);
 static void error_callback(int error, const char* description);
@@ -20,9 +23,16 @@ GLuint loadShaderProgram(const std::vector<std::pair<std::string, GLuint>>& shad
 bool getShaderCompileStatus(GLuint shader);
 bool getProgramLinkStatus(GLuint program);
 void generateTerrain(float size, GLuint width, GLuint depth, float vertices[], GLuint elements[]);
+glm::mat4x4 lookAt(const glm::vec3& eye, const glm::vec3& center, const glm::vec3& up);
+
+const GLuint WIDTH = 6;
+const GLuint DEPTH = 10;
+
+const glm::vec3 cameraRotatedUp = glm::vec3(0.0f, 1.0f, 0.0f);
 
 glm::vec3 cameraPosition;
 glm::vec3 cameraLookAt;
+glm::vec3 cameraRight;
 glm::vec3 cameraUp;
 
 int main(void) {
@@ -48,9 +58,9 @@ int main(void) {
     glGenBuffers(1, &vbo);
 
     // Specify the vertices.
-    float vertices[2 * 2 * 16];
-    GLuint elements[2 * 2 * 6];
-    generateTerrain(0.05f, 2, 2, vertices, elements);
+    float vertices[WIDTH * DEPTH * 16];
+    GLuint elements[WIDTH * DEPTH * 6];
+    generateTerrain(0.05f, WIDTH, DEPTH, vertices, elements);
 
     // Copy vertex data into the VBO.
     // GL_STATIC_DRAW: Copy vertex data to graphics card once, then redraw many
@@ -136,26 +146,29 @@ int main(void) {
 
     cameraPosition           = glm::vec3(0.0f, 0.0f, 0.0f);
     cameraLookAt             = glm::vec3(0.0f, 0.0f, -1.0f);
-    cameraUp                 = glm::vec3(0.0f, 0.0f, 1.0f);
+    cameraUp                 = glm::vec3(0.0f, 1.0f, 0.0f);
+    cameraRight              = glm::cross(cameraUp, cameraLookAt);
     glm::mat4 modelTransform = glm::translate(glm::mat4(), glm::vec3(0, -0.15f, -0.5f));
 
     // Main event loop.
     while (glfwWindowShouldClose(window) == GL_FALSE) {
         // Change camera position
-        glm::mat4 cameraTransform = glm::lookAt(cameraPosition, cameraLookAt, cameraUp);
+        glm::mat4 cameraTransform = lookAt(cameraPosition, cameraLookAt, cameraUp);
 
         // Clear the screen
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         glUseProgram(groundShaderProgram);
+        glUniformMatrix4fv(groundPerspective, 1, GL_FALSE, glm::value_ptr(perspectiveMatrix));
         glUniformMatrix4fv(groundCamera, 1, GL_FALSE, glm::value_ptr(cameraTransform));
         glUniformMatrix4fv(groundModel, 1, GL_FALSE, glm::value_ptr(modelTransform));
-        glDrawElements(GL_TRIANGLES, 2 * 2 * 6, GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_TRIANGLES, WIDTH * DEPTH * 6, GL_UNSIGNED_INT, 0);
 
         glUseProgram(grassShaderProgram);
+        glUniformMatrix4fv(grassPerspective, 1, GL_FALSE, glm::value_ptr(perspectiveMatrix));
         glUniformMatrix4fv(grassCamera, 1, GL_FALSE, glm::value_ptr(cameraTransform));
         glUniformMatrix4fv(grassModel, 1, GL_FALSE, glm::value_ptr(modelTransform));
-        glDrawElements(GL_TRIANGLES, 2 * 2 * 6, GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_TRIANGLES, WIDTH * DEPTH * 6, GL_UNSIGNED_INT, 0);
 
         // Swap front and back buffers.
         glfwSwapBuffers(window);
@@ -256,18 +269,44 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
         glfwSetWindowShouldClose(window, GL_TRUE);
     }
     else if (key == GLFW_KEY_W && action == GLFW_PRESS) {
-        cameraPosition.z += 0.05f;
-        cameraLookAt = cameraPosition + glm::vec3(0.0f, 0.0f, -1.0f);
-    }
-    else if (key == GLFW_KEY_A && action == GLFW_PRESS) {
-        cameraLookAt = glm::rotate(cameraLookAt, -0.05f, cameraUp);
+        cameraPosition += glm::normalize(cameraLookAt) * 0.05f;
     }
     else if (key == GLFW_KEY_S && action == GLFW_PRESS) {
-        cameraPosition.z -= 0.05f;
-        cameraLookAt = cameraPosition + glm::vec3(0.0f, 0.0f, -1.0f);
+        cameraPosition += glm::normalize(cameraLookAt) * -0.05f;
+    }
+    else if (key == GLFW_KEY_A && action == GLFW_PRESS) {
+        cameraPosition += glm::normalize(cameraRight) * 0.05f;
     }
     else if (key == GLFW_KEY_D && action == GLFW_PRESS) {
-        cameraLookAt = glm::rotate(cameraLookAt, 0.05f, cameraUp);
+        cameraPosition += glm::normalize(cameraRight) * -0.05f;
+    }
+    else if (key == GLFW_KEY_R && action == GLFW_PRESS) {
+        cameraPosition += glm::normalize(cameraUp) * 0.05f;
+    }
+    else if (key == GLFW_KEY_F && action == GLFW_PRESS) {
+        cameraPosition += glm::normalize(cameraUp) * -0.05f;
+    }
+    else if (key == GLFW_KEY_Q && action == GLFW_PRESS) {
+        if (!glm::epsilonEqual(cameraLookAt, cameraRotatedUp, 0.000001f).x) {
+            cameraLookAt = glm::rotate(cameraLookAt, 0.05f, cameraRotatedUp);
+        }
+        if (!glm::epsilonEqual(cameraRight, cameraRotatedUp, 0.000001f).x) {
+            cameraRight = glm::rotate(cameraRight, 0.05f, cameraRotatedUp);
+        }
+        if (!glm::epsilonEqual(cameraUp, cameraRotatedUp, 0.000001f).x) {
+            cameraUp = glm::rotate(cameraUp, 0.05f, cameraRotatedUp);
+        }
+    }
+    else if (key == GLFW_KEY_E && action == GLFW_PRESS) {
+        if (!glm::epsilonEqual(cameraLookAt, cameraRotatedUp, 0.000001f).x) {
+            cameraLookAt = glm::rotate(cameraLookAt, -0.05f, cameraRotatedUp);
+        }
+        if (!glm::epsilonEqual(cameraRight, cameraRotatedUp, 0.000001f).x) {
+            cameraRight = glm::rotate(cameraRight, -0.05f, cameraRotatedUp);
+        }
+        if (!glm::epsilonEqual(cameraUp, cameraRotatedUp, 0.000001f).x) {
+            cameraUp = glm::rotate(cameraUp, -0.05f, cameraRotatedUp);
+        }
     }
 }
 
@@ -401,4 +440,25 @@ void generateTerrain(float size, GLuint width, GLuint depth, float vertices[], G
         elements[(i * 6) + 4] = base + 3;
         elements[(i * 6) + 5] = base + 2;
     }
+}
+
+glm::mat4x4 lookAt(const glm::vec3& eye, const glm::vec3& center, const glm::vec3& up) {
+    const glm::vec3 f = glm::normalize(center - eye);
+    const glm::vec3 s = glm::normalize(glm::cross(f, up));
+    const glm::vec3 u = glm::cross(s, f);
+
+    glm::mat4 Result(1);
+    Result[0][0] = s.x;
+    Result[1][0] = s.y;
+    Result[2][0] = s.z;
+    Result[0][1] = u.x;
+    Result[1][1] = u.y;
+    Result[2][1] = u.z;
+    Result[0][2] = -f.x;
+    Result[1][2] = -f.y;
+    Result[2][2] = -f.z;
+    Result[3][0] = -glm::dot(s, eye);
+    Result[3][1] = -glm::dot(u, eye);
+    Result[3][2] = glm::dot(f, eye);
+    return Result;
 }
