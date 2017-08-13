@@ -620,7 +620,6 @@
 	},
 	"expanded_folders":
 	[
-		"/home/bidski/Projects/graphics"
 	],
 	"file_history":
 	[
@@ -1615,8 +1614,10 @@
 	"selected_group": 0,
 	"settings":
 	{
+		"_vintageous_reset_during_init": true,
 		"vintage":
 		{
+			"_cmdline_cd": "/opt/sublime_text_3"
 		}
 	},
 	"show_minimap": true,
