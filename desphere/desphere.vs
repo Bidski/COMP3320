@@ -1,4 +1,6 @@
-in vec2 position;
+vec3 position;
+vec3 normal;
+vec2 uv;
 
 varying vec2 center;
 
@@ -8,5 +10,5 @@ uniform mat4 proj;
 
 void main() {
     center = uv;
-    gl_Position = proj * view * model * vec4(position, 0.0, 1.0);
+    gl_Position = proj * view * model * vec4(position, 1.0);
 }
