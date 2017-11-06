@@ -22,8 +22,10 @@ const int FORMAT_BGGR = 0x52474742;
 GLFWwindow* init(bool windowed, size_t width, size_t height);
 static void error_callback(int error, const char* description);
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
+GLuint loadShaderProgram(const std::vector<std::pair<std::string, GLuint>>& shaders);
 bool loadShader(GLuint* shader, GLenum type, const std::string& file);
 bool getShaderCompileStatus(GLuint shader);
+bool getProgramLinkStatus(GLuint program);
 void createGeometry(int width,
                     int height,
                     std::vector<GLuint>& indices,
@@ -40,6 +42,7 @@ void saveImage(const std::string& file,
                const std::vector<uint8_t>& image,
                bool RGB,
                uint8_t bytes_per_pixel);
+void dumpError(int line);
 
 int main(int argc, char** argv) {
     // Set error callback.
@@ -54,98 +57,82 @@ int main(int argc, char** argv) {
     // Set keypress callback.
     glfwSetKeyCallback(window, key_callback);
 
+    // Enable depth testing.
+    glEnable(GL_DEPTH_TEST);
+
     // Create Vertex Array Object (VAO).
     GLuint vao;
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
 
     // Create a Vertex Buffer Object (VBO).
-    GLuint vbo[3];
-    glGenBuffers(3, vbo);
+    GLuint vbo;
+    glGenBuffers(1, &vbo);
 
     // Specify the vertices.
-    std::vector<float> vertices, normals, uvs;
-    std::vector<GLuint> indices;
-    createGeometry(800, 600, indices, vertices, normals, uvs);
-
+    // clang-format off
+    float vertices[] = {
+        -400,  300, 0, 0, 0, 1, 0, 1,
+         400,  300, 0, 0, 0, 1, 1, 1,
+        -400, -300, 0, 0, 0, 1, 0, 0,
+         400, -300, 0, 0, 0, 1, 1, 0
+    };
+    GLuint indices[] = {
+        0, 2, 1,
+        2, 3, 1
+    };
+    // clang-format on
 
     // Copy vertex data into the VBO.
     // GL_STATIC_DRAW: Copy vertex data to graphics card once, then redraw many times.
-    glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
-    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
-    glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(float), normals.data(), GL_STATIC_DRAW);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo[2]);
-    glBufferData(GL_ARRAY_BUFFER, uvs.size() * sizeof(float), uvs.data(), GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
     // Create an Element Buffer Object (EBO).
     GLuint ebo;
     glGenBuffers(1, &ebo);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLuint), indices.data(), GL_STATIC_DRAW);
-
-    // Create the vertex shader.
-    GLuint vertexShader;
-
-    if (loadShader(&vertexShader, GL_VERTEX_SHADER, "desphere.vs") == false) {
-        glDeleteBuffers(3, vbo);
-        glDeleteVertexArrays(1, &vao);
-
-        glfwTerminate();
-
-        return (-1);
-    }
-
-    // Create the fragment shader.
-    GLuint fragmentShader;
-
-    if (loadShader(&fragmentShader, GL_FRAGMENT_SHADER, "desphere.fs") == false) {
-        glDeleteShader(vertexShader);
-        glDeleteBuffers(3, vbo);
-        glDeleteVertexArrays(1, &vao);
-
-        glfwTerminate();
-
-        return (-1);
-    }
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(GLuint), indices, GL_STATIC_DRAW);
 
     // Create the shader program.
-    GLuint shaderProgram = glCreateProgram();
-    glAttachShader(shaderProgram, vertexShader);
-    glAttachShader(shaderProgram, fragmentShader);
+    GLuint shaderProgram = loadShaderProgram({{"desphere.vs", GL_VERTEX_SHADER}, {"desphere.fs", GL_FRAGMENT_SHADER}});
 
-    // Bind fragment shader output to the correct output buffer.
-    glBindFragDataLocation(shaderProgram, 0, "gl_FragColor");
+    if (shaderProgram < 0) {
 
-    // Link the shader program.
-    glLinkProgram(shaderProgram);
+        std::cerr << "Failed to link shader program!" << std::endl;
+        glDeleteBuffers(1, &ebo);
+        glDeleteBuffers(1, &vbo);
+        glDeleteVertexArrays(1, &vao);
+        glfwTerminate();
+        return -1;
+    }
 
     // Start using the shader program.
     glUseProgram(shaderProgram);
 
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
     GLint posAttrib = glGetAttribLocation(shaderProgram, "position");
     glEnableVertexAttribArray(posAttrib);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
-    glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), 0);
 
     GLint normAttrib = glGetAttribLocation(shaderProgram, "normal");
-    glEnableVertexAttribArray(normAttrib);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
-    glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    if (normAttrib > -1) {
+        glEnableVertexAttribArray(normAttrib);
+        glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void*) (3 * sizeof(GLfloat)));
+    }
 
-    GLint texAttrib = glGetAttribLocation(shaderProgram, "uv");
-    glEnableVertexAttribArray(texAttrib);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo[2]);
-    glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE, 0, 0);
+    GLint uvAttrib = glGetAttribLocation(shaderProgram, "uv");
+    glEnableVertexAttribArray(uvAttrib);
+    glVertexAttribPointer(uvAttrib, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void*) (6 * sizeof(GLfloat)));
 
     // Create model, view and projection matrices.
     GLint uniProj  = glGetUniformLocation(shaderProgram, "proj");
     GLint uniView  = glGetUniformLocation(shaderProgram, "view");
     GLint uniModel = glGetUniformLocation(shaderProgram, "model");
 
-    glm::mat4 view  = glm::lookAt(glm::vec3(0, 0, 5), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
-    glm::mat4 proj  = glm::ortho(0.0f, 800.0f, 600.0f, 0.0f, 1.0f, 1000.0f);
+    glm::mat4 view = glm::lookAt(glm::vec3(0.0f, 0.0f, 5.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    glm::mat4 proj = glm::ortho(0.0f, 800.0f, 600.0f, 0.0f, 0.1f, 10.0f);
     glm::mat4 model = glm::mat4(1.0);
 
     glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(view));
@@ -173,16 +160,18 @@ int main(int argc, char** argv) {
     glUniform1i(uniImageFormat, (RGB ? FORMAT_RGB3 : FORMAT_RGGB));
     glUniform1i(uniImageWidth, 800);
     glUniform1i(uniImageHeight, 600);
-    glUniform2fv(uniResolution, 2, dims);
-    glUniform2fv(uniFirstRed, 2, red);
+    glUniform2fv(uniResolution, 1, dims);
+    glUniform2fv(uniFirstRed, 1, red);
     glUniform1f(uniRadiansPerPixel, 0.0026997136600899543f);
 
-    float camFocalLengthPixels = std::sqrt((800 * 800) + (600 + 600)) / std::tan(150.0f * M_PI / 360.0f);
+    float camFocalLengthPixels = std::sqrt((800.0f * 800.0f) + (600.0f + 600.0f)) / std::tan(150.0f * M_PI / 360.0f);
     glUniform1f(uniCamFocalLengthPixels, camFocalLengthPixels);
 
     // Load the texture.
     GLuint tex;
     glGenTextures(1, &tex);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, tex);
     glTexImage2D(GL_TEXTURE_2D,
                  0,
                  GL_RGB,
@@ -192,6 +181,7 @@ int main(int argc, char** argv) {
                  (RGB ? GL_RGB : GL_RED),
                  GL_UNSIGNED_BYTE,
                  image.data());
+    glUniform1i(glGetUniformLocation(shaderProgram, "rawImage"), 0);
 
     // Set texture parameters.
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -208,7 +198,13 @@ int main(int argc, char** argv) {
 
         // Clear the screen to black.
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(view));
+        glUniformMatrix4fv(uniProj, 1, GL_FALSE, glm::value_ptr(proj));
+        glUniformMatrix4fv(uniModel, 1, GL_FALSE, glm::value_ptr(model));
+
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
         // Swap front and back buffers.
         glfwSwapBuffers(window);
@@ -217,13 +213,12 @@ int main(int argc, char** argv) {
         glfwPollEvents();
     }
 
+
     // Cleanup.
     glDeleteTextures(1, &tex);
     glDeleteProgram(shaderProgram);
-    glDeleteShader(fragmentShader);
-    glDeleteShader(vertexShader);
     glDeleteBuffers(1, &ebo);
-    glDeleteBuffers(3, vbo);
+    glDeleteBuffers(1, &vbo);
     glDeleteVertexArrays(1, &vao);
 
     glfwTerminate();
@@ -310,6 +305,49 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
     }
 }
 
+GLuint loadShaderProgram(const std::vector<std::pair<std::string, GLuint>>& shaders) {
+    GLuint shaderProgram = glCreateProgram();
+    std::vector<GLuint> handles;
+    for (const auto& shader : shaders) {
+        std::cerr << "Loading shader '" << shader.first << "' ..." << std::endl;
+        GLuint handle;
+        if (!loadShader(&handle, shader.second, shader.first)) {
+            std::cerr << "Shader failed to compile?" << std::endl;
+            return -1;
+        }
+
+        std::cerr << "Adding shader to program." << std::endl;
+        handles.push_back(handle);
+        glAttachShader(shaderProgram, handle);
+    }
+
+    std::cerr << "All shaders loaded successfully." << std::endl;
+
+    // Bind fragment shader output to the correct output buffer.
+    glBindFragDataLocation(shaderProgram, 0, "outColour");
+
+    // Link the shader program.
+    glLinkProgram(shaderProgram);
+
+    if (!getProgramLinkStatus(shaderProgram)) {
+        std::cerr << "Failed to link shader program." << std::endl;
+        for (const auto& shader : shaders) {
+            std::cerr << shader.first << std::endl;
+        }
+        std::cerr << std::endl;
+        return -1;
+    }
+
+    std::cerr << "Shader program linked successfully." << std::endl;
+
+    for (const auto& handle : handles) {
+        glDetachShader(shaderProgram, handle);
+        glDeleteShader(handle);
+    }
+
+    return shaderProgram;
+}
+
 bool loadShader(GLuint* shader, GLenum type, const std::string& file) {
     // Create the vertex shader.
     std::ifstream sourceStream(file);
@@ -338,7 +376,19 @@ bool getShaderCompileStatus(GLuint shader) {
     glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
 
     if (status == GL_TRUE) {
-        return (true);
+        // Get the length of the compile log.
+        GLint logLength;
+        glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &logLength);
+
+        // Get log.
+        std::vector<char> buffer(logLength);
+        glGetShaderInfoLog(shader, logLength, nullptr, buffer.data());
+        std::cerr << "Shader compiled successfully." << std::endl;
+        if (buffer.size() > 0) {
+            std::cerr << "Compile Log:" << std::endl << buffer.data() << std::endl;
+        }
+
+        return true;
     }
 
     else {
@@ -349,75 +399,52 @@ bool getShaderCompileStatus(GLuint shader) {
         // Get log.
         std::vector<char> buffer(logLength);
         glGetShaderInfoLog(shader, logLength, nullptr, buffer.data());
-        std::cerr << "Vertex shader failed to compile." << std::endl;
-        std::cerr << "Compile Log:" << std::endl << buffer.data() << std::endl;
+        std::cerr << "Shader failed to compile." << std::endl;
+        if (buffer.size() > 0) {
+            std::cerr << "Compile Log:" << std::endl << buffer.data() << std::endl;
+        }
 
-        return (false);
+        return false;
     }
 }
 
-void createGeometry(int width,
-                    int height,
-                    std::vector<GLuint>& indices,
-                    std::vector<float>& vertices,
-                    std::vector<float>& normals,
-                    std::vector<float>& uvs) {
-    float width_half  = width * 0.5f;
-    float height_half = height * 0.5f;
+bool getProgramLinkStatus(GLuint program) {
+    // Get status
+    GLint status;
+    glGetProgramiv(program, GL_LINK_STATUS, &status);
 
-    int gridX  = 1;
-    int gridY  = 1;
-    int gridX1 = gridX + 1;
-    int gridY1 = gridY + 1;
+    if (status == GL_TRUE) {
+        // Get the length of the compile log.
+        GLint logLength;
+        glGetProgramiv(program, GL_INFO_LOG_LENGTH, &logLength);
 
-    float segment_width  = width / float(gridX);
-    float segment_height = height / float(gridY);
-
-    // buffers
-    indices.clear();
-    vertices.clear();
-    normals.clear();
-    uvs.clear();
-
-    // generate vertices, normals and uvs
-    for (int iy = 0; iy < gridY1; iy++) {
-        float y = iy * segment_height - height_half;
-
-        for (int ix = 0; ix < gridX1; ix++) {
-            float x = ix * segment_width - width_half;
-
-            vertices.push_back(x);
-            vertices.push_back(-y);
-            vertices.push_back(0.0f);
-
-            normals.push_back(0.0f);
-            normals.push_back(0.0f);
-            normals.push_back(1.0f);
-
-            uvs.push_back(ix / gridX);
-            uvs.push_back(1 - (iy / gridY));
+        // Get log.
+        std::vector<char> buffer(logLength);
+        glGetProgramInfoLog(program, logLength, &logLength, buffer.data());
+        std::cerr << "Program compiled successfully." << std::endl;
+        if (buffer.size() > 0) {
+            std::cerr << "Compile Log:" << std::endl << buffer.data() << std::endl;
         }
+
+        return true;
     }
 
-    // indices
-    for (int iy = 0; iy < gridY; iy++) {
-        for (int ix = 0; ix < gridX; ix++) {
-            GLuint a = ix + gridX1 * iy;
-            GLuint b = ix + gridX1 * (iy + 1);
-            GLuint c = (ix + 1) + gridX1 * (iy + 1);
-            GLuint d = (ix + 1) + gridX1 * iy;
+    else {
+        // Get the length of the compile log.
+        GLint logLength;
+        glGetProgramiv(program, GL_INFO_LOG_LENGTH, &logLength);
 
-            // faces
-            indices.push_back(a);
-            indices.push_back(b);
-            indices.push_back(d);
-            indices.push_back(b);
-            indices.push_back(c);
-            indices.push_back(d);
+        // Get log.
+        std::vector<char> buffer(logLength);
+        glGetProgramInfoLog(program, logLength, &logLength, buffer.data());
+        std::cerr << "Program failed to compile." << std::endl;
+        if (buffer.size() > 0) {
+            std::cerr << "Compile Log:" << std::endl << buffer.data() << std::endl;
         }
+
+        return false;
     }
 }
-
 
 void loadImage(const std::string& file,
                std::array<uint32_t, 2>& dimensions,
@@ -478,4 +505,69 @@ void saveImage(const std::string& file,
     ofs.write(reinterpret_cast<const char*>(image.data()), image.size());
 
     ofs.close();
+}
+
+void dumpError(int line) {
+    GLenum err;
+    while ((err = glGetError()) != GL_NO_ERROR) {
+        switch (err) {
+            case GL_INVALID_ENUM:
+                std::cerr << __FILE__ << ":" << line << std::endl;
+                std::cerr << "GL_INVALID_ENUM" << std::endl;
+                std::cerr << "Given when an enumeration parameter is not a legal enumeration for that function. "
+                          << "This is given only for local problems; if the spec allows the enumeration in certain "
+                          << "circumstances, where other parameters or state dictate those circumstances, then "
+                          << "GL_INVALID_OPERATION is the result instead." << std::endl;
+                break;
+            case GL_INVALID_VALUE:
+                std::cerr << __FILE__ << ":" << line << std::endl;
+                std::cerr << "GL_INVALID_VALUE" << std::endl;
+                std::cerr << "Given when a value parameter is not a legal value for that function. "
+                          << "This is only given for local problems; if the spec allows the value in certain "
+                          << "circumstances, where other parameters or state dictate those circumstances, "
+                          << "then GL_INVALID_OPERATION is the result instead." << std::endl;
+                break;
+            case GL_INVALID_OPERATION:
+                std::cerr << __FILE__ << ":" << line << std::endl;
+                std::cerr << "GL_INVALID_OPERATION" << std::endl;
+                std::cerr << "Given when the set of state for a command is not legal for the parameters given to that "
+                          << "command. It is also given for commands where combinations of parameters define what the "
+                          << "legal parameters are." << std::endl;
+                break;
+            case GL_STACK_OVERFLOW:
+                std::cerr << __FILE__ << ":" << line << std::endl;
+                std::cerr << "GL_STACK_OVERFLOW" << std::endl;
+                std::cerr << "Given when a stack pushing operation cannot be done because it would overflow the "
+                          << "limit of that stack's size." << std::endl;
+                break;
+            case GL_STACK_UNDERFLOW:
+                std::cerr << __FILE__ << ":" << line << std::endl;
+                std::cerr << "GL_STACK_UNDERFLOW" << std::endl;
+                std::cerr << "Given when a stack popping operation cannot be done because the stack is already at "
+                          << "its lowest point." << std::endl;
+                break;
+            case GL_OUT_OF_MEMORY:
+                std::cerr << __FILE__ << ":" << line << std::endl;
+                std::cerr << "GL_OUT_OF_MEMORY" << std::endl;
+                std::cerr << "Given when performing an operation that can allocate memory, and the memory cannot be "
+                          << "allocated. The results of OpenGL functions that return this error are undefined; "
+                          << "it is allowable for partial operations to happen." << std::endl;
+                break;
+            case GL_INVALID_FRAMEBUFFER_OPERATION:
+                std::cerr << __FILE__ << ":" << line << std::endl;
+                std::cerr << "GL_INVALID_FRAMEBUFFER_OPERATION" << std::endl;
+                std::cerr << "Given when doing anything that would attempt to read from or write/render to a "
+                          << "framebuffer that is not complete." << std::endl;
+                break;
+            case GL_CONTEXT_LOST:
+                std::cerr << __FILE__ << ":" << line << std::endl;
+                std::cerr << "GL_CONTEXT_LOST" << std::endl;
+                std::cerr << "Given if the OpenGL context has been lost, due to a graphics card reset." << std::endl;
+                break;
+            default:
+                std::cerr << __FILE__ << ":" << line << std::endl;
+                std::cerr << "Unknown error: " << err << std::endl;
+                break;
+        }
+    }
 }

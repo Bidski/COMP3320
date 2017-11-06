@@ -1,3 +1,5 @@
+#version 450
+
 /**
  * @author Brendan Annable
  */
@@ -24,6 +26,8 @@ uniform float camFocalLengthPixels;
  * The coordinate of the current pixel, usually just maps to the current UV coordinate
  */
 varying vec2 center;
+
+layout(location = 0) out vec4 outColour;
 
 const int FORMAT_GREY = 0x59455247;
 const int FORMAT_Y12  = 0x20323159;
@@ -215,7 +219,7 @@ vec4 bayerToRGB(sampler2D rawImage, vec4 colour, vec2 center2, vec2 resolution, 
 
 vec2 projectCamSpaceToScreen(vec3 point, float radiansPerPixel) {
     float theta = acos(point.x);
-    if (theta == 0.0f) {
+    if (theta == 0.0) {
         return vec2(0.0, 0.0);
     }
     float r         = theta / radiansPerPixel;
@@ -232,23 +236,24 @@ vec3 getCamFromScreen(vec2 screen, float camFocalLengthPixels) {
 
 void main() {
     vec2 samplePoint = projectCamSpaceToScreen(getCamFromScreen(center, camFocalLengthPixels), radiansPerPixel);
+    //samplePoint = center;
     vec4 rawColour = sampleRawImage(rawImage, imageWidth, imageHeight, imageFormat, samplePoint);
 
     // convert into RGBA colour
     if (imageFormat == FORMAT_YUYV) {
-        gl_FragColor = YCbCrToRGB(rawColour);
+        outColour = YCbCrToRGB(rawColour);
     } else if (imageFormat == FORMAT_YM24) {
-        gl_FragColor = YCbCrToRGB(rawColour);
+        outColour = YCbCrToRGB(rawColour);
     } else if(imageFormat == FORMAT_JPEG) {
-        gl_FragColor = YCbCrToRGB(rawColour);
+        outColour = YCbCrToRGB(rawColour);
     } else if(imageFormat == FORMAT_UYVY) {
-        gl_FragColor = YCbCrToRGB(rawColour);
+        outColour = YCbCrToRGB(rawColour);
     } else if(imageFormat == FORMAT_GRBG || imageFormat == FORMAT_RGGB || imageFormat == FORMAT_GBRG || imageFormat == FORMAT_BGGR) {
-        gl_FragColor = bayerToRGB(rawImage, rawColour, samplePoint, resolution, firstRed);
+        outColour = bayerToRGB(rawImage, rawColour, samplePoint, resolution, firstRed);
     } else if(imageFormat == FORMAT_RGB3) {
-        gl_FragColor = rawColour;
+        outColour = rawColour;
     } else {
-        gl_FragColor = rawColour;
+        outColour = rawColour;
     }
 }
 
