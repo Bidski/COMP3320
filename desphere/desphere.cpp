@@ -72,10 +72,10 @@ int main(int argc, char** argv) {
     // Specify the vertices.
     // clang-format off
     float vertices[] = {
-        -400,  300, 0, 0, 0, 1, 0, 1,
-         400,  300, 0, 0, 0, 1, 1, 1,
-        -400, -300, 0, 0, 0, 1, 0, 0,
-         400, -300, 0, 0, 0, 1, 1, 0
+          0, 600, 0, 0, 0, 1, 0, 1,
+        800, 600, 0, 0, 0, 1, 1, 1,
+          0,   0, 0, 0, 0, 1, 0, 0,
+        800,   0, 0, 0, 0, 1, 1, 0
     };
     GLuint indices[] = {
         0, 2, 1,
@@ -164,7 +164,7 @@ int main(int argc, char** argv) {
     glUniform2fv(uniFirstRed, 1, red);
     glUniform1f(uniRadiansPerPixel, 0.0026997136600899543f);
 
-    float camFocalLengthPixels = std::sqrt((800.0f * 800.0f) + (600.0f + 600.0f)) / std::tan(150.0f * M_PI / 360.0f);
+    float camFocalLengthPixels = std::sqrt((399.5f * 399.5f) + (299.5f * 299.5f)) / std::tan(150.0f * M_PI / 360.0f);
     glUniform1f(uniCamFocalLengthPixels, camFocalLengthPixels);
 
     // Load the texture.

@@ -16,6 +16,8 @@ uniform sampler2D rawImage;
 uniform int imageFormat;
 uniform int imageWidth;
 uniform int imageHeight;
+uniform int textureWidth;
+uniform int textureHeight;
 uniform vec2 resolution;
 uniform vec2 firstRed;
 
@@ -25,7 +27,7 @@ uniform float camFocalLengthPixels;
 /**
  * The coordinate of the current pixel, usually just maps to the current UV coordinate
  */
-varying vec2 center;
+in vec2 center;
 
 layout(location = 0) out vec4 outColour;
 
@@ -235,8 +237,13 @@ vec3 getCamFromScreen(vec2 screen, float camFocalLengthPixels) {
 }
 
 void main() {
-    vec2 samplePoint = projectCamSpaceToScreen(getCamFromScreen(center, camFocalLengthPixels), radiansPerPixel);
-    //samplePoint = center;
+    vec2 imageCenter   = vec2((imageWidth - 1) * 0.5, (imageHeight - 1) * 0.5);
+    vec2 textureCenter = vec2((resolution.x - 1) * 0.5, (resolution.y - 1) * 0.5);
+    vec2 samplePoint   = imageCenter - vec2(center.x * imageWidth, center.y * imageHeight);
+
+    samplePoint = textureCenter - projectCamSpaceToScreen(getCamFromScreen(samplePoint, camFocalLengthPixels), radiansPerPixel);
+    samplePoint = vec2(samplePoint.x / resolution.x, samplePoint.y / resolution.y);
+
     vec4 rawColour = sampleRawImage(rawImage, imageWidth, imageHeight, imageFormat, samplePoint);
 
     // convert into RGBA colour
