@@ -1,0 +1,20 @@
+# - Try to find SOIL
+# Once done this will define
+#  SOIL_FOUND - System has SOIL
+#  SOIL_INCLUDE_DIRS - The SOIL include directories
+#  SOIL_LIBRARIES - The libraries needed to use SOIL
+#  SOIL_DEFINITIONS - Compiler switches required for using SOIL
+
+FIND_PATH(SOIL_INCLUDE_DIR SOIL.h)
+
+FIND_LIBRARY(SOIL_LIBRARY NAMES SOIL)
+
+INCLUDE(FindPackageHandleStandardArgs)
+# handle the QUIETLY and REQUIRED arguments and set SOIL_FOUND to TRUE
+# if all listed variables are TRUE
+FIND_PACKAGE_HANDLE_STANDARD_ARGS(SOIL  DEFAULT_MSG SOIL_LIBRARY SOIL_INCLUDE_DIR)
+
+MARK_AS_ADVANCED(SOIL_INCLUDE_DIR SOIL_LIBRARY)
+
+SET(SOIL_LIBRARIES ${SOIL_LIBRARY})
+SET(SOIL_INCLUDE_DIRS ${SOIL_INCLUDE_DIR})

@@ -2,3 +2,15 @@
 
 *sublime-workspace
 
+
+3rdparty/ASSIMP/
+
+3rdparty/FMT/
+
+3rdparty/GLEW/
+
+3rdparty/GLFW3/
+
+3rdparty/GLM/
+
+3rdparty/SOIL/

@@ -1,0 +1,173 @@
+CMAKE_MINIMUM_REQUIRED(VERSION 3.0)
+PROJECT(COMP3320 LANGUAGES C CXX)
+
+SET(CMAKE_CXX_STANDARD 14)
+
+IF(UNIX)
+    # Make sure X11 is found and components are available
+    FIND_PACKAGE(X11 REQUIRED)
+
+    IF(NOT X11_Xinerama_FOUND)
+        MESSAGE(FATAL_ERROR "Unable to find X11 Xinerama. You must install this first.")
+    ENDIF(NOT X11_Xinerama_FOUND)
+
+    IF(NOT X11_Xi_FOUND)
+        MESSAGE(FATAL_ERROR "Unable to find X11 Xi. You must install this first.")
+    ENDIF(NOT X11_Xi_FOUND)
+
+    IF(NOT X11_Xcursor_FOUND)
+        MESSAGE(FATAL_ERROR "Unable to find X11 Xcursor. You must install this first.")
+    ENDIF(NOT X11_Xcursor_FOUND)
+ENDIF(UNIX)
+
+# Download and build all of our dependencies
+INCLUDE("${CMAKE_ROOT}/Modules/ExternalProject.cmake")
+
+ExternalProject_Add(
+    GLFW3
+
+    GIT_REPOSITORY "https://github.com/glfw/glfw.git"
+    GIT_TAG "master"
+
+    UPDATE_COMMAND ""
+    PATCH_COMMAND ""
+
+    SOURCE_DIR "${CMAKE_SOURCE_DIR}/3rdparty/GLFW3"
+    CMAKE_ARGS -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${CMAKE_BINARY_DIR}/lib -DBUILD_SHARED_LIBS=ON -DGLFW_BUILD_EXAMPLES=ON -DGLFW_BUILD_TESTS=ON -DGLFW_BUILD_DOCS=ON -DCMAKE_BUILD_TYPE=Release -DGLFW_INSTALL=ON -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}
+
+    BUILD_COMMAND "make"
+
+    INSTALL_DIR "${CMAKE_BINARY_DIR}"
+    INSTALL_COMMAND make install
+
+    TEST_COMMAND ""
+)
+
+ExternalProject_Add(
+    GLM
+
+    GIT_REPOSITORY "https://github.com/g-truc/glm.git"
+    GIT_TAG "master"
+
+    UPDATE_COMMAND ""
+    PATCH_COMMAND ""
+
+    SOURCE_DIR "${CMAKE_SOURCE_DIR}/3rdparty/GLM"
+    CMAKE_ARGS -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${CMAKE_BINARY_DIR}/lib -DBUILD_SHARED_LIBS=ON -DBUILD_STATIC_LIBS=ON -DGLM_TEST_ENABLE_CXX_14=ON -DGLM_TEST_ENABLE_LANG_EXTENSIONS=ON -DGLM_TEST_ENABLE_FAST_MATH=ON -DGLM_TEST_ENABLE=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}
+
+    BUILD_COMMAND "make"
+
+    INSTALL_DIR "${CMAKE_BINARY_DIR}"
+    INSTALL_COMMAND make install
+
+    TEST_COMMAND ""
+)
+
+ExternalProject_Add(
+    ASSIMP
+
+    GIT_REPOSITORY "https://github.com/assimp/assimp.git"
+    GIT_TAG "v4.1.0"
+
+    UPDATE_COMMAND ""
+    PATCH_COMMAND ""
+
+    SOURCE_DIR "${CMAKE_SOURCE_DIR}/3rdparty/ASSIMP"
+    CMAKE_ARGS -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${CMAKE_BINARY_DIR}/lib -DBUILD_SHARED_LIBS=ON -DASSIMP_DOUBLE_PRECISION=ON -DASSIMP_BUILD_ASSIMP_TOOLS=ON -DASSIMP_BUILD_SAMPLES=ON -DASSIMP_BUILD_TESTS=ON -DBUILD_DOCS=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}
+
+    BUILD_COMMAND "make"
+
+    INSTALL_DIR "${CMAKE_BINARY_DIR}"
+    INSTALL_COMMAND make install
+
+    TEST_COMMAND ""
+)
+
+ExternalProject_Add(
+    GLEW
+
+    GIT_REPOSITORY "https://github.com/nigels-com/glew.git"
+    GIT_TAG "master"
+
+    UPDATE_COMMAND ""
+    PATCH_COMMAND ""
+
+    SOURCE_DIR "${CMAKE_SOURCE_DIR}/3rdparty/GLEW"
+    SOURCE_SUBDIR "build/cmake"
+    CMAKE_ARGS -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${CMAKE_BINARY_DIR}/lib -DOpenGL_GL_PREFERENCE=GLVND -DBUILD_UTILS=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}
+
+    BUILD_COMMAND "make"
+
+    INSTALL_DIR "${CMAKE_BINARY_DIR}"
+    INSTALL_COMMAND make install
+
+    TEST_COMMAND ""
+)
+
+ExternalProject_Add_Step(
+  GLEW GenerateExtensions
+  WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/3rdparty/GLEW"
+  COMMAND make extensions
+  DEPENDERS configure
+)
+
+ExternalProject_Add(
+    SOIL
+
+    URL "http://www.lonesock.net/files/soil.zip"
+    URL_MD5 4736ac4f34fd9a41fa0197eac23bbc24
+
+    UPDATE_COMMAND ""
+    PATCH_COMMAND ""
+
+    SOURCE_DIR "${CMAKE_SOURCE_DIR}/3rdparty/SOIL"
+    CONFIGURE_COMMAND ""
+
+    BUILD_COMMAND make -f "${CMAKE_SOURCE_DIR}/3rdparty/SOIL/projects/makefile/makefile" SRCDIR=${CMAKE_SOURCE_DIR}/3rdparty/SOIL/src LIBDIR=${CMAKE_BINARY_DIR}/SOIL-prefix/src/SOIL-build INCDIR=${CMAKE_SOURCE_DIR}/3rdparty/SOIL/src OBJDIR=${CMAKE_BINARY_DIR}/SOIL-prefix/src/SOIL-build
+
+    INSTALL_DIR "${CMAKE_BINARY_DIR}"
+    INSTALL_COMMAND make LOCAL=${CMAKE_BINARY_DIR} -f "${CMAKE_SOURCE_DIR}/3rdparty/SOIL/projects/makefile/makefile" SRCDIR=${CMAKE_SOURCE_DIR}/3rdparty/SOIL/src LIBDIR=${CMAKE_BINARY_DIR}/SOIL-prefix/src/SOIL-build INCDIR=${CMAKE_SOURCE_DIR}/3rdparty/SOIL/src OBJDIR=${CMAKE_BINARY_DIR}/SOIL-prefix/src/SOIL-build install
+
+    TEST_COMMAND ""
+)
+
+ExternalProject_Add(
+    FMT
+
+    GIT_REPOSITORY "https://github.com/fmtlib/fmt.git"
+    GIT_TAG "master"
+
+    UPDATE_COMMAND ""
+    PATCH_COMMAND ""
+
+    SOURCE_DIR "${CMAKE_SOURCE_DIR}/3rdparty/FMT"
+    CMAKE_ARGS -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${CMAKE_BINARY_DIR}/lib -DFMT_DOC=ON -DFMT_INSTALL=ON -DBUILD_SHARED_LIBS=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}
+
+    INSTALL_DIR "${CMAKE_BINARY_DIR}"
+    INSTALL_COMMAND make install
+
+    TEST_COMMAND ""
+)
+
+# Build the GLAD library
+# This depends on sources that need to be manually downloaded
+IF(EXISTS "${CMAKE_SOURCE_DIR}/3rdparty/GLAD")
+    ADD_LIBRARY(GLAD ${CMAKE_SOURCE_DIR}/3rdparty/GLAD/src/glad.c)
+    TARGET_INCLUDE_DIRECTORIES(GLAD PUBLIC ${CMAKE_SOURCE_DIR}/3rdparty/GLAD/include)
+ELSE()
+    MESSAGE(FATAL_ERROR "Unable to find GLAD. You must install this first.")
+    MESSAGE(FATAL_ERROR "Go to https://glad.dav1d.de/ and generate GLAD files.")
+ENDIF(EXISTS "${CMAKE_SOURCE_DIR}/3rdparty/GLAD")
+
+# We use additional modules that cmake needs to know about
+SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake/Modules/")
+SET(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${CMAKE_BINARY_DIR})
+
+# Now find all of our dependencies
+FIND_PACKAGE(glfw3 REQUIRED)
+FIND_PACKAGE(glm REQUIRED)
+FIND_PACKAGE(assimp REQUIRED)
+FIND_PACKAGE(glew REQUIRED)
+FIND_PACKAGE(fmt REQUIRED)
+FIND_PACKAGE(SOIL REQUIRED)
+FIND_PACKAGE(GLAD REQUIRED)
