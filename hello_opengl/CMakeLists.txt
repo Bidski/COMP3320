@@ -1,0 +1,7 @@
+ADD_EXECUTABLE(hello_opengl hello_opengl.cpp)
+TARGET_INCLUDE_DIRECTORIES(hello_opengl PRIVATE ${GLAD_INCLUDE_DIRS})
+TARGET_LINK_LIBRARIES(hello_opengl glfw ${GLAD_LIBRARIES} fmt::fmt)
+
+IF(UNIX)
+    TARGET_LINK_LIBRARIES(hello_opengl ${CMAKE_DL_LIBS})
+ENDIF(UNIX)
