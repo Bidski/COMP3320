@@ -174,3 +174,5 @@ FIND_PACKAGE(GLAD REQUIRED)
 
 # Add tutorials
 ADD_SUBDIRECTORY(hello_opengl)
+
+ADD_SUBDIRECTORY(hello_triangle)
