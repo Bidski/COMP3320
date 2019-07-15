@@ -20,3 +20,5 @@ FIND_PACKAGE(GLAD REQUIRED)
 ADD_SUBDIRECTORY(hello_opengl)
 
 ADD_SUBDIRECTORY(hello_triangle)
+
+ADD_SUBDIRECTORY(hello_indexing)

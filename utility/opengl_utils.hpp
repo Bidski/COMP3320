@@ -97,6 +97,44 @@ namespace gl {
         unsigned int VBO;
         bool bound;
     };
+    struct element_buffer {
+        element_buffer() {
+            glGenBuffers(1, &EBO);
+            bound = false;
+        }
+        ~element_buffer() {
+            glDeleteBuffers(1, &EBO);
+        }
+
+        void bind() {
+            if (!bound) {
+                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+                bound = true;
+            }
+        }
+        void unbind() {
+            if (bound) {
+                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+                bound = false;
+            }
+        }
+
+        template <int N>
+        void copy_data(const std::array<unsigned int, N>& indices, const unsigned int& draw_method) {
+            if (!bound) {
+                bind();
+            }
+            glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], draw_method);
+        }
+
+        operator unsigned int() const {
+            return EBO;
+        }
+
+    private:
+        unsigned int EBO;
+        bool bound;
+    };
 }  // namespace gl
 }  // namespace utility
 
