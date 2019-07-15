@@ -119,29 +119,24 @@ void render(GLFWwindow* window) {
 
     // bind the vertex array object
     // ----------------------------
-    glBindVertexArray(VAO);
-
-    // bind the vertex buffer object
-    // ----------------------------
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    VAO.bind();
 
     // copy vertex data to GPU
     // -----------------------
-    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), &vertices[0], GL_STATIC_DRAW);
+    VBO.copy_data<9>(vertices, GL_STATIC_DRAW);
 
     // define vertex attributes
     // ------------------------
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*) 0);
-    glEnableVertexAttribArray(0);
+    VAO.add_vertex_attrib<float>(0, 3, GL_FLOAT, false, 0);
 
     // note that this is allowed, the call to glVertexAttribPointer registered VBO as the vertex attribute's bound
     // vertex buffer object so afterwards we can safely unbind
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    VBO.unbind();
 
     // You can unbind the VAO afterwards so other VAO calls won't accidentally modify this VAO, but this rarely happens.
     // Modifying other VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs)
     // when it's not directly necessary.
-    glBindVertexArray(0);
+    VAO.unbind();
 
     // render loop
     // -----------
@@ -159,7 +154,7 @@ void render(GLFWwindow* window) {
         glUseProgram(shader_program);
         // seeing as we only have a single VAO there's no need to bind it every time, but we'll
         // do so to keep things a bit more organized
-        glBindVertexArray(VAO);
+        VAO.bind();
         glDrawArrays(GL_TRIANGLES, 0, 3);
         // glBindVertexArray(0); // no need to unbind it every time
 
