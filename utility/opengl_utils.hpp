@@ -32,6 +32,25 @@ namespace gl {
                 bound = false;
             }
         }
+
+        template <typename Scalar>
+        void add_vertex_attrib(const unsigned int& location,
+                               const int& size,
+                               const unsigned int& type,
+                               const bool& normalised,
+                               Scalar* offset) {
+            if (!bound) {
+                bind();
+            }
+            glVertexAttribPointer(location,
+                                  size,
+                                  type,
+                                  normalised ? GL_TRUE : GL_FALSE,
+                                  size * sizeof(Scalar),
+                                  static_cast<void*>(offset));
+            glEnableVertexAttribArray(location);
+        }
+
         operator unsigned int() const {
             return VAO;
         }
