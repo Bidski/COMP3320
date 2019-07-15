@@ -12,7 +12,6 @@
 // clang-format on
 
 #include "utility/opengl_utils.hpp"
-#include "utility/shader_utils.hpp"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
@@ -94,30 +93,12 @@ void render(GLFWwindow* window) {
     };
     // clang-format on
 
-    // load and compile the vertex and fragment shaders
-    // ------------------------------------------------
-    unsigned int vertex_shader, fragment_shader;
-    if (!utility::shader::compilerShader("hello_indexing.vert", GL_VERTEX_SHADER, vertex_shader)) {
-        std::cerr << "Failed to compile vertex shader. Aborting." << std::endl;
-        return;
-    }
-    if (!utility::shader::compilerShader("hello_indexing.frag", GL_FRAGMENT_SHADER, fragment_shader)) {
-        std::cerr << "Failed to compile fragment shader. Aborting." << std::endl;
-        return;
-    }
-
-    // link shaders into a program and use it
-    // --------------------------------------
-    unsigned int shader_program;
-    if (!utility::shader::linkShaderProgram({vertex_shader, fragment_shader}, shader_program)) {
-        std::cerr << "Failed to link shader program. Aborting." << std::endl;
-        return;
-    }
-
-    // delete the shader objects, they aren't needed any more
-    // ------------------------------------------------------
-    glDeleteShader(vertex_shader);
-    glDeleteShader(fragment_shader);
+    // load, compile, and link the vertex and fragment shaders
+    // -------------------------------------------------------
+    utility::gl::shader_program program;
+    program.add_shader("hello_indexing.vert", GL_VERTEX_SHADER);
+    program.add_shader("hello_indexing.frag", GL_FRAGMENT_SHADER);
+    program.link();
 
     // create a vertex buffer object
     // -----------------------------
@@ -172,7 +153,7 @@ void render(GLFWwindow* window) {
         glClear(GL_COLOR_BUFFER_BIT);
 
         // draw our first triangle
-        glUseProgram(shader_program);
+        program.use();
         // seeing as we only have a single VAO there's no need to bind it every time, but we'll
         // do so to keep things a bit more organized
         VAO.bind();
