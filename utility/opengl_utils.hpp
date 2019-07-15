@@ -196,9 +196,10 @@ namespace gl {
         template <typename Scalar>
         void add_vertex_attrib(const unsigned int& location,
                                const int& size,
+                               const int& width,
                                const unsigned int& type,
                                const bool& normalised,
-                               Scalar* offset) {
+                               const unsigned int& offset) {
             if (!bound) {
                 bind();
             }
@@ -206,8 +207,8 @@ namespace gl {
                                   size,
                                   type,
                                   normalised ? GL_TRUE : GL_FALSE,
-                                  size * sizeof(Scalar),
-                                  static_cast<void*>(offset));
+                                  width * sizeof(Scalar),
+                                  (void*) (offset * sizeof(Scalar)));
             glEnableVertexAttribArray(location);
         }
 

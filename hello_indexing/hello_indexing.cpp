@@ -126,7 +126,7 @@ void render(GLFWwindow* window) {
 
     // define vertex attributes
     // ------------------------
-    VAO.add_vertex_attrib<float>(0, 3, GL_FLOAT, false, 0);
+    VAO.add_vertex_attrib<float>(0, 3, 3, GL_FLOAT, false, 0);
 
     // note that this is allowed, the call to glVertexAttribPointer registered VBO as the vertex attribute's bound
     // vertex buffer object so afterwards we can safely unbind
