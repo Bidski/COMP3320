@@ -31,9 +31,6 @@ namespace gl {
         ~vertex_buffer() {
             glDeleteBuffers(1, &VBO);
         }
-        void unbind() {
-            glDeleteBuffers(1, &VBO);
-        }
 
         operator unsigned int() const {
             return VBO;
