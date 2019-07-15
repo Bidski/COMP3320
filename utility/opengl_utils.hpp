@@ -4,6 +4,7 @@
 #include <array>
 #include <fstream>
 #include <iostream>
+#include <map>
 #include <sstream>
 #include <stdexcept>
 #include <string>
@@ -149,6 +150,17 @@ namespace gl {
             glUseProgram(0);
         }
 
+        void set_uniform(const std::string& uniform, const std::array<float, 4>& value) {
+            glUseProgram(program);
+            if (uniforms.find(uniform) == uniforms.end()) {
+                uniforms[uniform] = glGetUniformLocation(program, uniform.c_str());
+                throw_gl_error(glGetError(), fmt::format("Failed to find uniform '{}'", uniform));
+            }
+            glUniform4f(uniforms[uniform], value[0], value[1], value[2], value[3]);
+            throw_gl_error(glGetError(),
+                           fmt::format("Failed to set uniform '{}' at location {}", uniform, uniforms[uniform]));
+        }
+
         operator unsigned int() {
             return program;
         }
@@ -156,6 +168,7 @@ namespace gl {
     private:
         std::vector<unsigned int> shaders;
         unsigned int program;
+        std::map<std::string, int> uniforms;
     };  // namespace gl
 
     struct vertex_array {

@@ -22,3 +22,5 @@ ADD_SUBDIRECTORY(hello_opengl)
 ADD_SUBDIRECTORY(hello_triangle)
 
 ADD_SUBDIRECTORY(hello_indexing)
+
+ADD_SUBDIRECTORY(hello_uniforms)
