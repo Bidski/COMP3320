@@ -11,47 +11,12 @@
 #include "GLFW/glfw3.h"
 // clang-format on
 
+#include "utility/opengl_utils.hpp"
 #include "utility/shader_utils.hpp"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
 void render(GLFWwindow* window);
-
-namespace gl {
-struct vertex_array {
-    vertex_array() {
-        glGenVertexArrays(1, &VAO);
-    }
-    ~vertex_array() {
-        glDeleteVertexArrays(1, &VAO);
-    }
-
-    operator unsigned int() const {
-        return VAO;
-    }
-
-private:
-    unsigned int VAO;
-};
-struct vertex_buffer {
-    vertex_buffer() {
-        glGenBuffers(1, &VBO);
-    }
-    ~vertex_buffer() {
-        glDeleteBuffers(1, &VBO);
-    }
-    void unbind() {
-        glDeleteBuffers(1, &VBO);
-    }
-
-    operator unsigned int() const {
-        return VBO;
-    }
-
-private:
-    unsigned int VBO;
-};
-}  // namespace gl
 
 // settings
 constexpr unsigned int SCREEN_WIDTH  = 800;
@@ -146,11 +111,11 @@ void render(GLFWwindow* window) {
 
     // create a vertex buffer object
     // -----------------------------
-    gl::vertex_buffer VBO;
+    utility::gl::vertex_buffer VBO;
 
     // create a vertex array object
     // -----------------------------
-    gl::vertex_array VAO;
+    utility::gl::vertex_array VAO;
 
     // bind the vertex array object
     // ----------------------------
