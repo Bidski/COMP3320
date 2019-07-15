@@ -1,14 +1,14 @@
 # Find all shader files
 FILE(GLOB_RECURSE shader_files
-    "${CMAKE_CURRENT_SOURCE_DIR}/**.vert"
-    "${CMAKE_CURRENT_SOURCE_DIR}/**.frag"
+    "${CMAKE_CURRENT_SOURCE_DIR}/shaders/**.vert"
+    "${CMAKE_CURRENT_SOURCE_DIR}/shaders/**.frag"
 )
 
 # Copy shader files to build directory
 FOREACH(shader_file ${shader_files})
     # Calculate the output Directory
     FILE(RELATIVE_PATH output_file "${CMAKE_CURRENT_SOURCE_DIR}" ${shader_file})
-    SET(output_file "${CMAKE_CURRENT_BINARY_DIR}/${output_file}")
+    SET(output_file "${CMAKE_BINARY_DIR}/${output_file}")
 
     # Add the file we will generate to our output
     LIST(APPEND shader_code ${output_file})
@@ -27,6 +27,10 @@ FOREACH(shader_file ${shader_files})
 ENDFOREACH(shader_file)
 
 ADD_EXECUTABLE(hello_uniforms hello_uniforms.cpp ${shader_code})
+SET_TARGET_PROPERTIES(hello_uniforms
+  PROPERTIES
+  RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+)
 TARGET_INCLUDE_DIRECTORIES(hello_uniforms PRIVATE ${GLAD_INCLUDE_DIRS} ${CMAKE_SOURCE_DIR})
 TARGET_LINK_LIBRARIES(hello_uniforms glfw ${GLAD_LIBRARIES} fmt::fmt)
 
