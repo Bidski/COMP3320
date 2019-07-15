@@ -24,3 +24,5 @@ ADD_SUBDIRECTORY(hello_triangle)
 ADD_SUBDIRECTORY(hello_indexing)
 
 ADD_SUBDIRECTORY(hello_uniforms)
+
+ADD_SUBDIRECTORY(hello_attributes)
