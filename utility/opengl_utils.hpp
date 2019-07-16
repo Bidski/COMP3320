@@ -16,6 +16,10 @@
 // For image/texture loading
 #include "SOIL/SOIL.h"
 
+// For matrix and vector arithmetic
+#include "glm/glm.hpp"
+#include "glm/gtc/type_ptr.hpp"
+
 // clang-format off
 #include "glad/glad.h"
 // clang-format on
@@ -172,6 +176,11 @@ namespace gl {
                 throw_gl_error(glGetError(), fmt::format("Failed to find uniform '{}'", uniform));
             }
             return uniforms[uniform];
+        }
+        void set_uniform(const std::string& uniform, const glm::mat4& value) {
+            glUniformMatrix4fv(get_uniform_location(uniform), 1, GL_FALSE, glm::value_ptr(value));
+            throw_gl_error(glGetError(),
+                           fmt::format("Failed to set uniform '{}' at location {}", uniform, uniforms[uniform]));
         }
         void set_uniform(const std::string& uniform, const std::array<float, 4>& value) {
             glUniform4f(get_uniform_location(uniform), value[0], value[1], value[2], value[3]);
