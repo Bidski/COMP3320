@@ -35,6 +35,19 @@ namespace gl {
         }
     }
 
+    inline std::string get_texture_string(const unsigned int& texture_type) {
+        switch (texture_type) {
+            case GL_TEXTURE_1D: return "GL_TEXTURE_1D"; break;
+            case GL_TEXTURE_1D_ARRAY: return "GL_TEXTURE_1D_ARRAY"; break;
+            case GL_TEXTURE_2D: return "GL_TEXTURE_2D"; break;
+            case GL_TEXTURE_2D_ARRAY: return "GL_TEXTURE_2D_ARRAY"; break;
+            case GL_TEXTURE_2D_MULTISAMPLE: return "GL_TEXTURE_2D_MULTISAMPLE";
+            case GL_TEXTURE_2D_MULTISAMPLE_ARRAY: return "GL_TEXTURE_2D_MULTISAMPLE_ARRAY";
+            case GL_TEXTURE_3D: return "GL_TEXTURE_3D"; break;
+            default: return "UNKNOWN_TEXTURE"; break;
+        }
+    }
+
     struct shader_program {
         shader_program() {
             // Create a shader program
@@ -264,6 +277,64 @@ namespace gl {
 
     private:
         unsigned int EBO;
+    };
+    struct texture {
+        texture(const unsigned int& texture_type) {
+            glGenTextures(1, &tex);
+            this->texture_type = texture_type;
+        }
+        ~texture() {
+            glDeleteTextures(1, &tex);
+        }
+
+        void bind() {
+            glBindTexture(texture_type, tex);
+        }
+        void unbind() {
+            glBindTexture(texture_type, 0);
+        }
+
+        void generate(const unsigned int& mipmap_level,
+                      const unsigned int& pixel_type,
+                      const unsigned int& width,
+                      const unsigned int& height,
+                      const unsigned char* data) {
+            bind();
+            switch (texture_type) {
+                case GL_TEXTURE_2D:
+                    glTexImage2D(
+                        texture_type, mipmap_level, pixel_type, width, height, 0, pixel_type, GL_UNSIGNED_BYTE, data);
+                    break;
+                default:
+                    throw_gl_error(
+                        GL_INVALID_OPERATION,
+                        fmt::format("Texture type '{}' currently not supported", get_texture_string(texture_type)));
+            }
+        }
+        void generate_mipmap() {
+            bind();
+            glGenerateMipmap(GL_TEXTURE_2D);
+        }
+
+        void texture_wrap(const unsigned int& s_wrap, const unsigned int& t_wrap) {
+            bind();
+            glTexParameteri(texture_type, GL_TEXTURE_WRAP_S, s_wrap);
+            glTexParameteri(texture_type, GL_TEXTURE_WRAP_T, t_wrap);
+        }
+
+        void texture_filter(const unsigned int& min_filter, const unsigned int& mag_filter) {
+            bind();
+            glTexParameteri(texture_type, GL_TEXTURE_MIN_FILTER, min_filter);
+            glTexParameteri(texture_type, GL_TEXTURE_MAG_FILTER, mag_filter);
+        }
+
+        operator unsigned int() const {
+            return tex;
+        }
+
+    private:
+        unsigned int tex;
+        unsigned int texture_type;
     };
 }  // namespace gl
 }  // namespace utility
