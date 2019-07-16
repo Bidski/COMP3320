@@ -107,19 +107,19 @@ ExternalProject_Add(
 ExternalProject_Add(
     SOIL
 
-    URL "http://www.lonesock.net/files/soil.zip"
-    URL_MD5 4736ac4f34fd9a41fa0197eac23bbc24
+    GIT_REPOSITORY "https://github.com/kbranigan/Simple-OpenGL-Image-Library.git"
+    GIT_TAG "master"
 
     UPDATE_COMMAND ""
     PATCH_COMMAND ""
 
     SOURCE_DIR "${CMAKE_SOURCE_DIR}/SOIL"
-    CONFIGURE_COMMAND ""
+    CMAKE_ARGS -DOpenGL_GL_PREFERENCE=GLVND -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}
 
-    BUILD_COMMAND make -f ${CMAKE_SOURCE_DIR}/SOIL/projects/makefile/makefile SRCDIR=${CMAKE_SOURCE_DIR}/SOIL/src LIBDIR=${CMAKE_BINARY_DIR}/SOIL-prefix/src/SOIL-build INCDIR=${CMAKE_SOURCE_DIR}/SOIL/src OBJDIR=${CMAKE_BINARY_DIR}/SOIL-prefix/src/SOIL-build
+    BUILD_COMMAND make 
 
     INSTALL_DIR "${CMAKE_BINARY_DIR}"
-    INSTALL_COMMAND make LOCAL=${CMAKE_BINARY_DIR} -f ${CMAKE_SOURCE_DIR}/SOIL/projects/makefile/makefile SRCDIR=${CMAKE_SOURCE_DIR}/SOIL/src LIBDIR=${CMAKE_BINARY_DIR}/SOIL-prefix/src/SOIL-build INCDIR=${CMAKE_SOURCE_DIR}/SOIL/src OBJDIR=${CMAKE_BINARY_DIR}/SOIL-prefix/src/SOIL-build install
+    INSTALL_COMMAND make install
 
     TEST_COMMAND ""
 )
