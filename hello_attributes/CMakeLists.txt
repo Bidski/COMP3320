@@ -1,3 +1,5 @@
+INCLUDE(CopyFiles)
+
 # Find all shader files
 FILE(GLOB_RECURSE shader_files
     "${CMAKE_CURRENT_SOURCE_DIR}/shaders/**.vert"
@@ -5,28 +7,9 @@ FILE(GLOB_RECURSE shader_files
 )
 
 # Copy shader files to build directory
-FOREACH(shader_file ${shader_files})
-    # Calculate the output Directory
-    FILE(RELATIVE_PATH output_file "${CMAKE_CURRENT_SOURCE_DIR}" ${shader_file})
-    SET(output_file "${CMAKE_BINARY_DIR}/${output_file}")
+COPY_FILES("${shader_files}" "${CMAKE_BINARY_DIR}" shaders)
 
-    # Add the file we will generate to our output
-    LIST(APPEND shader_code ${output_file})
-
-    # Create the required folder
-    GET_FILENAME_COMPONENT(output_folder ${output_file} DIRECTORY)
-    FILE(MAKE_DIRECTORY ${output_folder})
-
-    # Copy across our file
-    ADD_CUSTOM_COMMAND(
-        OUTPUT ${output_file}
-        COMMAND ${CMAKE_COMMAND} -E copy ${shader_file} ${output_file}
-        DEPENDS ${shader_file}
-        COMMENT "Copying updated shader file ${shader_file}"
-    )
-ENDFOREACH(shader_file)
-
-ADD_EXECUTABLE(hello_attributes hello_attributes.cpp ${shader_code})
+ADD_EXECUTABLE(hello_attributes hello_attributes.cpp ${shaders})
 SET_TARGET_PROPERTIES(hello_attributes
   PROPERTIES
   RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
