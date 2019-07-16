@@ -145,7 +145,6 @@ namespace gl {
         void use() {
             glUseProgram(program);
         }
-
         void release() {
             glUseProgram(0);
         }
@@ -174,23 +173,16 @@ namespace gl {
     struct vertex_array {
         vertex_array() {
             glGenVertexArrays(1, &VAO);
-            bound = false;
         }
         ~vertex_array() {
             glDeleteVertexArrays(1, &VAO);
         }
 
         void bind() {
-            if (!bound) {
-                glBindVertexArray(VAO);
-                bound = true;
-            }
+            glBindVertexArray(VAO);
         }
         void unbind() {
-            if (bound) {
-                glBindVertexArray(0);
-                bound = false;
-            }
+            glBindVertexArray(0);
         }
 
         template <typename Scalar>
@@ -200,9 +192,7 @@ namespace gl {
                                const unsigned int& type,
                                const bool& normalised,
                                const unsigned int& offset) {
-            if (!bound) {
-                bind();
-            }
+            bind();
             glVertexAttribPointer(location,
                                   size,
                                   type,
@@ -218,35 +208,25 @@ namespace gl {
 
     private:
         unsigned int VAO;
-        bool bound;
     };
     struct vertex_buffer {
         vertex_buffer() {
             glGenBuffers(1, &VBO);
-            bound = false;
         }
         ~vertex_buffer() {
             glDeleteBuffers(1, &VBO);
         }
 
         void bind() {
-            if (!bound) {
-                glBindBuffer(GL_ARRAY_BUFFER, VBO);
-                bound = true;
-            }
+            glBindBuffer(GL_ARRAY_BUFFER, VBO);
         }
         void unbind() {
-            if (bound) {
-                glBindBuffer(GL_ARRAY_BUFFER, 0);
-                bound = false;
-            }
+            glBindBuffer(GL_ARRAY_BUFFER, 0);
         }
 
         template <int N>
         void copy_data(const std::array<float, N>& vertices, const unsigned int& draw_method) {
-            if (!bound) {
-                bind();
-            }
+            bind();
             glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), &vertices[0], draw_method);
         }
 
@@ -256,35 +236,25 @@ namespace gl {
 
     private:
         unsigned int VBO;
-        bool bound;
     };
     struct element_buffer {
         element_buffer() {
             glGenBuffers(1, &EBO);
-            bound = false;
         }
         ~element_buffer() {
             glDeleteBuffers(1, &EBO);
         }
 
         void bind() {
-            if (!bound) {
-                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-                bound = true;
-            }
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
         }
         void unbind() {
-            if (bound) {
-                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-                bound = false;
-            }
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
         }
 
         template <int N>
         void copy_data(const std::array<unsigned int, N>& indices, const unsigned int& draw_method) {
-            if (!bound) {
-                bind();
-            }
+            bind();
             glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], draw_method);
         }
 
@@ -294,7 +264,6 @@ namespace gl {
 
     private:
         unsigned int EBO;
-        bool bound;
     };
 }  // namespace gl
 }  // namespace utility
