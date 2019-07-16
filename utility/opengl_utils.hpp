@@ -13,6 +13,9 @@
 // For python style string formatting
 #include "fmt/format.h"
 
+// For image/texture loading
+#include "SOIL/SOIL.h"
+
 // clang-format off
 #include "glad/glad.h"
 // clang-format on
@@ -162,13 +165,26 @@ namespace gl {
             glUseProgram(0);
         }
 
-        void set_uniform(const std::string& uniform, const std::array<float, 4>& value) {
+        int get_uniform_location(const std::string& uniform) {
             glUseProgram(program);
             if (uniforms.find(uniform) == uniforms.end()) {
                 uniforms[uniform] = glGetUniformLocation(program, uniform.c_str());
                 throw_gl_error(glGetError(), fmt::format("Failed to find uniform '{}'", uniform));
             }
-            glUniform4f(uniforms[uniform], value[0], value[1], value[2], value[3]);
+            return uniforms[uniform];
+        }
+        void set_uniform(const std::string& uniform, const std::array<float, 4>& value) {
+            glUniform4f(get_uniform_location(uniform), value[0], value[1], value[2], value[3]);
+            throw_gl_error(glGetError(),
+                           fmt::format("Failed to set uniform '{}' at location {}", uniform, uniforms[uniform]));
+        }
+        void set_uniform(const std::string& uniform, const int& value) {
+            glUniform1i(get_uniform_location(uniform), value);
+            throw_gl_error(glGetError(),
+                           fmt::format("Failed to set uniform '{}' at location {}", uniform, uniforms[uniform]));
+        }
+        void set_uniform(const std::string& uniform, const float& value) {
+            glUniform1f(get_uniform_location(uniform), value);
             throw_gl_error(glGetError(),
                            fmt::format("Failed to set uniform '{}' at location {}", uniform, uniforms[uniform]));
         }
@@ -282,28 +298,62 @@ namespace gl {
         texture(const unsigned int& texture_type) {
             glGenTextures(1, &tex);
             this->texture_type = texture_type;
+            texture_data.clear();
+        }
+        texture(const std::string& image, const unsigned int& texture_type) {
+            glGenTextures(1, &tex);
+            this->texture_type = texture_type;
+
+            unsigned char* data = SOIL_load_image(image.c_str(), &width, &height, &channels, SOIL_LOAD_AUTO);
+            texture_data.clear();
+            texture_data.assign(data, data + (width * height * channels));
+            SOIL_free_image_data(data);
         }
         ~texture() {
             glDeleteTextures(1, &tex);
         }
 
-        void bind() {
+        void load_data(const std::vector<unsigned char>& data,
+                       const unsigned int& width,
+                       const unsigned int& height,
+                       const unsigned int& channels) {
+            texture_data.clear();
+            texture_data.assign(data.begin(), data.end());
+            this->width    = width;
+            this->height   = height;
+            this->channels = channels;
+        }
+        void load_data(const unsigned char* data,
+                       const unsigned int& width,
+                       const unsigned int& height,
+                       const unsigned int& channels) {
+            texture_data.clear();
+            texture_data.assign(data, data + (width * height * channels));
+            this->width    = width;
+            this->height   = height;
+            this->channels = channels;
+        }
+
+        void bind(const unsigned int& unit = GL_TEXTURE0) {
+            glActiveTexture(unit);
             glBindTexture(texture_type, tex);
         }
         void unbind() {
             glBindTexture(texture_type, 0);
         }
 
-        void generate(const unsigned int& mipmap_level,
-                      const unsigned int& pixel_type,
-                      const unsigned int& width,
-                      const unsigned int& height,
-                      const unsigned char* data) {
-            bind();
+        void generate(const unsigned int& mipmap_level, const unsigned int& pixel_type) {
             switch (texture_type) {
                 case GL_TEXTURE_2D:
-                    glTexImage2D(
-                        texture_type, mipmap_level, pixel_type, width, height, 0, pixel_type, GL_UNSIGNED_BYTE, data);
+                    glTexImage2D(texture_type,
+                                 mipmap_level,
+                                 pixel_type,
+                                 width,
+                                 height,
+                                 0,
+                                 pixel_type,
+                                 GL_UNSIGNED_BYTE,
+                                 texture_data.data());
                     break;
                 default:
                     throw_gl_error(
@@ -312,18 +362,21 @@ namespace gl {
             }
         }
         void generate_mipmap() {
-            bind();
             glGenerateMipmap(GL_TEXTURE_2D);
         }
 
-        void texture_wrap(const unsigned int& s_wrap, const unsigned int& t_wrap) {
-            bind();
+        void texture_wrap(const unsigned int& s_wrap,
+                          const unsigned int& t_wrap,
+                          const unsigned int& unit = GL_TEXTURE0) {
+            bind(unit);
             glTexParameteri(texture_type, GL_TEXTURE_WRAP_S, s_wrap);
             glTexParameteri(texture_type, GL_TEXTURE_WRAP_T, t_wrap);
         }
 
-        void texture_filter(const unsigned int& min_filter, const unsigned int& mag_filter) {
-            bind();
+        void texture_filter(const unsigned int& min_filter,
+                            const unsigned int& mag_filter,
+                            const unsigned int& unit = GL_TEXTURE0) {
+            bind(unit);
             glTexParameteri(texture_type, GL_TEXTURE_MIN_FILTER, min_filter);
             glTexParameteri(texture_type, GL_TEXTURE_MAG_FILTER, mag_filter);
         }
@@ -335,6 +388,8 @@ namespace gl {
     private:
         unsigned int tex;
         unsigned int texture_type;
+        int width, height, channels;
+        std::vector<unsigned char> texture_data;
     };
 }  // namespace gl
 }  // namespace utility
