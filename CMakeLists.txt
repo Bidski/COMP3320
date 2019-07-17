@@ -30,3 +30,5 @@ ADD_SUBDIRECTORY(hello_attributes)
 ADD_SUBDIRECTORY(hello_textures)
 
 ADD_SUBDIRECTORY(hello_transforms)
+
+ADD_SUBDIRECTORY(hello_mvp)
