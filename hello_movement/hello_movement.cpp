@@ -1,4 +1,5 @@
 #include <array>
+#include <functional>
 #include <iostream>
 #include <memory>
 
@@ -18,25 +19,24 @@
 
 #include "utility/opengl_utils.hpp"
 
-void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-void process_input(GLFWwindow* window, const float& delta_time);
-void render(GLFWwindow* window);
+#include "utility/camera.hpp"
 
-// settings
-constexpr unsigned int SCREEN_WIDTH  = 800;
-constexpr unsigned int SCREEN_HEIGHT = 600;
+void process_input(GLFWwindow* window, const float& delta_time, utility::camera::Camera& camera);
+void render(GLFWwindow* window, utility::camera::Camera& camera);
 
-// The screens current aspect ratio. This is updated in framebuffer_size_callback
-float aspect_ratio = static_cast<float>(SCREEN_WIDTH) / static_cast<float>(SCREEN_HEIGHT);
+// Initial width and height of the window
+static constexpr int SCREEN_WIDTH  = 800;
+static constexpr int SCREEN_HEIGHT = 600;
 
-// The current position of the camera. This is updated in process_input
-glm::vec3 camera_position = glm::vec3(0.0f, 0.0f, 3.0f);
-
-// The camera forward and up vectors
-constexpr glm::vec3 camera_forward = glm::vec3(0.0f, 0.0f, -1.0f);
-constexpr glm::vec3 camera_up      = glm::vec3(0.0f, 1.0f, 0.0f);
+// Distances to the near and the far plane. Used for the camera to clip space transform.
+static constexpr float NEAR_PLANE = 0.1f;
+static constexpr float FAR_PLANE  = 1000.0f;
 
 int main() {
+    // create our camera objects
+    // -------------------------
+    utility::camera::Camera camera(SCREEN_WIDTH, SCREEN_HEIGHT, NEAR_PLANE, FAR_PLANE);
+
     // glfw: initialize and configure
     // ------------------------------
     glfwInit();
@@ -54,7 +54,34 @@ int main() {
         return -1;
     }
     glfwMakeContextCurrent(window);
-    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    glfwSetFramebufferSizeCallback(window,
+                                   CCallbackWrapper(GLFWframebuffersizefun, utility::camera::Camera)(
+                                       std::bind(&utility::camera::Camera::framebuffer_size_callback,
+                                                 &camera,
+                                                 std::placeholders::_1,
+                                                 std::placeholders::_2,
+                                                 std::placeholders::_3)));
+
+    // get glfw to capture and hide the mouse pointer
+    // ----------------------------------------------
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetCursorPosCallback(
+        window,
+        CCallbackWrapper(GLFWcursorposfun, utility::camera::Camera)(std::bind(&utility::camera::Camera::mouse_callback,
+                                                                              &camera,
+                                                                              std::placeholders::_1,
+                                                                              std::placeholders::_2,
+                                                                              std::placeholders::_3)));
+
+    // get glfw to capture mouse scrolling
+    // -----------------------------------
+    glfwSetScrollCallback(
+        window,
+        CCallbackWrapper(GLFWscrollfun, utility::camera::Camera)(std::bind(&utility::camera::Camera::scroll_callback,
+                                                                           &camera,
+                                                                           std::placeholders::_1,
+                                                                           std::placeholders::_2,
+                                                                           std::placeholders::_3)));
 
     // glad: load all OpenGL function pointers
     // ---------------------------------------
@@ -63,7 +90,7 @@ int main() {
         return -1;
     }
 
-    render(window);
+    render(window, camera);
 
     // glfw: terminate, clearing all previously allocated GLFW resources.
     // ------------------------------------------------------------------
@@ -73,36 +100,27 @@ int main() {
 
 // process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
 // ---------------------------------------------------------------------------------------------------------
-void process_input(GLFWwindow* window, const float& delta_time) {
-    const float camera_speed = 2.5f * delta_time;
+void process_input(GLFWwindow* window, const float& delta_time, utility::camera::Camera& camera) {
+    camera.set_movement_sensitivity(0.005f * delta_time);
 
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, true);
     }
     else if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-        camera_position += camera_speed * camera_forward;
+        camera.move_up();
     }
     else if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-        camera_position -= camera_speed * camera_forward;
+        camera.move_down();
     }
     else if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-        camera_position -= glm::normalize(glm::cross(camera_forward, camera_up)) * camera_speed;
+        camera.move_left();
     }
     else if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-        camera_position += glm::normalize(glm::cross(camera_forward, camera_up)) * camera_speed;
+        camera.move_right();
     }
 }
 
-// glfw: whenever the window size changed (by OS or user resize) this callback function executes
-// ---------------------------------------------------------------------------------------------
-void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
-    // make sure the viewport matches the new window dimensions; note that width and
-    // height will be significantly larger than specified on retina displays.
-    glViewport(0, 0, width, height);
-    aspect_ratio = static_cast<float>(width) / static_cast<float>(height);
-}
-
-void render(GLFWwindow* window) {
+void render(GLFWwindow* window, utility::camera::Camera& camera) {
     // define vertices
     // ---------------
     // clang-format off
@@ -286,7 +304,7 @@ void render(GLFWwindow* window) {
         float last_frame    = current_frame;
         // input
         // -----
-        process_input(window, delta_time);
+        process_input(window, delta_time, camera);
 
         // clear the screen and the depth buffer
         // -------------------------------------
@@ -307,14 +325,8 @@ void render(GLFWwindow* window) {
         float mix_ratio = std::sin(current_frame) * 0.5f + 0.5f;
         program.set_uniform("mixRatio", mix_ratio);
 
-        // create the world to view transform
-        glm::mat4 Hvw = glm::lookAt(camera_position, camera_position + camera_forward, camera_up);
-
-        // create the view clip transform (perspective projection)
-        glm::mat4 Hcv = glm::perspective(glm::radians(45.0f), aspect_ratio, 0.1f, 1000.0f);
-
-        program.set_uniform("Hvw", Hvw);
-        program.set_uniform("Hcv", Hcv);
+        program.set_uniform("Hvw", camera.get_view_transform());
+        program.set_uniform("Hcv", camera.get_clip_transform());
 
         VAO.bind();
 
