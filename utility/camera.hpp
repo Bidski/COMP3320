@@ -2,7 +2,6 @@
 #define UTILITY_CAMERA_HPP
 
 #include <functional>
-#include <iostream>
 #include <type_traits>
 
 // For python style string formatting
@@ -21,8 +20,12 @@
 namespace utility {
 namespace camera {
 
+    // A simple FPS-style camera
+    // -------------------------
     class Camera {
     public:
+        // Create the camera and set some useful defaults
+        // ----------------------------------------------
         Camera(const int& width, const int& height, const float& near_plane, const float& far_plane) {
             this->width      = width;
             this->height     = height;
@@ -33,53 +36,70 @@ namespace camera {
             aspect_ratio = static_cast<float>(width) / static_cast<float>(height);
             forward      = glm::vec3(0.0f, 0.0f, -1.0f);
             up           = glm::vec3(0.0f, 1.0f, 0.0f);
+            world_up     = glm::vec3(0.0f, 1.0f, 0.0f);
             position     = glm::vec3(0.0f, 0.0f, 3.0f);
             right        = glm::normalize(glm::cross(forward, up));
 
+            orientation = glm::vec2(0.0f, -90.0f);
+            update_camera_basis();
+
             first_mouse          = true;
             last_mouse_pos       = glm::vec2(static_cast<float>(width) * 0.5f, static_cast<float>(height) * 0.5f);
-            rotation_sensitivity = 0.005f;
+            rotation_sensitivity = 0.05f;
             movement_sensitivity = 0.005f;
         }
 
+        // Callback function so GLFW can tell us about mouse scroll events
+        // ---------------------------------------------------------------
         void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
-            if (fov >= 1.0f && fov <= 45.0f) {
-                fov -= static_cast<float>(yoffset);
-            }
-            fov = std::min(std::max(1.0f, fov), 45.0f);
+            // Clamp field of view between 1 and 45 degrees
+            fov = std::min(std::max(1.0f, fov - static_cast<float>(yoffset)), 45.0f);
         }
+
+        // Callback function so GLFW can tell us about mouse movement events
+        // -----------------------------------------------------------------
         void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
             // prevent erratic movements when the mouse first enters the screen
             if (first_mouse) {
                 last_mouse_pos = glm::vec2(static_cast<float>(xpos), static_cast<float>(ypos));
                 first_mouse    = false;
             }
+            else {
+                // get the current position of the mouse
+                glm::vec2 current_mouse_pos(static_cast<float>(xpos), static_cast<float>(ypos));
 
-            glm::vec2 current_mouse_pos(static_cast<float>(xpos), static_cast<float>(ypos));
+                // invert y-ccordinates since they range from top to bottom
+                glm::vec2 offset(current_mouse_pos.x - last_mouse_pos.x, last_mouse_pos.y - current_mouse_pos.y);
 
-            // invert y-ccordinates since they range from top to bottom
-            glm::vec2 offset(current_mouse_pos.x - last_mouse_pos.x, last_mouse_pos.y - current_mouse_pos.y);
-            offset *= rotation_sensitivity;
+                // update the last mouse position
+                last_mouse_pos = current_mouse_pos;
 
-            last_mouse_pos = current_mouse_pos;
+                // update camera rotation
+                orientation += offset * rotation_sensitivity;
 
-            // update camera rotation
-            orientation += offset;
+                // clamp pitch to [-89, 89] degrees
+                // weird things happen when pitch is at +/- 90
+                orientation.y = std::min(std::max(-89.0f, orientation.y), 89.0f);
 
-            // clamp pitch to [-89, 89] degrees
-            // weird things happen when pitch is at +/- 90
-            orientation.y = std::min(std::max(-89.0f, orientation.y), 89.0f);
-
-            const float cos_pitch = std::cos(orientation.y);
-            const float sin_pitch = std::sin(orientation.y);
-            const float cos_yaw   = std::cos(orientation.x);
-            const float sin_yaw   = std::sin(orientation.x);
-            forward               = glm::normalize(glm::vec3(cos_pitch * cos_yaw, sin_pitch, cos_pitch * sin_yaw));
-            right                 = glm::normalize(glm::cross(forward, up));
+                update_camera_basis();
+            }
         }
 
-        // glfw: whenever the window size changed (by OS or user resize) this callback function executes
-        // ---------------------------------------------------------------------------------------------
+        void update_camera_basis() {
+            // calculate pitch and yaw
+            const float cos_yaw   = std::cos(glm::radians(orientation.x));
+            const float sin_yaw   = std::sin(glm::radians(orientation.x));
+            const float cos_pitch = std::cos(glm::radians(orientation.y));
+            const float sin_pitch = std::sin(glm::radians(orientation.y));
+
+            // update camera forward, right, and up vectors
+            forward = glm::normalize(glm::vec3(cos_pitch * cos_yaw, sin_pitch, cos_pitch * sin_yaw));
+            right   = glm::normalize(glm::cross(forward, world_up));
+            up      = glm::normalize(glm::cross(right, forward));
+        }
+
+        // Callback function so GLFW can tell us about window resize events
+        // ----------------------------------------------------------------
         void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
             // make sure the viewport matches the new window dimensions; note that width and
             // height will be significantly larger than specified on retina displays.
@@ -89,51 +109,98 @@ namespace camera {
             aspect_ratio = static_cast<float>(width) / static_cast<float>(height);
         }
 
+        // Calculate and return the world to camera transform
+        // --------------------------------------------------
         glm::mat4 get_view_transform() {
             return glm::lookAt(position, position + forward, up);
         }
+
+        // Calculate and return the camera to clip transform
+        // --------------------------------------------------
         glm::mat4 get_clip_transform() {
             return glm::perspective(glm::radians(fov), aspect_ratio, near_plane, far_plane);
         }
 
+        // Set the sensitivity of keyboard movement events
+        // -----------------------------------------------
         void set_movement_sensitivity(const float& sensitivity) {
             movement_sensitivity = sensitivity;
         }
+
+        // Set the sensitivity of mouse movement events
+        // --------------------------------------------
         void set_rotation_sensitivity(const float& sensitivity) {
             rotation_sensitivity = sensitivity;
         }
+
+        // Strafe left
+        // -----------
         void move_left() {
             position -= right * movement_sensitivity;
         }
+
+        // Strafe right
+        // ------------
         void move_right() {
             position += right * movement_sensitivity;
         }
-        void move_up() {
+
+        // Move forward
+        // ------------
+        void move_forward() {
             position += forward * movement_sensitivity;
         }
-        void move_down() {
+
+        // Move backward
+        // -------------
+        void move_backward() {
             position -= forward * movement_sensitivity;
         }
 
     private:
+        // Width, height, and aspect ratio of window
         int width;
         int height;
+        float aspect_ratio;
+
+        // Distances to the near and far planes (for clip transform)
         float near_plane;
         float far_plane;
 
+        // Field of view of the camera (for clip transform to simulate zooming)
+        // Stored in degrees
         float fov;
-        float aspect_ratio;
+
+        // Forward, up, and right axes of the camera (camera basis vectors)
         glm::vec3 forward;
         glm::vec3 up;
-        glm::vec3 position;
         glm::vec3 right;
+
+        // Direction of world up
+        glm::vec3 world_up;
+
+        // Position of the camera
+        glm::vec3 position;
+
+        // Orientation (pitch, yaw) of the camera
+        // Stored in degrees
         glm::vec2 orientation;
 
+        // Flag for handling the first mouse movement message that we receive
         bool first_mouse;
+
+        // Last position that the mouse was in
         glm::vec2 last_mouse_pos;
+
+        // Sensitivity values for camera rotations and motions
         float rotation_sensitivity;
         float movement_sensitivity;
     };
+
+    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! //
+    // !!! BEWARE ALL YE WHO VENTURE PAST THIS POINT !!! //
+    // !!!        HERE THERE BE MONSTERS             !!! //
+    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! //
 
     // Template hackiness to allow us to pass a member function to the GLFW API as a C-style function pointer
     // https://stackoverflow.com/a/39524069

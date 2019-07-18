@@ -1,6 +1,10 @@
+# Set the minimum cmake version that we need to function properly
 CMAKE_MINIMUM_REQUIRED(VERSION 3.0)
+
+# Set the name of the project and the languages that we need
 PROJECT(COMP3320 LANGUAGES C CXX)
 
+# We use the C++14 standard
 SET(CMAKE_CXX_STANDARD 14)
 
 # We use additional modules that cmake needs to know about
@@ -17,22 +21,4 @@ FIND_PACKAGE(SOIL REQUIRED)
 FIND_PACKAGE(GLAD REQUIRED)
 
 # Add tutorials
-ADD_SUBDIRECTORY(hello_opengl)
-
-ADD_SUBDIRECTORY(hello_triangle)
-
-ADD_SUBDIRECTORY(hello_indexing)
-
-ADD_SUBDIRECTORY(hello_uniforms)
-
-ADD_SUBDIRECTORY(hello_attributes)
-
-ADD_SUBDIRECTORY(hello_textures)
-
-ADD_SUBDIRECTORY(hello_transforms)
-
-ADD_SUBDIRECTORY(hello_mvp)
-
-ADD_SUBDIRECTORY(hello_multi_cube)
-
-ADD_SUBDIRECTORY(hello_movement)
+ADD_SUBDIRECTORY(introduction)
