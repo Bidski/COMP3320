@@ -16,3 +16,13 @@
 3rdparty/SOIL/
 
 tags
+
+slides/*/*.aux
+slides/*/*.log
+slides/*/*.nav
+slides/*/*.out
+slides/*/*.snm
+slides/*/*.synctex.gz
+slides/*/*.toc
+slides/*/*.vrb
+
