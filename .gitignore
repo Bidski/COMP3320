@@ -25,6 +25,6 @@ slides/*/*.snm
 slides/*/*.synctex.gz
 slides/*/*.toc
 slides/*/*.vrb
-slides/*/_minted-rendering/
+slides/*/_minted-*/
 slides/*/*.fdb_latexmk
 slides/*/*.fls
