@@ -1,0 +1,111 @@
+\documentclass{beamer}
+\usepackage[latin1]{inputenc}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{minted}
+\usepackage{tikz}
+\usepackage{graphicx}
+
+\usetheme{default}
+\usecolortheme{default}
+
+\title{COMP3320 Introduction to OpenGL}
+\author{Alex Biddulph}
+\institute{
+    The University of Newcastle, Australia
+    \and
+    Based on the work provided at \url{www.learnopengl.com}
+}
+\date{Semester 2, 2019}
+
+\begin{document}
+
+\begin{frame}
+\titlepage
+\end{frame}
+
+\begin{frame}[fragile]{More on Shaders}
+    Typical structure of a GLSL shader
+    \begin{minted}{glsl}
+        #version version_number
+        in type in_variable_name;
+
+        out type out_variable_name;
+
+        uniform type uniform_name;
+
+        void main() {
+          // process input(s) and do
+          // some weird graphics stuff
+          type weird_results = weird_processing;
+
+          // output processed stuff to output variable
+          out_variable_name = weird_results;
+        }
+    \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{More on Shaders}
+    \begin{itemize}
+        \item The first line specifies OpenGL version. In this case version 3.3 using the core profile
+            \mint{glsl}|#version 330 core|
+        \item We can then specify inputs, outputs, and uniforms in any order.
+        \item {\color{blue}\verb"type"} can be any of the following with {\color{blue}\verb"n"} and
+            {\color{blue}\verb"m"} one of $2, 3, \textrm{or }4$
+            \begin{tabular}{c c c c c c}
+                {\color{blue}\verb"bool"} & {\color{blue}\verb"int"} & {\color{blue}\verb"uint"} &
+                    {\color{blue}\verb"float"} & {\color{blue}\verb"double"} & {\color{blue}\verb"bvecn"} \\
+                {\color{blue}\verb"ivecn"} & {\color{blue}\verb"uvecn"} & {\color{blue}\verb"vecn"} &
+                    {\color{blue}\verb"dvecn"} & {\color{blue}\verb"matn"} & {\color{blue}\verb"matnxm"} \\
+            \end{tabular}
+        \item Arrays of these types are also permitted
+        \item Vectors can be \emph{swizzled}
+            \begin{minted}{glsl}
+                vec3 pos;
+                vec2 pos2 = pos.xy;
+                vec4 pos4 = pos2.xyyx;
+                vec3 pos3 = pos4.wzy;
+            \end{minted}
+        \item Finally we have the main function. This function must be in every shader
+    \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Shader Inputs and Outputs}
+    \begin{itemize}
+        \item Inputs and outputs allow you to pass data in to and get data out of your shaders. They also facilitate
+            passing data between shader stages
+        \item In a vertex shader the inputs are also known as vertex attributes. OpenGL guarantees the existence of at
+            least $16$ $4$-component vertex attributes. Query {\color{blue}\verb"GL_MAX_VERTEX_ATTRIBS"} using
+            {\color{blue}\verb"glGetIntegerv"} to find the maximum available on your hardware
+        \item For vertex attributes you can also decorate the declaration with a {\color{blue}\verb"layout"}
+            \mint{glsl}|layout(location = 0) in vec3 aPosition;|
+        \item Location layout simplifies linking vertex attributes in the main program
+        \item Built-in vertex shader output {\color{blue}\verb"gl_Position"}
+        \item Fragments shaders require a {\color{blue}\verb"vec4"} colour output variable
+    \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Shader Inputs and Outputs}
+    \begin{itemize}
+        \item If an input and an output share the same type and name in two consecutive shaders, OpenGL will link them
+            together
+        \item In the vertex shader \mint{glsl}|out vec4 frag_colour;|
+        \item In the fragment shader \mint{glsl}|in vec4 frag_colour;|
+        \item These two variables will be linked together allowing you to pass data between the shader stages
+        \item Layout decorations can be used to circumvent the matching requirement
+    \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Uniforms}
+    \begin{itemize}
+        \item Allows for setting arbitrary data in a shader program
+        \item Global to a shader program
+        \item Can be accessed by any shader at any stage in the program
+        \item Maintain their value until you change it
+        \item If you declare a uniform and don't use it in your GLSL shader code it will be silently removed
+        \item Need to find the uniforms location in the shader program using {\color{blue}\verb"glGetUniformLocation"}
+        \item Set a uniforms value using {\color{blue}\verb"glUniform"}
+    \end{itemize}
+\end{frame}
+
+\end{document}
