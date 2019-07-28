@@ -7,6 +7,13 @@ PROJECT(COMP3320 LANGUAGES C CXX)
 # We use the C++14 standard
 SET(CMAKE_CXX_STANDARD 14)
 
+# Force enable diagnostic colours for clang and gcc
+IF(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
+    ADD_COMPILE_OPTIONS(-fdiagnostics-color=always)
+ELSEIF(${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
+    ADD_COMPILE_OPTIONS(-fcolor-diagnostics)
+ENDIF()
+
 # We use additional modules that cmake needs to know about
 SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake/Modules/")
 SET(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${CMAKE_SOURCE_DIR}/3rdparty/build)
