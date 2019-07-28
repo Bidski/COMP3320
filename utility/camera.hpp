@@ -40,7 +40,7 @@ namespace camera {
             position     = glm::vec3(0.0f, 0.0f, 3.0f);
             right        = glm::normalize(glm::cross(forward, up));
 
-            orientation = glm::vec2(0.0f, -90.0f);
+            orientation = glm::vec2(-90.0f, 0.0f);
             update_camera_basis();
 
             first_mouse          = true;
@@ -121,6 +121,12 @@ namespace camera {
             return glm::perspective(glm::radians(fov), aspect_ratio, near_plane, far_plane);
         }
 
+        // Return the camera position
+        // --------------------------
+        glm::vec3 get_position() {
+            return position;
+        }
+
         // Set the sensitivity of keyboard movement events
         // -----------------------------------------------
         void set_movement_sensitivity(const float& sensitivity) {
@@ -155,6 +161,18 @@ namespace camera {
         // -------------
         void move_backward() {
             position -= forward * movement_sensitivity;
+        }
+
+        // Move up
+        // -------
+        void move_up() {
+            position += up * movement_sensitivity;
+        }
+
+        // Move down
+        // ---------
+        void move_down() {
+            position -= up * movement_sensitivity;
         }
 
     private:

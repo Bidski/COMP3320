@@ -22,3 +22,5 @@ FIND_PACKAGE(GLAD REQUIRED)
 
 # Add tutorials
 ADD_SUBDIRECTORY(introduction)
+
+ADD_SUBDIRECTORY(lighting)
