@@ -81,7 +81,7 @@ namespace gl {
                 case Value::VERTEX_SHADER: return "VERTEX_SHADER";
                 case Value::FRAGMENT_SHADER: return "FRAGMENT_SHADER";
                 case Value::GEOMETRY_SHADER: return "GEOMETRY_SHADER";
-                default: throw_gl_error(GL_INVALID_ENUM, fmt::format("Invalid shader type '{}'", value));
+                default: throw_gl_error(GL_INVALID_ENUM, fmt::format("Invalid shader type '{}'", value)); return "UNKNOWN";
             }
         }
     };
@@ -155,7 +155,7 @@ namespace gl {
                 case GL_TEXTURE_2D_MULTISAMPLE: return "TEXTURE_2D_MULTISAMPLE";
                 case GL_TEXTURE_2D_MULTISAMPLE_ARRAY: return "TEXTURE_2D_MULTISAMPLE_ARRAY";
                 case GL_TEXTURE_3D: return "TEXTURE_3D";
-                default: throw_gl_error(GL_INVALID_ENUM, fmt::format("Invalid texture type '{}'", value));
+                default: throw_gl_error(GL_INVALID_ENUM, fmt::format("Invalid texture type '{}'", value)); return "UNKNOWN";
             }
         }
     };
@@ -314,6 +314,16 @@ namespace gl {
         // ---------------------------------------------------------------------
         void set_uniform(const std::string& uniform, const glm::mat4& value) {
             glUniformMatrix4fv(get_uniform_location(uniform), 1, GL_FALSE, glm::value_ptr(value));
+            throw_gl_error(glGetError(),
+                           fmt::format("Failed to set uniform '{}' at location {}", uniform, uniforms[uniform]));
+        }
+        void set_uniform(const std::string& uniform, const glm::vec4& value) {
+            glUniform4fv(get_uniform_location(uniform), 1, glm::value_ptr(value));
+            throw_gl_error(glGetError(),
+                           fmt::format("Failed to set uniform '{}' at location {}", uniform, uniforms[uniform]));
+        }
+        void set_uniform(const std::string& uniform, const glm::vec3& value) {
+            glUniform3fv(get_uniform_location(uniform), 1, glm::value_ptr(value));
             throw_gl_error(glGetError(),
                            fmt::format("Failed to set uniform '{}' at location {}", uniform, uniforms[uniform]));
         }
