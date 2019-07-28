@@ -316,35 +316,35 @@ namespace gl {
         // uniform: The name of the uniform to set
         // value: The value to set the uniform to
         // ---------------------------------------------------------------------
-        void set_uniform(const std::string& uniform, const glm::mat4& value) {
-            glUniformMatrix4fv(get_uniform_location(uniform), 1, GL_FALSE, glm::value_ptr(value));
-            throw_gl_error(glGetError(),
-                           fmt::format("Failed to set uniform '{}' at location {}", uniform, uniforms[uniform]));
-        }
-        void set_uniform(const std::string& uniform, const glm::vec4& value) {
-            glUniform4fv(get_uniform_location(uniform), 1, glm::value_ptr(value));
-            throw_gl_error(glGetError(),
-                           fmt::format("Failed to set uniform '{}' at location {}", uniform, uniforms[uniform]));
-        }
-        void set_uniform(const std::string& uniform, const glm::vec3& value) {
-            glUniform3fv(get_uniform_location(uniform), 1, glm::value_ptr(value));
-            throw_gl_error(glGetError(),
-                           fmt::format("Failed to set uniform '{}' at location {}", uniform, uniforms[uniform]));
-        }
-        void set_uniform(const std::string& uniform, const std::array<float, 4>& value) {
-            glUniform4f(get_uniform_location(uniform), value[0], value[1], value[2], value[3]);
-            throw_gl_error(glGetError(),
-                           fmt::format("Failed to set uniform '{}' at location {}", uniform, uniforms[uniform]));
-        }
         void set_uniform(const std::string& uniform, const int& value) {
             glUniform1i(get_uniform_location(uniform), value);
             throw_gl_error(glGetError(),
-                           fmt::format("Failed to set uniform '{}' at location {}", uniform, uniforms[uniform]));
+                           fmt::format("Failed to set int uniform '{}' at location {}", uniform, uniforms[uniform]));
         }
         void set_uniform(const std::string& uniform, const float& value) {
             glUniform1f(get_uniform_location(uniform), value);
             throw_gl_error(glGetError(),
-                           fmt::format("Failed to set uniform '{}' at location {}", uniform, uniforms[uniform]));
+                           fmt::format("Failed to set float uniform '{}' at location {}", uniform, uniforms[uniform]));
+        }
+        void set_uniform(const std::string& uniform, const glm::mat4& value) {
+            glUniformMatrix4fv(get_uniform_location(uniform), 1, GL_FALSE, glm::value_ptr(value));
+            throw_gl_error(glGetError(),
+                           fmt::format("Failed to set mat4 uniform '{}' at location {}", uniform, uniforms[uniform]));
+        }
+        void set_uniform(const std::string& uniform, const glm::vec4& value) {
+            glUniform4fv(get_uniform_location(uniform), 1, glm::value_ptr(value));
+            throw_gl_error(glGetError(),
+                           fmt::format("Failed to set vec4 uniform '{}' at location {}", uniform, uniforms[uniform]));
+        }
+        void set_uniform(const std::string& uniform, const glm::vec3& value) {
+            glUniform3fv(get_uniform_location(uniform), 1, glm::value_ptr(value));
+            throw_gl_error(glGetError(),
+                           fmt::format("Failed to set vec3 uniform '{}' at location {}", uniform, uniforms[uniform]));
+        }
+        void set_uniform(const std::string& uniform, const std::array<float, 4>& value) {
+            glUniform4f(get_uniform_location(uniform), value[0], value[1], value[2], value[3]);
+            throw_gl_error(glGetError(),
+                           fmt::format("Failed to set array4 uniform '{}' at location {}", uniform, uniforms[uniform]));
         }
 
         // Allow this program wrapper to be passed OpenGL functions
