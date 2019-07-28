@@ -584,16 +584,25 @@ namespace gl {
 
         // Load the texture data on to the GPU
         // -----------------------------------
-        void generate(const unsigned int& mipmap_level, const unsigned int& pixel_type) {
+        void generate(const unsigned int& mipmap_level, const unsigned int& pixel_type = -1) {
+            unsigned int pixel_format = pixel_type;
+            if (pixel_format == -1) {
+                switch (channels) {
+                    case 1: pixel_format = GL_RED; break;
+                    case 3: pixel_format = GL_RGB; break;
+                    case 4: pixel_format = GL_RGBA; break;
+                }
+            }
             switch (texture_type) {
                 case TextureType::TEXTURE_2D:
+                    bind();
                     glTexImage2D(texture_type,
                                  mipmap_level,
-                                 pixel_type,
+                                 pixel_format,
                                  width,
                                  height,
                                  0,
-                                 pixel_type,
+                                 pixel_format,
                                  GL_UNSIGNED_BYTE,
                                  texture_data.data());
                     break;
@@ -606,7 +615,10 @@ namespace gl {
         // ---------------------------
         void generate_mipmap() {
             switch (texture_type) {
-                case TextureType::TEXTURE_2D: glGenerateMipmap(GL_TEXTURE_2D); break;
+                case TextureType::TEXTURE_2D:
+                    bind();
+                    glGenerateMipmap(GL_TEXTURE_2D);
+                    break;
                 default:
                     throw_gl_error(GL_INVALID_OPERATION,
                                    fmt::format("Texture type '{}' currently not supported", texture_type));
