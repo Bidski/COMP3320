@@ -10,16 +10,6 @@ FILE(GLOB_RECURSE shader_files
 # Copy shader files to build directory
 COPY_FILES("${shader_files}" "${CMAKE_BINARY_DIR}" shaders)
 
-# Find all texture files
-FILE(GLOB_RECURSE texture_files
-    "${CMAKE_CURRENT_SOURCE_DIR}/textures/**.png"
-    "${CMAKE_CURRENT_SOURCE_DIR}/textures/**.jpg"
-    "${CMAKE_CURRENT_SOURCE_DIR}/textures/**.jpeg"
-)
-
-# Copy texture files to build directory
-COPY_FILES("${texture_files}" "${CMAKE_BINARY_DIR}" textures)
-
 # Create our executable 
 ADD_EXECUTABLE(phong phong.cpp ${shaders} ${textures})
 
