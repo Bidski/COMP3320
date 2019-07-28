@@ -127,6 +127,12 @@ namespace camera {
             return position;
         }
 
+        // Return the camera view direction
+        // --------------------------------
+        glm::vec3 get_view_direction() {
+            return forward;
+        }
+
         // Set the sensitivity of keyboard movement events
         // -----------------------------------------------
         void set_movement_sensitivity(const float& sensitivity) {
