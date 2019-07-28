@@ -81,7 +81,9 @@ namespace gl {
                 case Value::VERTEX_SHADER: return "VERTEX_SHADER";
                 case Value::FRAGMENT_SHADER: return "FRAGMENT_SHADER";
                 case Value::GEOMETRY_SHADER: return "GEOMETRY_SHADER";
-                default: throw_gl_error(GL_INVALID_ENUM, fmt::format("Invalid shader type '{}'", value)); return "UNKNOWN";
+                default:
+                    throw_gl_error(GL_INVALID_ENUM, fmt::format("Invalid shader type '{}'", value));
+                    return "UNKNOWN";
             }
         }
     };
@@ -155,7 +157,9 @@ namespace gl {
                 case GL_TEXTURE_2D_MULTISAMPLE: return "TEXTURE_2D_MULTISAMPLE";
                 case GL_TEXTURE_2D_MULTISAMPLE_ARRAY: return "TEXTURE_2D_MULTISAMPLE_ARRAY";
                 case GL_TEXTURE_3D: return "TEXTURE_3D";
-                default: throw_gl_error(GL_INVALID_ENUM, fmt::format("Invalid texture type '{}'", value)); return "UNKNOWN";
+                default:
+                    throw_gl_error(GL_INVALID_ENUM, fmt::format("Invalid texture type '{}'", value));
+                    return "UNKNOWN";
             }
         }
     };
