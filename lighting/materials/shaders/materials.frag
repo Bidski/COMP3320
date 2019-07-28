@@ -46,7 +46,7 @@ void main() {
 
     // Calculate specular lighting
     // Since we are working in view space the viewing position is at (0, 0, 0)
-    vec3 viewDirection       = normalize(glm::vec3(0.0f) - fragmentPosition);
+    vec3 viewDirection       = normalize(vec3(0.0f) - fragmentPosition);
     vec3 reflectionDirection = reflect(-lightDirection, norm);
     float specularStrength   = pow(max(dot(viewDirection, reflectionDirection), 0.0f), material.shininess);
     vec3 specular            = light.specular * (specularStrength * material.specular);
