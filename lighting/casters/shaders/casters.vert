@@ -27,7 +27,7 @@ void main() {
     // Set vertex position
     gl_Position = Hcv * Hvw * Hwm * vec4(aPosition, 1.0f);
 
-    // Set view space fragment position
+    // Set world space fragment position
     fragmentPosition = (Hwm * vec4(aPosition, 1.0f)).xyz;
 
     // Set fragment normal
