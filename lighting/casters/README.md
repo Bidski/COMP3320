@@ -1,8 +1,8 @@
 Introduction
 ============
 
-Maps
-----
+Casters
+-------
 
 Creates a screen and clears the background to have a dark-greenish background.
 
@@ -39,3 +39,6 @@ object material properties and multiple lights with individual properties.
 
 We return to using textures to apply ambient/diffuse and specular maps. Vertex 
 attributes are used, once again, to specify texture coordinates.
+
+Multiple types of lights are implemented, including directional, point, and spot 
+lights. One directional, four point, and one spot light are instantiated.
