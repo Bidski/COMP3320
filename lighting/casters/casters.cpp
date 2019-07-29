@@ -21,6 +21,16 @@
 
 #include "utility/camera.hpp"
 
+struct PointLight {
+    glm::vec3 position;
+    glm::vec3 ambient;
+    glm::vec3 diffuse;
+    glm::vec3 specular;
+    float Kc;
+    float Kl;
+    float Kq;
+};
+
 void process_input(GLFWwindow* window, const float& delta_time, utility::camera::Camera& camera);
 void render(GLFWwindow* window, utility::camera::Camera& camera);
 
@@ -224,6 +234,17 @@ void render(GLFWwindow* window, utility::camera::Camera& camera) {
     };
     // clang-format on
 
+    // positions of the point lights
+    std::array<PointLight, 4> point_lights = {
+        PointLight{
+            glm::vec3(0.7f, 0.2f, 2.0f), glm::vec3(0.05f), glm::vec3(0.8f), glm::vec3(1.0f), 1.0f, 0.09f, 0.032f},
+        PointLight{
+            glm::vec3(2.3f, -3.3f, -4.0f), glm::vec3(0.05f), glm::vec3(0.8f), glm::vec3(1.0f), 1.0f, 0.09f, 0.032f},
+        PointLight{
+            glm::vec3(-4.0f, 2.0f, -12.0f), glm::vec3(0.05f), glm::vec3(0.8f), glm::vec3(1.0f), 1.0f, 0.09f, 0.032f},
+        PointLight{
+            glm::vec3(0.0f, 0.0f, -3.0f), glm::vec3(0.05f), glm::vec3(0.8f), glm::vec3(1.0f), 1.0f, 0.09f, 0.032f}};
+
     // load, compile, and link the vertex and fragment shaders
     // -------------------------------------------------------
     utility::gl::shader_program program;
@@ -316,7 +337,7 @@ void render(GLFWwindow* window, utility::camera::Camera& camera) {
 
         // clear the screen and the depth buffer
         // -------------------------------------
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // bind diffuse texture
@@ -334,28 +355,30 @@ void render(GLFWwindow* window, utility::camera::Camera& camera) {
         program.set_uniform("Hcv", camera.get_clip_transform());
 
         program.set_uniform("material.shininess", 32.0f);
-
         program.set_uniform("viewPosition", camera.get_position());
+
         program.set_uniform("sun.direction", glm::vec3(-0.2f, -1.0f, -0.3f));
         program.set_uniform("sun.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
         program.set_uniform("sun.diffuse", glm::vec3(0.5f, 0.5f, 0.5f));
         program.set_uniform("sun.specular", glm::vec3(1.0f, 1.0f, 1.0f));
 
-        program.set_uniform("light.position", glm::vec3(1.2f, 1.0f, 2.0f));
-        program.set_uniform("light.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
-        program.set_uniform("light.diffuse", glm::vec3(0.5f, 0.5f, 0.5f));
-        program.set_uniform("light.specular", glm::vec3(1.0f, 1.0f, 1.0f));
-        program.set_uniform("light.Kc", 1.000f);
-        program.set_uniform("light.Kl", 0.090f);
-        program.set_uniform("light.Kq", 0.032f);
+        for (size_t i = 0; i < 4; ++i) {
+            program.set_uniform(fmt::format("lights[{}].position", i), point_lights[i].position);
+            program.set_uniform(fmt::format("lights[{}].ambient", i), point_lights[i].ambient);
+            program.set_uniform(fmt::format("lights[{}].diffuse", i), point_lights[i].diffuse);
+            program.set_uniform(fmt::format("lights[{}].specular", i), point_lights[i].specular);
+            program.set_uniform(fmt::format("lights[{}].Kc", i), point_lights[i].Kc);
+            program.set_uniform(fmt::format("lights[{}].Kl", i), point_lights[i].Kl);
+            program.set_uniform(fmt::format("lights[{}].Kq", i), point_lights[i].Kq);
+        }
 
         program.set_uniform("lamp.position", camera.get_position());
         program.set_uniform("lamp.direction", camera.get_view_direction());
-        program.set_uniform("lamp.ambient", glm::vec3(0.1f, 0.1f, 0.1f));
-        program.set_uniform("lamp.diffuse", glm::vec3(0.8f, 0.8f, 0.8f));
-        program.set_uniform("lamp.specular", glm::vec3(1.0f, 1.0f, 1.0f));
+        program.set_uniform("lamp.ambient", glm::vec3(0.0f));
+        program.set_uniform("lamp.diffuse", glm::vec3(1.0f));
+        program.set_uniform("lamp.specular", glm::vec3(1.0f));
         program.set_uniform("lamp.phi", std::cos(glm::radians(12.5f)));
-        program.set_uniform("lamp.gamma", std::cos(glm::radians(17.5f)));
+        program.set_uniform("lamp.gamma", std::cos(glm::radians(15.0f)));
         program.set_uniform("lamp.Kc", 1.000f);
         program.set_uniform("lamp.Kl", 0.090f);
         program.set_uniform("lamp.Kq", 0.032f);
