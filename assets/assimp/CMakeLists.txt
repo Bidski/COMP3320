@@ -14,6 +14,8 @@ COPY_FILES("${shader_files}" "${CMAKE_BINARY_DIR}" shaders)
 FILE(GLOB_RECURSE model_files
     "${CMAKE_CURRENT_SOURCE_DIR}/models/**.png"
     "${CMAKE_CURRENT_SOURCE_DIR}/models/**.obj"
+    "${CMAKE_CURRENT_SOURCE_DIR}/models/**.blend"
+    "${CMAKE_CURRENT_SOURCE_DIR}/models/**.mtl"
 )
 
 # Copy shader files to build directory
