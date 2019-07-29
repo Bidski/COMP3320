@@ -183,7 +183,7 @@ void render(GLFWwindow* window, utility::camera::Camera& camera) {
 
         // clear the screen and the depth buffer
         // -------------------------------------
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // render our triangles
@@ -197,6 +197,9 @@ void render(GLFWwindow* window, utility::camera::Camera& camera) {
         program.set_uniform(
             "Hwm",
             glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, -1.75f, 0.0f)), glm::vec3(0.2f, 0.2f, 0.2f)));
+
+        program.set_uniform("material.shininess", 32.0f);
+        program.set_uniform("viewPosition", camera.get_position());
 
         program.set_uniform("sun.direction", glm::vec3(-0.2f, -1.0f, -0.3f));
         program.set_uniform("sun.ambient", glm::vec3(0.2f, 0.2f, 0.2f));

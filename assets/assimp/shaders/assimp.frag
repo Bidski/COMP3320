@@ -1,20 +1,76 @@
 #version 330 core
 
-#define NR_DIFFUSE_MAPS 10
-#define NR_SPECULAR_MAPS 10
+// *****************
+// *** CONSTANTS ***
+// *****************
 #define NR_POINT_LIGHTS 4
+#define NR_DIFFUSE_MAPS 1
+#define NR_SPECULAR_MAPS 1
+
+// *****************
+// ***   TYPES   ***
+// *****************
 
 struct Material {
     sampler2D diffuse[NR_DIFFUSE_MAPS];
     sampler2D specular[NR_SPECULAR_MAPS];
     float shininess;
-
     int diffuse_count;
     int specular_count;
 };
 
+struct DirectionalLight {
+    // World space direction
+    vec3 direction;
+
+    vec3 ambient;
+    vec3 diffuse;
+    vec3 specular;
+};
+
+struct PointLight {
+    // World space position
+    vec3 position;
+
+    vec3 ambient;
+    vec3 diffuse;
+    vec3 specular;
+
+    // Constant, linear, and quadratic terms for attenuation
+    float Kc;
+    float Kl;
+    float Kq;
+};
+
+struct SpotLight {
+    // World space position and direction
+    vec3 position;
+    vec3 direction;
+
+    vec3 ambient;
+    vec3 diffuse;
+    vec3 specular;
+
+    // Constant, linear, and quadratic terms for attenuation
+    float Kc;
+    float Kl;
+    float Kq;
+
+    // Radius of the inner and outer light cones
+    float phi;
+    float gamma;
+};
+
+// *****************
+// ***  OUTPUTS  ***
+// *****************
+
 // Fragment shader output
 out vec4 FragColor;
+
+// *****************
+// ***  INPUTS   ***
+// *****************
 
 // Fragment position in world space
 in vec3 fragmentPosition;
@@ -22,8 +78,15 @@ in vec3 fragmentPosition;
 // Fragment normal in world space
 in vec3 fragmentNormal;
 
-// Texture coordinates
-int vec2 textureCoords;
+// Diffuse texture coordinates
+in vec2 textureCoords;
+
+// *****************
+// *** UNIFORMS  ***
+// *****************
+
+// Position of the camera in world space
+uniform vec3 viewPosition;
 
 // Material properties
 uniform Material material;
@@ -36,6 +99,10 @@ uniform PointLight lights[NR_POINT_LIGHTS];
 
 // Lamp light
 uniform SpotLight lamp;
+
+// *****************
+// *** FUNCTIONS ***
+// *****************
 
 float calculateAttenuation(float distance, float Kc, float Kl, float Kq);
 vec3 calculateAmbientLight(vec3 light, vec3 colour);
