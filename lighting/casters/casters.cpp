@@ -355,6 +355,7 @@ void render(GLFWwindow* window, utility::camera::Camera& camera) {
         program.set_uniform("lamp.diffuse", glm::vec3(0.8f, 0.8f, 0.8f));
         program.set_uniform("lamp.specular", glm::vec3(1.0f, 1.0f, 1.0f));
         program.set_uniform("lamp.phi", std::cos(glm::radians(12.5f)));
+        program.set_uniform("lamp.gamma", std::cos(glm::radians(17.5f)));
         program.set_uniform("lamp.Kc", 1.000f);
         program.set_uniform("lamp.Kl", 0.090f);
         program.set_uniform("lamp.Kq", 0.032f);

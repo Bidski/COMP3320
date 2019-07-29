@@ -43,8 +43,9 @@ struct SpotLight {
     float Kl;
     float Kq;
 
-    // Radius of the light cone
+    // Radius of the inner and outer light cones
     float phi;
+    float gamma;
 };
 
 // Fragment shader output
@@ -143,38 +144,35 @@ void main() {
     // *******************************
     // ***   LIGHTING: SPOTLIGHT   ***
     // *******************************
-    float theta        = dot(normalize(lamp.position - fragmentPosition), normalize(-lamp.direction));
-    vec3 lamp_ambient  = vec3(0.0f);
-    vec3 lamp_diffuse  = vec3(0.0f);
-    vec3 lamp_specular = vec3(0.0f);
+    float theta = dot(normalize(lamp.position - fragmentPosition), normalize(-lamp.direction));
 
-    if (theta > lamp.phi) {
-        // Calculate ambient lighting
-        lamp_ambient = calculateAmbientLight(lamp.ambient, vec3(texture(material.diffuse, textureCoords)));
+    // Calculate ambient lighting
+    vec3 lamp_ambient = calculateAmbientLight(lamp.ambient, vec3(texture(material.diffuse, textureCoords)));
 
-        // Calculate diffuse lighting
-        lamp_diffuse = calculateDiffuseLight(normalize(lamp.position - fragmentPosition),
-                                             lamp.diffuse,
-                                             vec3(texture(material.diffuse, textureCoords)),
-                                             normalize(fragmentNormal));
+    // Calculate diffuse lighting
+    vec3 lamp_diffuse = calculateDiffuseLight(normalize(lamp.position - fragmentPosition),
+                                              lamp.diffuse,
+                                              vec3(texture(material.diffuse, textureCoords)),
+                                              normalize(fragmentNormal));
 
-        // Calculate specular lighting
-        lamp_specular = calculateSpecularLight(normalize(viewPosition - fragmentPosition),
-                                               lamp.specular,
-                                               vec3(texture(material.specular, textureCoords)),
-                                               normalize(fragmentNormal),
-                                               material.shininess);
+    // Calculate specular lighting
+    vec3 lamp_specular = calculateSpecularLight(normalize(viewPosition - fragmentPosition),
+                                                lamp.specular,
+                                                vec3(texture(material.specular, textureCoords)),
+                                                normalize(fragmentNormal),
+                                                material.shininess);
 
-        // Calculate attentuation
-        float distance     = length(lamp.position - fragmentPosition);
-        float attentuation = calculateAttenuation(distance, lamp.Kc, lamp.Kl, lamp.Kq);
-        lamp_diffuse *= attentuation;
-        lamp_specular *= attentuation;
-    }
-    else {
-        // Calculate ambient lighting
-        lamp_ambient = calculateAmbientLight(lamp.ambient, vec3(texture(material.diffuse, textureCoords)));
-    }
+    // Calculate and apply intensity drop-off
+    float intensity = clamp((theta - lamp.gamma) / (lamp.phi - lamp.gamma), 0.0f, 1.0f);
+    lamp_diffuse *= intensity;
+    lamp_specular *= intensity;
+
+    // Calculate and apply attentuation
+    distance     = length(lamp.position - fragmentPosition);
+    attentuation = calculateAttenuation(distance, lamp.Kc, lamp.Kl, lamp.Kq);
+    lamp_ambient *= attentuation;
+    lamp_diffuse *= attentuation;
+    lamp_specular *= attentuation;
 
     // Calculate result
     vec3 result = vec3(0.0f);
