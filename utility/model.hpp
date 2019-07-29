@@ -124,7 +124,16 @@ namespace model {
                         continue;
                     }
                 }
-                textures.emplace_back(str.C_Str(), utility::gl::TextureType::TEXTURE_2D, texture_style);
+                utility::gl::texture texture(
+                    fmt::format("{}/{}", directory, str.C_Str()), utility::gl::TextureType::TEXTURE_2D, texture_style);
+                texture.bind();
+                texture.generate(0);
+                texture.generate_mipmap();
+                texture.texture_wrap(GL_REPEAT, GL_REPEAT);
+                texture.texture_filter(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+                texture.unbind();
+                textures.emplace_back(std::move(texture));
+                loaded_textures.push_back(textures.back());
             }
             return textures;
         }
