@@ -124,7 +124,7 @@ void main() {
     // *******************************
     vec3 point_light = vec3(0.0f);
     for (int i = 0; i < NR_POINT_LIGHTS; ++i) {
-        point_light =
+        point_light +=
             calculatePointLight(lights[i], normalize(fragmentNormal), normalize(viewPosition - fragmentPosition));
     }
 
