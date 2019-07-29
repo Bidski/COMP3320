@@ -323,9 +323,55 @@ namespace gl {
                     glDeleteShader(shader);
                 }
                 shaders.clear();
+
+#ifndef NDEBUG
+                list_all_attributes();
+                find_all_uniforms(true);
+#endif
+                find_all_uniforms(false);
             }
             else {
                 throw std::system_error(std::error_code(EINVAL, std::system_category()), "Invalid Program!");
+            }
+        }
+
+        void list_all_attributes() {
+            GLint count;
+            GLint size;                  // size of the variable
+            GLenum type;                 // type of the variable (float, vec3 or mat4, etc)
+            const GLsizei bufSize = 64;  // maximum name length
+            GLchar name[bufSize];        // variable name in GLSL
+            GLsizei length;              // name length
+
+            glGetProgramiv(program, GL_ACTIVE_ATTRIBUTES, &count);
+            std::cout << fmt::format("Active Attributes: {}\n", count) << std::endl;
+
+            for (int i = 0; i < count; i++) {
+                glGetActiveAttrib(program, static_cast<GLuint>(i), bufSize, &length, &size, &type, name);
+
+                std::cout << fmt::format("Attribute #{} Type: {} Name: {}\n", i, type, name) << std::endl;
+            }
+        }
+
+        void find_all_uniforms(const bool& list = false) {
+            GLint count;
+            GLint size;                  // size of the variable
+            GLenum type;                 // type of the variable (float, vec3 or mat4, etc)
+            const GLsizei bufSize = 64;  // maximum name length
+            GLchar name[bufSize];        // variable name in GLSL
+            GLsizei length;              // name length
+
+            glGetProgramiv(program, GL_ACTIVE_UNIFORMS, &count);
+            if (list) {
+                std::cout << fmt::format("Active Uniforms: {}", count) << std::endl;
+            }
+
+            for (int i = 0; i < count; i++) {
+                glGetActiveUniform(program, static_cast<GLuint>(i), bufSize, &length, &size, &type, name);
+                uniforms[name] = glGetUniformLocation(program, name);
+                if (list) {
+                    std::cout << fmt::format("Uniform #{} Type: {} Name: {}", i, type, name) << std::endl;
+                }
             }
         }
 
@@ -579,8 +625,19 @@ namespace gl {
 
             unsigned char* data = SOIL_load_image(image.c_str(), &width, &height, &channels, SOIL_LOAD_AUTO);
             texture_data.clear();
-            texture_data.assign(data, data + (width * height * channels));
-            SOIL_free_image_data(data);
+            if (data == nullptr) {
+                throw_gl_error(
+                    GL_INVALID_OPERATION,
+                    fmt::format(
+                        "File: {} == Data: ({}, {}, {}) -> '{}'", image, width, height, channels, SOIL_last_result()));
+            }
+            else {
+                std::cout << fmt::format(
+                    "File: {} == Data: ({}, {}, {}) -> '{}'", image, width, height, channels, SOIL_last_result())
+                          << std::endl;
+                texture_data.assign(data, data + (width * height * channels));
+                SOIL_free_image_data(data);
+            }
         }
         // Delete the texture
         // ------------------
