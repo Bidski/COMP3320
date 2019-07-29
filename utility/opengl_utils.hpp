@@ -23,7 +23,7 @@
 #include "glad/glad.h"
 // clang-format on
 
-#include "opengl_error_category.hpp"
+#include "utility/opengl_error_category.hpp"
 
 namespace utility {
 namespace gl {
@@ -159,6 +159,47 @@ namespace gl {
                 case GL_TEXTURE_3D: return "TEXTURE_3D";
                 default:
                     throw_gl_error(GL_INVALID_ENUM, fmt::format("Invalid texture type '{}'", value));
+                    return "UNKNOWN";
+            }
+        }
+    };
+
+    // Create a smart enum to wrap texture style enum
+    // ----------------------------------------------
+    struct TextureStyle {
+        enum Value { TEXTURE_DIFFUSE = 0, TEXTURE_SPECULAR = 1, UNKNOWN };
+        Value value;
+        TextureStyle() {
+            value = Value::UNKNOWN;
+        }
+        TextureStyle(const unsigned int& texture_style) {
+            switch (texture_style) {
+                case TEXTURE_DIFFUSE: value = Value::TEXTURE_DIFFUSE; break;
+                case TEXTURE_SPECULAR: value = Value::TEXTURE_SPECULAR; break;
+                default: throw_gl_error(GL_INVALID_ENUM, fmt::format("Invalid texture style '{}'", texture_style));
+            }
+        }
+        TextureStyle(const std::string& texture_style) {
+            if (texture_style == "TEXTURE_DIFFUSE") {
+                value = Value::TEXTURE_DIFFUSE;
+            }
+            else if (texture_style == "TEXTURE_SPECULAR") {
+                value = Value::TEXTURE_SPECULAR;
+            }
+            else {
+                throw_gl_error(GL_INVALID_ENUM, fmt::format("Invalid texture style '{}'", texture_style));
+            }
+        }
+
+        operator unsigned int() const {
+            return value;
+        }
+        operator std::string() const {
+            switch (value) {
+                case TEXTURE_DIFFUSE: return "TEXTURE_DIFFUSE";
+                case TEXTURE_SPECULAR: return "TEXTURE_SPECULAR";
+                default:
+                    throw_gl_error(GL_INVALID_ENUM, fmt::format("Invalid texture style '{}'", value));
                     return "UNKNOWN";
             }
         }
@@ -447,6 +488,11 @@ namespace gl {
             bind();
             glBufferData(GL_ARRAY_BUFFER, N * sizeof(float), &vertices[0], draw_method);
         }
+        template <typename T>
+        void copy_data(const std::vector<T>& vertices, const unsigned int& draw_method) {
+            bind();
+            glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(T), &vertices[0], draw_method);
+        }
 
         // Allow this vertex buffer wrapper to be passed OpenGL functions
         // OpenGL functions expect an unsigned int
@@ -491,6 +537,10 @@ namespace gl {
             bind();
             glBufferData(GL_ELEMENT_ARRAY_BUFFER, N * sizeof(unsigned int), &indices[0], draw_method);
         }
+        void copy_data(const std::vector<unsigned int>& indices, const unsigned int& draw_method) {
+            bind();
+            glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], draw_method);
+        }
 
         // Allow this element buffer wrapper to be passed OpenGL functions
         // OpenGL functions expect an unsigned int
@@ -508,9 +558,10 @@ namespace gl {
     struct texture {
         // Create an uninitialsed texture
         // ------------------------------
-        texture(const TextureType& texture_type) {
+        texture(const TextureType& texture_type, const TextureStyle& texture_style = TextureStyle::TEXTURE_DIFFUSE) {
             glGenTextures(1, &tex);
-            this->texture_type = texture_type;
+            this->texture_type  = texture_type;
+            this->texture_style = texture_style;
             texture_data.clear();
         }
         // Create a texture and initialise it with the given image file
@@ -518,9 +569,13 @@ namespace gl {
         // image: Path to the image file to load
         // texture_type: The type of the texture that we are loading
         // ------------------------------------------------------------
-        texture(const std::string& image, const TextureType& texture_type) {
+        texture(const std::string& image,
+                const TextureType& texture_type,
+                const TextureStyle& texture_style = TextureStyle::TEXTURE_DIFFUSE) {
             glGenTextures(1, &tex);
-            this->texture_type = texture_type;
+            this->texture_type  = texture_type;
+            this->texture_style = texture_style;
+            this->texture_path  = image;
 
             unsigned char* data = SOIL_load_image(image.c_str(), &width, &height, &channels, SOIL_LOAD_AUTO);
             texture_data.clear();
@@ -652,9 +707,19 @@ namespace gl {
             return tex;
         }
 
+        TextureStyle style() const {
+            return texture_style;
+        }
+
+        std::string path() const {
+            return texture_path;
+        }
+
     private:
         unsigned int tex;
         TextureType texture_type;
+        TextureStyle texture_style;
+        std::string texture_path;
         int width, height, channels;
         std::vector<unsigned char> texture_data;
     };
