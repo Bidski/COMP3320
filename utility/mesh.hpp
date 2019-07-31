@@ -23,6 +23,25 @@
 namespace utility {
 namespace mesh {
     struct Vertex {
+        Vertex(const glm::vec3& position, const glm::vec3& normal, const glm::vec2& tex)
+            : position(position), normal(normal), tex(tex) {}
+        Vertex(glm::vec3&& position, glm::vec3&& normal, glm::vec2&& tex)
+            : position(position), normal(normal), tex(tex) {}
+        Vertex(const Vertex& vertex) : position(vertex.position), normal(vertex.normal), tex(vertex.tex) {}
+        Vertex(Vertex&& vertex) noexcept
+            : position(std::move(vertex.position)), normal(std::move(vertex.normal)), tex(std::move(vertex.tex)) {}
+        Vertex& operator=(const Vertex& vertex) {
+            position = vertex.position;
+            normal   = vertex.normal;
+            tex      = vertex.tex;
+            return *this;
+        }
+        Vertex& operator=(Vertex&& vertex) {
+            position = std::move(vertex.position);
+            normal   = std::move(vertex.normal);
+            tex      = std::move(vertex.tex);
+            return *this;
+        }
         glm::vec3 position;
         glm::vec3 normal;
         glm::vec2 tex;
@@ -39,6 +58,43 @@ namespace mesh {
              std::vector<utility::gl::texture>&& textures)
             : vertices(vertices), indices(indices), textures(textures) {
             setup_mesh();
+        }
+        ~Mesh() {
+            vertices.clear();
+            indices.clear();
+            textures.clear();
+        }
+        Mesh(const Mesh& mesh)
+            : vertices(mesh.vertices)
+            , indices(mesh.indices)
+            , textures(mesh.textures)
+            , VAO(mesh.VAO)
+            , VBO(mesh.VBO)
+            , EBO(mesh.EBO) {}
+        Mesh(Mesh&& mesh) noexcept
+            : vertices(std::move(mesh.vertices))
+            , indices(std::move(mesh.indices))
+            , textures(std::move(mesh.textures))
+            , VAO(std::move(mesh.VAO))
+            , VBO(std::move(mesh.VBO))
+            , EBO(std::move(mesh.EBO)) {}
+        Mesh& operator=(const Mesh& mesh) {
+            vertices = mesh.vertices;
+            indices  = mesh.indices;
+            textures = mesh.textures;
+            VAO      = mesh.VAO;
+            VBO      = mesh.VBO;
+            EBO      = mesh.EBO;
+            return *this;
+        }
+        Mesh& operator=(Mesh&& mesh) {
+            vertices = std::move(mesh.vertices);
+            indices  = std::move(mesh.indices);
+            textures = std::move(mesh.textures);
+            VAO      = std::move(mesh.VAO);
+            VBO      = std::move(mesh.VBO);
+            EBO      = std::move(mesh.EBO);
+            return *this;
         }
 
         void render(utility::gl::shader_program& program) {

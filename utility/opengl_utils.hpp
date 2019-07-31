@@ -47,14 +47,15 @@ namespace gl {
             UNKNOWN
         };
         Value value;
-        ShaderType() {
-            value = Value::UNKNOWN;
-        }
+        ShaderType() : value(Value::UNKNOWN) {}
+        ShaderType(const ShaderType& shader) : value(shader.value) {}
+        ShaderType(ShaderType&& shader) : value(std::exchange(shader.value, UNKNOWN)) {}
         ShaderType(const unsigned int& shader_type) {
             switch (shader_type) {
                 case GL_VERTEX_SHADER: value = Value::VERTEX_SHADER; break;
                 case GL_FRAGMENT_SHADER: value = Value::FRAGMENT_SHADER; break;
                 case GL_GEOMETRY_SHADER: value = Value::GEOMETRY_SHADER; break;
+                case UNKNOWN: value = Value::UNKNOWN; break;
                 default: throw_gl_error(GL_INVALID_ENUM, fmt::format("Invalid shader type '{}'", shader_type));
             }
         }
@@ -68,11 +69,22 @@ namespace gl {
             else if (shader_type == "GL_GEOMETRY_SHADER" || shader_type == "GEOMETRY_SHADER") {
                 value = Value::GEOMETRY_SHADER;
             }
+            else if (shader_type == "UNKNOWN") {
+                value = Value::UNKNOWN;
+            }
             else {
                 throw_gl_error(GL_INVALID_ENUM, fmt::format("Invalid shader type '{}'", shader_type));
             }
         }
 
+        ShaderType& operator=(const ShaderType& shader) {
+            value = shader.value;
+            return *this;
+        }
+        ShaderType& operator=(ShaderType&& shader) {
+            value = std::exchange(shader.value, UNKNOWN);
+            return *this;
+        }
         operator unsigned int() const {
             return value;
         }
@@ -81,6 +93,7 @@ namespace gl {
                 case Value::VERTEX_SHADER: return "VERTEX_SHADER";
                 case Value::FRAGMENT_SHADER: return "FRAGMENT_SHADER";
                 case Value::GEOMETRY_SHADER: return "GEOMETRY_SHADER";
+                case Value::UNKNOWN: return "UNKNOWN";
                 default:
                     throw_gl_error(GL_INVALID_ENUM, fmt::format("Invalid shader type '{}'", value));
                     return "UNKNOWN";
@@ -102,9 +115,9 @@ namespace gl {
             UNKNOWN
         };
         Value value;
-        TextureType() {
-            value = Value::UNKNOWN;
-        }
+        TextureType() : value(Value::UNKNOWN) {}
+        TextureType(const TextureType& tex) : value(tex.value) {}
+        TextureType(TextureType&& tex) : value(std::exchange(tex.value, UNKNOWN)) {}
         TextureType(const unsigned int& texture_type) {
             switch (texture_type) {
                 case GL_TEXTURE_1D: value = Value::TEXTURE_1D; break;
@@ -114,6 +127,7 @@ namespace gl {
                 case GL_TEXTURE_2D_MULTISAMPLE: value = Value::TEXTURE_2D_MULTISAMPLE; break;
                 case GL_TEXTURE_2D_MULTISAMPLE_ARRAY: value = Value::TEXTURE_2D_MULTISAMPLE_ARRAY; break;
                 case GL_TEXTURE_3D: value = Value::TEXTURE_3D; break;
+                case UNKNOWN: value = Value::UNKNOWN; break;
                 default: throw_gl_error(GL_INVALID_ENUM, fmt::format("Invalid texture type '{}'", texture_type));
             }
         }
@@ -140,11 +154,22 @@ namespace gl {
             else if (texture_type == "TEXTURE_3D" || texture_type == "GL_TEXTURE_3D") {
                 value = Value::TEXTURE_3D;
             }
+            else if (texture_type == "UNKNOWN") {
+                value = Value::UNKNOWN;
+            }
             else {
                 throw_gl_error(GL_INVALID_ENUM, fmt::format("Invalid texture type '{}'", texture_type));
             }
         }
 
+        TextureType& operator=(const TextureType& tex) {
+            value = tex.value;
+            return *this;
+        }
+        TextureType& operator=(TextureType&& tex) {
+            value = std::exchange(tex.value, UNKNOWN);
+            return *this;
+        }
         operator unsigned int() const {
             return value;
         }
@@ -157,6 +182,7 @@ namespace gl {
                 case GL_TEXTURE_2D_MULTISAMPLE: return "TEXTURE_2D_MULTISAMPLE";
                 case GL_TEXTURE_2D_MULTISAMPLE_ARRAY: return "TEXTURE_2D_MULTISAMPLE_ARRAY";
                 case GL_TEXTURE_3D: return "TEXTURE_3D";
+                case UNKNOWN: return "UNKNOWN";
                 default:
                     throw_gl_error(GL_INVALID_ENUM, fmt::format("Invalid texture type '{}'", value));
                     return "UNKNOWN";
@@ -169,13 +195,14 @@ namespace gl {
     struct TextureStyle {
         enum Value { TEXTURE_DIFFUSE = 0, TEXTURE_SPECULAR = 1, UNKNOWN };
         Value value;
-        TextureStyle() {
-            value = Value::UNKNOWN;
-        }
+        TextureStyle() : value(Value::UNKNOWN) {}
+        TextureStyle(const TextureStyle& tex) : value(tex.value) {}
+        TextureStyle(TextureStyle&& tex) : value(std::exchange(tex.value, UNKNOWN)) {}
         TextureStyle(const unsigned int& texture_style) {
             switch (texture_style) {
-                case TEXTURE_DIFFUSE: value = Value::TEXTURE_DIFFUSE; break;
-                case TEXTURE_SPECULAR: value = Value::TEXTURE_SPECULAR; break;
+                case Value::TEXTURE_DIFFUSE: value = Value::TEXTURE_DIFFUSE; break;
+                case Value::TEXTURE_SPECULAR: value = Value::TEXTURE_SPECULAR; break;
+                case Value::UNKNOWN: value = Value::UNKNOWN; break;
                 default: throw_gl_error(GL_INVALID_ENUM, fmt::format("Invalid texture style '{}'", texture_style));
             }
         }
@@ -186,18 +213,30 @@ namespace gl {
             else if (texture_style == "TEXTURE_SPECULAR") {
                 value = Value::TEXTURE_SPECULAR;
             }
+            else if (texture_style == "UNKNOWN") {
+                value = Value::UNKNOWN;
+            }
             else {
                 throw_gl_error(GL_INVALID_ENUM, fmt::format("Invalid texture style '{}'", texture_style));
             }
         }
 
+        TextureStyle& operator=(const TextureStyle& tex) {
+            value = tex.value;
+            return *this;
+        }
+        TextureStyle& operator=(TextureStyle&& tex) {
+            value = std::exchange(tex.value, UNKNOWN);
+            return *this;
+        }
         operator unsigned int() const {
             return value;
         }
         operator std::string() const {
             switch (value) {
-                case TEXTURE_DIFFUSE: return "TEXTURE_DIFFUSE";
-                case TEXTURE_SPECULAR: return "TEXTURE_SPECULAR";
+                case Value::TEXTURE_DIFFUSE: return "TEXTURE_DIFFUSE";
+                case Value::TEXTURE_SPECULAR: return "TEXTURE_SPECULAR";
+                case Value::UNKNOWN: return "UNKNOWN";
                 default:
                     throw_gl_error(GL_INVALID_ENUM, fmt::format("Invalid texture style '{}'", value));
                     return "UNKNOWN";
@@ -214,13 +253,39 @@ namespace gl {
             program = glCreateProgram();
             throw_gl_error(glGetError(), fmt::format("Failed to create shader program"));
         }
+        shader_program(const shader_program& prog)
+            : shaders(prog.shaders), program(prog.program), uniforms(prog.uniforms) {}
+        shader_program(shader_program&& prog) noexcept
+            : shaders(std::move(prog.shaders))
+            , program(std::exchange(prog.program, 0))
+            , uniforms(std::move(prog.uniforms)) {}
         // Clean up all references
         ~shader_program() {
             for (auto& shader : shaders) {
-                glDeleteShader(shader);
+                if (glIsShader(program) == GL_TRUE) {
+                    std::cout << "Deleting shader" << std::endl;
+                    glDeleteShader(shader);
+                    throw_gl_error(glGetError(), fmt::format("Failed to delete shader object"));
+                }
             }
             shaders.clear();
-            glDeleteProgram(program);
+            if (glIsProgram(program) == GL_TRUE) {
+                std::cout << "Deleting program" << std::endl;
+                glDeleteProgram(program);
+                throw_gl_error(glGetError(), fmt::format("Failed to delete shader program"));
+            }
+        }
+        shader_program& operator=(const shader_program& prog) {
+            shaders  = prog.shaders;
+            program  = prog.program;
+            uniforms = prog.uniforms;
+            return *this;
+        }
+        shader_program& operator=(shader_program&& prog) noexcept {
+            shaders  = std::move(prog.shaders);
+            program  = std::exchange(prog.program, 0);
+            uniforms = std::move(prog.uniforms);
+            return *this;
         }
 
         // Add shader source code from a file
@@ -408,22 +473,39 @@ namespace gl {
         // ----------------------------
         vertex_array() {
             glGenVertexArrays(1, &VAO);
+            throw_gl_error(glGetError(), fmt::format("Failed to generate vertex array"));
         }
+        vertex_array(const vertex_array& va) : VAO(va.VAO) {}
+        vertex_array(vertex_array&& va) noexcept : VAO(std::exchange(va.VAO, 0)) {}
         // Delete the vertex array
         // -----------------------
         ~vertex_array() {
-            glDeleteVertexArrays(1, &VAO);
+            if (glIsVertexArray(VAO) == GL_TRUE) {
+                std::cout << "Deleting vertex array" << std::endl;
+                glDeleteVertexArrays(1, &VAO);
+                throw_gl_error(glGetError(), fmt::format("Failed to delete vertex array"));
+            }
+        }
+        vertex_array& operator=(const vertex_array& va) {
+            VAO = va.VAO;
+            return *this;
+        }
+        vertex_array& operator=(vertex_array&& va) {
+            VAO = std::exchange(va.VAO, 0);
+            return *this;
         }
 
         // Bind the vertex array and make it active
         // ----------------------------------------
         void bind() {
             glBindVertexArray(VAO);
+            throw_gl_error(glGetError(), fmt::format("Failed to bind vertex array"));
         }
         // Deactivate the vertex array
         // ---------------------------
         void unbind() {
             glBindVertexArray(0);
+            throw_gl_error(glGetError(), fmt::format("Failed to unbind vertex array"));
         }
 
         // Add a vertex attribute to the vertex array
@@ -442,7 +524,9 @@ namespace gl {
                                   normalised ? GL_TRUE : GL_FALSE,
                                   width * sizeof(Scalar),
                                   (void*) (offset * sizeof(Scalar)));
+            throw_gl_error(glGetError(), fmt::format("Failed to create vertex attribute pointer"));
             glEnableVertexAttribArray(location);
+            throw_gl_error(glGetError(), fmt::format("Failed to enable vertex attribute pointer"));
         }
 
         // Allow this vertex array wrapper to be passed OpenGL functions
@@ -463,22 +547,39 @@ namespace gl {
         // -----------------------------
         vertex_buffer() {
             glGenBuffers(1, &VBO);
+            throw_gl_error(glGetError(), fmt::format("Failed to generate vertex buffer"));
         }
+        vertex_buffer(const vertex_buffer& vb) : VBO(vb.VBO) {}
+        vertex_buffer(vertex_buffer&& vb) noexcept : VBO(std::exchange(vb.VBO, 0)) {}
         // Delete the vertex buffer
         // ------------------------
         ~vertex_buffer() {
-            glDeleteBuffers(1, &VBO);
+            if (glIsBuffer(VBO) == GL_TRUE) {
+                std::cout << "Deleting vertex buffer" << std::endl;
+                glDeleteBuffers(1, &VBO);
+                throw_gl_error(glGetError(), fmt::format("Failed to delete vertex buffer"));
+            }
+        }
+        vertex_buffer& operator=(const vertex_buffer& vb) {
+            VBO = vb.VBO;
+            return *this;
+        }
+        vertex_buffer& operator=(vertex_buffer&& vb) {
+            VBO = std::exchange(vb.VBO, 0);
+            return *this;
         }
 
         // Bind the vertex buffer and make it active
         // -----------------------------------------
         void bind() {
             glBindBuffer(GL_ARRAY_BUFFER, VBO);
+            throw_gl_error(glGetError(), fmt::format("Failed to bind vertex buffer"));
         }
         // Deactivate the vertex buffer
         // ----------------------------
         void unbind() {
             glBindBuffer(GL_ARRAY_BUFFER, 0);
+            throw_gl_error(glGetError(), fmt::format("Failed to unbind vertex buffer"));
         }
 
         // Copy vertex buffer data to the GPU
@@ -487,11 +588,13 @@ namespace gl {
         void copy_data(const std::array<float, N>& vertices, const unsigned int& draw_method) {
             bind();
             glBufferData(GL_ARRAY_BUFFER, N * sizeof(float), &vertices[0], draw_method);
+            throw_gl_error(glGetError(), fmt::format("Failed to copy statically-allocated vertex buffer data"));
         }
         template <typename T>
         void copy_data(const std::vector<T>& vertices, const unsigned int& draw_method) {
             bind();
             glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(T), &vertices[0], draw_method);
+            throw_gl_error(glGetError(), fmt::format("Failed to copy dynamically-allocated vertex buffer data"));
         }
 
         // Allow this vertex buffer wrapper to be passed OpenGL functions
@@ -512,22 +615,39 @@ namespace gl {
         // ------------------------------
         element_buffer() {
             glGenBuffers(1, &EBO);
+            throw_gl_error(glGetError(), fmt::format("Failed to generate vertex buffer"));
         }
+        element_buffer(const element_buffer& eb) : EBO(eb.EBO) {}
+        element_buffer(element_buffer&& eb) noexcept : EBO(std::exchange(eb.EBO, 0)) {}
         // Delete the element buffer
         // -------------------------
         ~element_buffer() {
-            glDeleteBuffers(1, &EBO);
+            if (glIsBuffer(EBO) == GL_TRUE) {
+                std::cout << "Deleting element buffer" << std::endl;
+                glDeleteBuffers(1, &EBO);
+                throw_gl_error(glGetError(), fmt::format("Failed to delete vertex buffer"));
+            }
+        }
+        element_buffer& operator=(const element_buffer& eb) {
+            EBO = eb.EBO;
+            return *this;
+        }
+        element_buffer& operator=(element_buffer&& eb) {
+            EBO = std::exchange(eb.EBO, 0);
+            return *this;
         }
 
         // Bind the element buffer and make it active
         // ------------------------------------------
         void bind() {
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+            throw_gl_error(glGetError(), fmt::format("Failed to bind element buffer"));
         }
         // Deactivate the element buffer
         // -----------------------------
         void unbind() {
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+            throw_gl_error(glGetError(), fmt::format("Failed to unbind element buffer"));
         }
 
         // Copy the element buffer data to the GPU
@@ -536,10 +656,12 @@ namespace gl {
         void copy_data(const std::array<unsigned int, N>& indices, const unsigned int& draw_method) {
             bind();
             glBufferData(GL_ELEMENT_ARRAY_BUFFER, N * sizeof(unsigned int), &indices[0], draw_method);
+            throw_gl_error(glGetError(), fmt::format("Failed to copy statically-allocated element buffer data"));
         }
         void copy_data(const std::vector<unsigned int>& indices, const unsigned int& draw_method) {
             bind();
             glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], draw_method);
+            throw_gl_error(glGetError(), fmt::format("Failed to copy dynamically-allocated element buffer data"));
         }
 
         // Allow this element buffer wrapper to be passed OpenGL functions
@@ -560,6 +682,7 @@ namespace gl {
         // ------------------------------
         texture(const TextureType& texture_type, const TextureStyle& texture_style = TextureStyle::TEXTURE_DIFFUSE) {
             glGenTextures(1, &tex);
+            throw_gl_error(glGetError(), fmt::format("Failed to generate texture"));
             this->texture_type  = texture_type;
             this->texture_style = texture_style;
             texture_data.clear();
@@ -573,6 +696,7 @@ namespace gl {
                 const TextureType& texture_type,
                 const TextureStyle& texture_style = TextureStyle::TEXTURE_DIFFUSE) {
             glGenTextures(1, &tex);
+            throw_gl_error(glGetError(), fmt::format("Failed to generate texture"));
             this->texture_type  = texture_type;
             this->texture_style = texture_style;
             this->texture_path  = image;
@@ -582,10 +706,54 @@ namespace gl {
             texture_data.assign(data, data + (width * height * channels));
             SOIL_free_image_data(data);
         }
+        texture(const texture& other_texture)
+            : tex(other_texture.tex)
+            , texture_type(other_texture.texture_type)
+            , texture_style(other_texture.texture_style)
+            , texture_path(other_texture.texture_path)
+            , width(other_texture.width)
+            , height(other_texture.height)
+            , channels(other_texture.channels)
+            , texture_data(other_texture.texture_data) {}
+        texture(texture&& other_texture) noexcept
+            : tex(std::exchange(other_texture.tex, 0))
+            , texture_type(std::exchange(other_texture.texture_type, TextureType::UNKNOWN))
+            , texture_style(std::exchange(other_texture.texture_style, TextureStyle::UNKNOWN))
+            , texture_path(std::move(other_texture.texture_path))
+            , width(std::exchange(other_texture.width, 0))
+            , height(std::exchange(other_texture.height, 0))
+            , channels(std::exchange(other_texture.channels, 0))
+            , texture_data(std::move(other_texture.texture_data)) {}
         // Delete the texture
         // ------------------
         ~texture() {
-            glDeleteTextures(1, &tex);
+            if (glIsTexture(tex) == GL_TRUE) {
+                std::cout << "Deleting texture " << tex << std::endl;
+                glDeleteTextures(1, &tex);
+                throw_gl_error(glGetError(), fmt::format("Failed to delete texture"));
+            }
+        }
+        texture& operator=(const texture& other_texture) {
+            tex           = other_texture.tex;
+            texture_type  = other_texture.texture_type;
+            texture_style = other_texture.texture_style;
+            texture_path  = other_texture.texture_path;
+            width         = other_texture.width;
+            height        = other_texture.height;
+            channels      = other_texture.channels;
+            texture_data  = other_texture.texture_data;
+            return *this;
+        }
+        texture& operator=(texture&& other_texture) {
+            tex           = std::exchange(other_texture.tex, 0);
+            texture_type  = std::exchange(other_texture.texture_type, TextureType::UNKNOWN);
+            texture_style = std::exchange(other_texture.texture_style, TextureStyle::UNKNOWN);
+            texture_path  = std::move(other_texture.texture_path);
+            width         = std::exchange(other_texture.width, 0);
+            height        = std::exchange(other_texture.height, 0);
+            channels      = std::exchange(other_texture.channels, 0);
+            texture_data  = std::move(other_texture.texture_data);
+            return *this;
         }
 
         // Load texture data from the provided array
