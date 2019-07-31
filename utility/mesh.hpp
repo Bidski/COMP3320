@@ -22,6 +22,7 @@
 
 namespace utility {
 namespace mesh {
+#pragma pack(push, 1)
     struct Vertex {
         Vertex(const glm::vec3& position, const glm::vec3& normal, const glm::vec2& tex)
             : position(position), normal(normal), tex(tex) {}
@@ -46,6 +47,8 @@ namespace mesh {
         glm::vec3 normal;
         glm::vec2 tex;
     };
+    static_assert(sizeof(Vertex) == 32, "The compiler is adding padding to this struct, Bad compiler!");
+#pragma pack(pop)
     struct Mesh {
         Mesh(const std::vector<Vertex>& vertices,
              const std::vector<unsigned int>& indices,
