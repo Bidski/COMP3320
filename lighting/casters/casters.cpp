@@ -166,7 +166,7 @@ void render(GLFWwindow* window, utility::camera::Camera& camera) {
          -0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f,  0.0f, -1.0f,  0.0f, 0.0f, 0.0f, // bottom face: back left
          -0.5f, -0.5f,  0.5f, 1.0f, 0.0f, 0.0f,  0.0f, -1.0f,  0.0f, 0.0f, 1.0f, // bottom face: front left
           0.0f, -0.5f,  0.0f, 1.0f, 1.0f, 1.0f,  0.0f, -1.0f,  0.0f, 0.5f, 0.5f, // bottom face: center
-          
+
          -0.5f,  0.5f,  0.5f, 0.0f, 1.0f, 0.0f, -1.0f,  0.0f,  0.0f, 1.0f, 1.0f, // left face: front top
          -0.5f,  0.5f, -0.5f, 0.0f, 1.0f, 0.0f, -1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // left face: back top
          -0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f, -1.0f,  0.0f,  0.0f, 0.0f, 0.0f, // left face: back bottom
@@ -189,27 +189,27 @@ void render(GLFWwindow* window, utility::camera::Camera& camera) {
         0, 1, 4, // front right
         0, 3, 4, // front top
         2, 3, 4, // front left
-        
+
         6, 7, 9, // back bottom
         5, 6, 9, // back right
         5, 8, 9, // back top
         7, 8, 9, // back left
-        
+
         11, 12, 14, // top back
         10, 11, 14, // top right
         10, 13, 14, // top front
         12, 13, 14, // top left
-        
+
         16, 17, 19, // bottom back
         15, 16, 19, // bottom right
         15, 18, 19, // bottom front
         17, 18, 19, // bottom left
-        
+
         21, 22, 24, // left back
         20, 21, 24, // left bottom
         20, 23, 24, // left front
         22, 23, 24, // left top
-        
+
         26, 27, 29, // right back
         25, 26, 29, // right bottom
         25, 28, 29, // right front
@@ -274,7 +274,7 @@ void render(GLFWwindow* window, utility::camera::Camera& camera) {
     diffuse_texture.texture_filter(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
 
     utility::gl::texture specular_texture("textures/container_specular.png", GL_TEXTURE_2D);
-    specular_texture.bind(GL_TEXTURE0);
+    specular_texture.bind(GL_TEXTURE1);
     specular_texture.generate(0);
     specular_texture.generate_mipmap();
     specular_texture.texture_wrap(GL_REPEAT, GL_REPEAT);

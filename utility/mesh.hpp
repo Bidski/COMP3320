@@ -119,6 +119,7 @@ namespace mesh {
                                                     fmt::format("Invalid texture style '{}'", textures[i].style()));
                 }
                 program.set_uniform(texture_uniform, i);
+                textures[i].bind(GL_TEXTURE0 + i);
             }
 
             program.set_uniform("material.diffuse_count", diffuse_count);
