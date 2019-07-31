@@ -386,6 +386,7 @@ namespace gl {
                 // Program is linked, we can discard the shaders now
                 for (auto& shader : shaders) {
                     glDeleteShader(shader);
+                    throw_gl_error(glGetError(), fmt::format("Failed to delete shader object"));
                 }
                 shaders.clear();
             }
@@ -398,11 +399,13 @@ namespace gl {
         // ----------------------------------------------
         void use() {
             glUseProgram(program);
+            throw_gl_error(glGetError(), fmt::format("Failed to use shader program"));
         }
         // Deactive this program
         // ---------------------
         void release() {
             glUseProgram(0);
+            throw_gl_error(glGetError(), fmt::format("Failed to release shader program"));
         }
 
         // Get the location of a named uniform in the program
@@ -797,12 +800,15 @@ namespace gl {
         // ---------------------------------------------
         void bind(const unsigned int& unit = GL_TEXTURE0) {
             glActiveTexture(unit);
+            throw_gl_error(glGetError(), fmt::format("Failed to activate texture unit {}", unit - GL_TEXTURE0));
             glBindTexture(texture_type, tex);
+            throw_gl_error(glGetError(), fmt::format("Failed to bind texture"));
         }
         // Deactivate the texture
         // ----------------------
         void unbind() {
             glBindTexture(texture_type, 0);
+            throw_gl_error(glGetError(), fmt::format("Failed to unbind texture"));
         }
 
         // Load the texture data on to the GPU
@@ -828,6 +834,7 @@ namespace gl {
                                  pixel_format,
                                  GL_UNSIGNED_BYTE,
                                  texture_data.data());
+                    throw_gl_error(glGetError(), fmt::format("Failed to generate texture"));
                     break;
                 default:
                     throw_gl_error(GL_INVALID_OPERATION,
@@ -841,6 +848,7 @@ namespace gl {
                 case TextureType::TEXTURE_2D:
                     bind();
                     glGenerateMipmap(GL_TEXTURE_2D);
+                    throw_gl_error(glGetError(), fmt::format("Failed to generate mipmapped texture"));
                     break;
                 default:
                     throw_gl_error(GL_INVALID_OPERATION,
@@ -855,7 +863,9 @@ namespace gl {
                           const unsigned int& unit = GL_TEXTURE0) {
             bind(unit);
             glTexParameteri(texture_type, GL_TEXTURE_WRAP_S, s_wrap);
+            throw_gl_error(glGetError(), fmt::format("Failed to set s-wrap texture parameter"));
             glTexParameteri(texture_type, GL_TEXTURE_WRAP_T, t_wrap);
+            throw_gl_error(glGetError(), fmt::format("Failed to set t-wrap texture parameter"));
         }
 
         // Tell OpenGL how to handle texture minifying and magnifying
@@ -865,7 +875,9 @@ namespace gl {
                             const unsigned int& unit = GL_TEXTURE0) {
             bind(unit);
             glTexParameteri(texture_type, GL_TEXTURE_MIN_FILTER, min_filter);
+            throw_gl_error(glGetError(), fmt::format("Failed to set min-filter texture parameter"));
             glTexParameteri(texture_type, GL_TEXTURE_MAG_FILTER, mag_filter);
+            throw_gl_error(glGetError(), fmt::format("Failed to set mag-filter texture parameter"));
         }
 
         // Allow this texture  wrapper to be passed OpenGL functions
