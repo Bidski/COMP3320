@@ -2,6 +2,7 @@
 #define UTILITY_MESH_HPP
 
 #include <cstddef>  // for offsetof
+#include <iostream>
 #include <string>
 #include <vector>
 

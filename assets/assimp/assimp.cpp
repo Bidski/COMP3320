@@ -140,10 +140,6 @@ void process_input(GLFWwindow* window, const float& delta_time, utility::camera:
 }
 
 void render(GLFWwindow* window, utility::camera::Camera& camera) {
-    // load nanosuit model
-    // -------------------
-    utility::model::Model nanosuit("models/nanosuit.obj");
-
     // positions of the point lights
     std::array<PointLight, 4> point_lights = {
         PointLight{
@@ -166,6 +162,11 @@ void render(GLFWwindow* window, utility::camera::Camera& camera) {
     // -------------------------------------------
     glEnable(GL_DEPTH_TEST);
 
+    // load nanosuit model
+    // -------------------
+    program.use();
+    utility::model::Model nanosuit("models/nanosuit.obj");
+
     // keep track of frame rendering times
     // -----------------------------------
     float delta_time = 0.0f;
@@ -183,7 +184,8 @@ void render(GLFWwindow* window, utility::camera::Camera& camera) {
 
         // clear the screen and the depth buffer
         // -------------------------------------
-        glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
+        glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
+        // glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // render our triangles
