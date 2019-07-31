@@ -104,8 +104,6 @@ namespace mesh {
             int diffuse_count  = 0;
             int specular_count = 0;
 
-            program.use();
-
             for (int i = 0; i < textures.size(); ++i) {
                 std::string texture_uniform;
                 switch (textures[i].style()) {
@@ -119,7 +117,6 @@ namespace mesh {
                         utility::gl::throw_gl_error(GL_INVALID_ENUM,
                                                     fmt::format("Invalid texture style '{}'", textures[i].style()));
                 }
-                textures[i].bind(GL_TEXTURE0 + i);
                 program.set_uniform(texture_uniform, i);
             }
 
