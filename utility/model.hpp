@@ -42,7 +42,10 @@ namespace model {
     private:
         void load_model(const std::string& model) {
             Assimp::Importer importer;
-            const aiScene* scene = importer.ReadFile(model, aiProcess_Triangulate | aiProcess_FlipUVs);
+            const aiScene* scene =
+                importer.ReadFile(model,
+                                  aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_JoinIdenticalVertices
+                                      | aiProcess_GenSmoothNormals);
 
             if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
                 throw std::runtime_error(
@@ -55,21 +58,22 @@ namespace model {
 
             process_node(scene->mRootNode, scene);
         }
+
         void process_node(aiNode* node, const aiScene* scene) {
             // Process all the node's meshes (if any)
+            meshes.reserve(meshes.size() + node->mNumMeshes);
             for (size_t i = 0; i < node->mNumMeshes; ++i) {
                 aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-                meshes.push_back(process_mesh(mesh, scene));
+                process_mesh(mesh, scene);
             }
             // Now process the nodes children (if any)
             for (size_t i = 0; i < node->mNumChildren; ++i) {
                 process_node(node->mChildren[i], scene);
             }
         }
-        utility::mesh::Mesh process_mesh(aiMesh* mesh, const aiScene* scene) {
-            std::vector<utility::mesh::Vertex> vertices;
-            std::vector<unsigned int> indices;
-            std::vector<utility::gl::texture> textures;
+
+        void process_mesh(aiMesh* mesh, const aiScene* scene) {
+            meshes.emplace_back();
 
             for (size_t i = 0; i < mesh->mNumVertices; ++i) {
                 // process vertex positions, normals and texture coordinates
@@ -83,13 +87,14 @@ namespace model {
                     vertex.tex = glm::vec2(mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y);
                 }
 
-                vertices.push_back(vertex);
+                meshes.back().vertices.push_back(vertex);
             }
+
             // process indices
             for (size_t i = 0; i < mesh->mNumFaces; ++i) {
                 aiFace face = mesh->mFaces[i];
                 for (size_t j = 0; j < face.mNumIndices; ++j) {
-                    indices.push_back(face.mIndices[j]);
+                    meshes.back().indices.push_back(face.mIndices[j]);
                 }
             }
 
@@ -98,25 +103,19 @@ namespace model {
                 aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 
                 // Load diffuse maps
-                load_textures(material, aiTextureType_DIFFUSE, utility::gl::TextureStyle::TEXTURE_DIFFUSE, textures);
-                // std::vector<utility::gl::texture> diffuse_maps(
-                //     load_textures(material, aiTextureType_DIFFUSE, utility::gl::TextureStyle::TEXTURE_DIFFUSE));
-                // textures.insert(textures.end(),
-                //                 std::make_move_iterator(diffuse_maps.begin()),
-                //                 std::make_move_iterator(diffuse_maps.end()));
+                load_textures(material,
+                              aiTextureType_DIFFUSE,
+                              utility::gl::TextureStyle::TEXTURE_DIFFUSE,
+                              meshes.back().textures);
 
                 // Load specular maps
-                load_textures(material, aiTextureType_SPECULAR, utility::gl::TextureStyle::TEXTURE_SPECULAR, textures);
-                // std::vector<utility::gl::texture> specular_maps(
-                //     load_textures(material, aiTextureType_SPECULAR, utility::gl::TextureStyle::TEXTURE_SPECULAR));
-                // textures.insert(textures.end(),
-                //                 std::make_move_iterator(specular_maps.begin()),
-                //                 std::make_move_iterator(specular_maps.end()));
-                std::cout << fmt::format("{}:{}", __FILE__, __LINE__) << std::endl;
+                load_textures(material,
+                              aiTextureType_SPECULAR,
+                              utility::gl::TextureStyle::TEXTURE_SPECULAR,
+                              meshes.back().textures);
             }
 
-            std::cout << fmt::format("{}:{}", __FILE__, __LINE__) << std::endl;
-            return utility::mesh::Mesh(std::move(vertices), std::move(indices), std::move(textures));
+            meshes.back().setup_mesh();
         }
 
         void load_textures(aiMaterial* material,
@@ -126,50 +125,17 @@ namespace model {
             for (size_t i = 0; i < material->GetTextureCount(type); ++i) {
                 aiString str;
                 material->GetTexture(type, i, &str);
-                for (const auto& texture : loaded_textures) {
-                    if (texture.path().compare(str.C_Str()) == 0) {
-                        textures.push_back(texture);
-                        continue;
-                    }
-                }
                 textures.emplace_back(
                     fmt::format("{}/{}", directory, str.C_Str()), utility::gl::TextureType::TEXTURE_2D, texture_style);
-                textures.back().bind(GL_TEXTURE0);
+                textures.back().bind(GL_TEXTURE0 + i);
                 textures.back().generate(0);
                 textures.back().generate_mipmap();
                 textures.back().texture_wrap(GL_REPEAT, GL_REPEAT);
                 textures.back().texture_filter(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
-                loaded_textures.push_back(textures.back());
             }
         }
-        // std::vector<utility::gl::texture> load_textures(aiMaterial* material,
-        //                                                 const aiTextureType& type,
-        //                                                 const utility::gl::TextureStyle& texture_style) {
-        //     std::vector<utility::gl::texture> textures;
-        //     for (size_t i = 0; i < material->GetTextureCount(type); ++i) {
-        //         aiString str;
-        //         material->GetTexture(type, i, &str);
-        //         for (const auto& texture : loaded_textures) {
-        //             if (texture.path().compare(str.C_Str()) == 0) {
-        //                 textures.push_back(texture);
-        //                 continue;
-        //             }
-        //         }
-        //         textures.emplace_back(
-        //             fmt::format("{}/{}", directory, str.C_Str()), utility::gl::TextureType::TEXTURE_2D,
-        //             texture_style);
-        //         textures.back().bind(GL_TEXTURE0);
-        //         textures.back().generate(0);
-        //         textures.back().generate_mipmap();
-        //         textures.back().texture_wrap(GL_REPEAT, GL_REPEAT);
-        //         textures.back().texture_filter(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
-        //         loaded_textures.push_back(textures.back());
-        //     }
-        //     return textures;
-        // }
 
         std::vector<utility::mesh::Mesh> meshes;
-        std::vector<utility::gl::texture> loaded_textures;
         std::string directory;
     };
 }  // namespace model

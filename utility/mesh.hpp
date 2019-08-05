@@ -51,53 +51,41 @@ namespace mesh {
     static_assert(sizeof(Vertex) == 32, "The compiler is adding padding to this struct, Bad compiler!");
 #pragma pack(pop)
     struct Mesh {
-        Mesh(const std::vector<Vertex>& vertices,
-             const std::vector<unsigned int>& indices,
-             const std::vector<utility::gl::texture>& textures)
-            : vertices(vertices), indices(indices), textures(textures) {
-            setup_mesh();
+        Mesh() {
+            initialised = false;
         }
         Mesh(std::vector<Vertex>&& vertices,
              std::vector<unsigned int>&& indices,
              std::vector<utility::gl::texture>&& textures)
-            : vertices(vertices), indices(indices), textures(textures) {
+            : vertices(std::move(vertices)), indices(std::move(indices)), textures(std::move(textures)) {
             setup_mesh();
         }
         ~Mesh() {
-            vertices.clear();
-            indices.clear();
-            textures.clear();
+            if (initialised) {
+                std::cout << "Deleting mesh" << std::endl;
+                vertices.clear();
+                indices.clear();
+                textures.clear();
+            }
         }
-        Mesh(const Mesh& mesh)
-            : vertices(mesh.vertices)
-            , indices(mesh.indices)
-            , textures(mesh.textures)
-            , VAO(mesh.VAO)
-            , VBO(mesh.VBO)
-            , EBO(mesh.EBO) {}
+        Mesh(const Mesh& mesh) = delete;
+        Mesh& operator=(const Mesh& mesh) = delete;
         Mesh(Mesh&& mesh) noexcept
             : vertices(std::move(mesh.vertices))
             , indices(std::move(mesh.indices))
             , textures(std::move(mesh.textures))
             , VAO(std::move(mesh.VAO))
             , VBO(std::move(mesh.VBO))
-            , EBO(std::move(mesh.EBO)) {}
-        Mesh& operator=(const Mesh& mesh) {
-            vertices = mesh.vertices;
-            indices  = mesh.indices;
-            textures = mesh.textures;
-            VAO      = mesh.VAO;
-            VBO      = mesh.VBO;
-            EBO      = mesh.EBO;
-            return *this;
-        }
+            , EBO(std::move(mesh.EBO))
+            , initialised(std::exchange(mesh.initialised, false)) {}
         Mesh& operator=(Mesh&& mesh) {
-            vertices = std::move(mesh.vertices);
-            indices  = std::move(mesh.indices);
-            textures = std::move(mesh.textures);
-            VAO      = std::move(mesh.VAO);
-            VBO      = std::move(mesh.VBO);
-            EBO      = std::move(mesh.EBO);
+            vertices    = std::move(mesh.vertices);
+            indices     = std::move(mesh.indices);
+            textures    = std::move(mesh.textures);
+            VAO         = std::move(mesh.VAO);
+            VBO         = std::move(mesh.VBO);
+            EBO         = std::move(mesh.EBO);
+            initialised = std::exchange(mesh.initialised, false);
             return *this;
         }
 
@@ -119,7 +107,6 @@ namespace mesh {
                                                     fmt::format("Invalid texture style '{}'", textures[i].style()));
                 }
                 program.set_uniform(texture_uniform, i);
-                textures[i].bind(GL_TEXTURE0 + i);
             }
 
             program.set_uniform("material.diffuse_count", diffuse_count);
@@ -130,15 +117,6 @@ namespace mesh {
             glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
             VAO.unbind();
         }
-
-        std::vector<Vertex> vertices;
-        std::vector<unsigned int> indices;
-        std::vector<utility::gl::texture> textures;
-
-    private:
-        utility::gl::vertex_array VAO;
-        utility::gl::vertex_buffer VBO;
-        utility::gl::element_buffer EBO;
 
         void setup_mesh() {
             // Bind the vertex array
@@ -161,7 +139,18 @@ namespace mesh {
             VAO.unbind();
             VBO.unbind();
             EBO.unbind();
+            initialised = true;
         }
+
+        std::vector<Vertex> vertices;
+        std::vector<unsigned int> indices;
+        std::vector<utility::gl::texture> textures;
+
+    private:
+        utility::gl::vertex_array VAO;
+        utility::gl::vertex_buffer VBO;
+        utility::gl::element_buffer EBO;
+        bool initialised;
     };
 }  // namespace mesh
 }  // namespace utility

@@ -253,8 +253,8 @@ namespace gl {
             program = glCreateProgram();
             throw_gl_error(glGetError(), fmt::format("Failed to create shader program"));
         }
-        shader_program(const shader_program& prog)
-            : shaders(prog.shaders), program(prog.program), uniforms(prog.uniforms) {}
+        shader_program(const shader_program& prog) = delete;
+        // : shaders(prog.shaders), program(prog.program), uniforms(prog.uniforms) {}
         shader_program(shader_program&& prog) noexcept
             : shaders(std::move(prog.shaders))
             , program(std::exchange(prog.program, 0))
@@ -263,24 +263,28 @@ namespace gl {
         ~shader_program() {
             for (auto& shader : shaders) {
                 if (glIsShader(program) == GL_TRUE) {
+#ifndef NDEBUG
                     std::cout << "Deleting shader" << std::endl;
+#endif
                     glDeleteShader(shader);
                     throw_gl_error(glGetError(), fmt::format("Failed to delete shader object"));
                 }
             }
             shaders.clear();
             if (glIsProgram(program) == GL_TRUE) {
+#ifndef NDEBUG
                 std::cout << "Deleting program" << std::endl;
+#endif
                 glDeleteProgram(program);
                 throw_gl_error(glGetError(), fmt::format("Failed to delete shader program"));
             }
         }
-        shader_program& operator=(const shader_program& prog) {
-            shaders  = prog.shaders;
-            program  = prog.program;
-            uniforms = prog.uniforms;
-            return *this;
-        }
+        shader_program& operator=(const shader_program& prog) = delete;  // {
+        //     shaders  = prog.shaders;
+        //     program  = prog.program;
+        //     uniforms = prog.uniforms;
+        //     return *this;
+        // }
         shader_program& operator=(shader_program&& prog) noexcept {
             shaders  = std::move(prog.shaders);
             program  = std::exchange(prog.program, 0);
@@ -524,21 +528,23 @@ namespace gl {
             glGenVertexArrays(1, &VAO);
             throw_gl_error(glGetError(), fmt::format("Failed to generate vertex array"));
         }
-        vertex_array(const vertex_array& va) : VAO(va.VAO) {}
+        vertex_array(const vertex_array& va) = delete;  // : VAO(va.VAO) {}
         vertex_array(vertex_array&& va) noexcept : VAO(std::exchange(va.VAO, 0)) {}
         // Delete the vertex array
         // -----------------------
         ~vertex_array() {
             if (glIsVertexArray(VAO) == GL_TRUE) {
+#ifndef NDEBUG
                 std::cout << "Deleting vertex array" << std::endl;
+#endif
                 glDeleteVertexArrays(1, &VAO);
                 throw_gl_error(glGetError(), fmt::format("Failed to delete vertex array"));
             }
         }
-        vertex_array& operator=(const vertex_array& va) {
-            VAO = va.VAO;
-            return *this;
-        }
+        vertex_array& operator=(const vertex_array& va) = delete;  // {
+        //     VAO = va.VAO;
+        //     return *this;
+        // }
         vertex_array& operator=(vertex_array&& va) {
             VAO = std::exchange(va.VAO, 0);
             return *this;
@@ -598,21 +604,23 @@ namespace gl {
             glGenBuffers(1, &VBO);
             throw_gl_error(glGetError(), fmt::format("Failed to generate vertex buffer"));
         }
-        vertex_buffer(const vertex_buffer& vb) : VBO(vb.VBO) {}
+        vertex_buffer(const vertex_buffer& vb) = delete;  // : VBO(vb.VBO) {}
         vertex_buffer(vertex_buffer&& vb) noexcept : VBO(std::exchange(vb.VBO, 0)) {}
         // Delete the vertex buffer
         // ------------------------
         ~vertex_buffer() {
             if (glIsBuffer(VBO) == GL_TRUE) {
+#ifndef NDEBUG
                 std::cout << "Deleting vertex buffer" << std::endl;
+#endif
                 glDeleteBuffers(1, &VBO);
                 throw_gl_error(glGetError(), fmt::format("Failed to delete vertex buffer"));
             }
         }
-        vertex_buffer& operator=(const vertex_buffer& vb) {
-            VBO = vb.VBO;
-            return *this;
-        }
+        vertex_buffer& operator=(const vertex_buffer& vb) = delete;  //{
+        //     VBO = vb.VBO;
+        //     return *this;
+        // }
         vertex_buffer& operator=(vertex_buffer&& vb) {
             VBO = std::exchange(vb.VBO, 0);
             return *this;
@@ -666,21 +674,23 @@ namespace gl {
             glGenBuffers(1, &EBO);
             throw_gl_error(glGetError(), fmt::format("Failed to generate vertex buffer"));
         }
-        element_buffer(const element_buffer& eb) : EBO(eb.EBO) {}
+        element_buffer(const element_buffer& eb) = delete;  // : EBO(eb.EBO) {}
         element_buffer(element_buffer&& eb) noexcept : EBO(std::exchange(eb.EBO, 0)) {}
         // Delete the element buffer
         // -------------------------
         ~element_buffer() {
             if (glIsBuffer(EBO) == GL_TRUE) {
+#ifndef NDEBUG
                 std::cout << "Deleting element buffer" << std::endl;
+#endif
                 glDeleteBuffers(1, &EBO);
                 throw_gl_error(glGetError(), fmt::format("Failed to delete vertex buffer"));
             }
         }
-        element_buffer& operator=(const element_buffer& eb) {
-            EBO = eb.EBO;
-            return *this;
-        }
+        element_buffer& operator=(const element_buffer& eb) = delete;  // {
+        //     EBO = eb.EBO;
+        //     return *this;
+        // }
         element_buffer& operator=(element_buffer&& eb) {
             EBO = std::exchange(eb.EBO, 0);
             return *this;
@@ -759,22 +769,17 @@ namespace gl {
                         "File: {} == Data: ({}, {}, {}) -> '{}'", image, width, height, channels, SOIL_last_result()));
             }
             else {
-                std::cout << fmt::format(
-                    "File: {} == Data: ({}, {}, {}) -> '{}'", image, width, height, channels, SOIL_last_result())
-                          << std::endl;
+#ifndef NDEBUG
+                std::cout
+                    << fmt::format(
+                           "File: {} == Data: ({}, {}, {}) -> '{}'", image, width, height, channels, SOIL_last_result())
+                    << std::endl;
+#endif
                 texture_data.assign(data, data + (width * height * channels));
                 SOIL_free_image_data(data);
             }
         }
-        texture(const texture& other_texture)
-            : tex(other_texture.tex)
-            , texture_type(other_texture.texture_type)
-            , texture_style(other_texture.texture_style)
-            , texture_path(other_texture.texture_path)
-            , width(other_texture.width)
-            , height(other_texture.height)
-            , channels(other_texture.channels)
-            , texture_data(other_texture.texture_data) {}
+        texture(const texture& other_texture) = delete;
         texture(texture&& other_texture) noexcept
             : tex(std::exchange(other_texture.tex, 0))
             , texture_type(std::exchange(other_texture.texture_type, TextureType::UNKNOWN))
@@ -788,23 +793,15 @@ namespace gl {
         // ------------------
         ~texture() {
             if (glIsTexture(tex) == GL_TRUE) {
+#ifndef NDEBUG
                 std::cout << "Deleting texture " << tex << std::endl;
+#endif
                 glDeleteTextures(1, &tex);
                 throw_gl_error(glGetError(), fmt::format("Failed to delete texture"));
             }
         }
-        texture& operator=(const texture& other_texture) {
-            tex           = other_texture.tex;
-            texture_type  = other_texture.texture_type;
-            texture_style = other_texture.texture_style;
-            texture_path  = other_texture.texture_path;
-            width         = other_texture.width;
-            height        = other_texture.height;
-            channels      = other_texture.channels;
-            texture_data  = other_texture.texture_data;
-            return *this;
-        }
-        texture& operator=(texture&& other_texture) {
+        texture& operator=(const texture& other_texture) = delete;
+        texture& operator                                =(texture&& other_texture) {
             tex           = std::exchange(other_texture.tex, 0);
             texture_type  = std::exchange(other_texture.texture_type, TextureType::UNKNOWN);
             texture_style = std::exchange(other_texture.texture_style, TextureStyle::UNKNOWN);
