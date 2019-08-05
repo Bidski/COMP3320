@@ -4,8 +4,8 @@
 // *** CONSTANTS ***
 // *****************
 #define NR_POINT_LIGHTS 4
-#define NR_DIFFUSE_MAPS 1
-#define NR_SPECULAR_MAPS 1
+#define NR_DIFFUSE_MAPS 5
+#define NR_SPECULAR_MAPS 5
 
 // *****************
 // ***   TYPES   ***

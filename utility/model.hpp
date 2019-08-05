@@ -63,8 +63,9 @@ namespace model {
             // Process all the node's meshes (if any)
             meshes.reserve(meshes.size() + node->mNumMeshes);
             for (size_t i = 0; i < node->mNumMeshes; ++i) {
-                aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-                process_mesh(mesh, scene);
+                // The node object only contains indices to index the actual objects in the scene.
+                // The scene contains all the data, node is just to keep stuff organized (like relations between nodes).
+                process_mesh(scene->mMeshes[node->mMeshes[i]], scene);
             }
             // Now process the nodes children (if any)
             for (size_t i = 0; i < node->mNumChildren; ++i) {

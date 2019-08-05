@@ -106,9 +106,18 @@ namespace mesh {
                         utility::gl::throw_gl_error(GL_INVALID_ENUM,
                                                     fmt::format("Invalid texture style '{}'", textures[i].style()));
                 }
+
+                // Activate the appropriate texture unit before setting the uniform
+                glActiveTexture(GL_TEXTURE0 + i);
+
+                // Set the texture uniform
                 program.set_uniform(texture_uniform, i);
+
+                // Bind the texture
+                textures[i].bind(GL_TEXTURE0 + i);
             }
 
+            // Set the actual number of diffuse and specular maps that we loaded
             program.set_uniform("material.diffuse_count", diffuse_count);
             program.set_uniform("material.specular_count", specular_count);
 
@@ -116,6 +125,9 @@ namespace mesh {
             VAO.bind();
             glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
             VAO.unbind();
+
+            // Always good practice to set everything back to defaults once configured
+            glActiveTexture(GL_TEXTURE0);
         }
 
         void setup_mesh() {
