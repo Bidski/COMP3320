@@ -131,9 +131,9 @@ namespace mesh {
             EBO.copy_data(indices, GL_STATIC_DRAW);
 
             // Set up vertex attributes
-            VAO.add_vertex_attrib<float>(0, 3, sizeof(Vertex), GL_FLOAT, false, offsetof(Vertex, position));
-            VAO.add_vertex_attrib<float>(1, 3, sizeof(Vertex), GL_FLOAT, false, offsetof(Vertex, normal));
-            VAO.add_vertex_attrib<float>(2, 2, sizeof(Vertex), GL_FLOAT, false, offsetof(Vertex, tex));
+            VAO.add_vertex_attrib<float>(0, 3, 8, GL_FLOAT, false, 0);
+            VAO.add_vertex_attrib<float>(1, 3, 8, GL_FLOAT, false, 3);
+            VAO.add_vertex_attrib<float>(2, 2, 8, GL_FLOAT, false, 6);
 
             // Unbind the vertex array, vertex buffer, and element buffer
             VAO.unbind();
