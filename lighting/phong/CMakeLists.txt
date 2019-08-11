@@ -1,29 +1,39 @@
 # Include a function to make it easier for us to copy files
-INCLUDE(CopyFiles)
+include(CopyFiles)
 
 # Find all shader files
-FILE(GLOB_RECURSE shader_files
-    "${CMAKE_CURRENT_SOURCE_DIR}/shaders/**.vert"
-    "${CMAKE_CURRENT_SOURCE_DIR}/shaders/**.frag"
-)
+file(GLOB_RECURSE
+     shader_files
+     "${CMAKE_CURRENT_SOURCE_DIR}/shaders/**.vert"
+     "${CMAKE_CURRENT_SOURCE_DIR}/shaders/**.frag")
 
 # Copy shader files to build directory
-COPY_FILES("${shader_files}" "${CMAKE_BINARY_DIR}" shaders)
+copy_files("${shader_files}" "${CMAKE_BINARY_DIR}" shaders)
 
-# Create our executable 
-ADD_EXECUTABLE(phong phong.cpp ${shaders} ${textures})
+add_custom_target(phong_data_files DEPENDS ${shaders})
+
+# Create our executable
+add_executable(phong phong.cpp)
+add_dependencies(phong phong_data_files)
 
 # Build the executable into bin folder
-SET_TARGET_PROPERTIES(phong
-  PROPERTIES
-  RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
-)
+set_target_properties(phong
+                      PROPERTIES RUNTIME_OUTPUT_DIRECTORY
+                                 "${CMAKE_BINARY_DIR}/bin")
 
 # Specify include paths and libraries needed to build our executable
-TARGET_INCLUDE_DIRECTORIES(phong PRIVATE ${GLAD_INCLUDE_DIRS} ${SOIL_INCLUDE_DIRS} ${CMAKE_SOURCE_DIR})
-TARGET_LINK_LIBRARIES(phong glfw ${GLAD_LIBRARIES} ${SOIL_LIBRARIES} glm fmt::fmt)
+target_include_directories(phong
+                           PRIVATE ${GLAD_INCLUDE_DIRS} ${SOIL_INCLUDE_DIRS}
+                                   ${CMAKE_SOURCE_DIR})
+target_link_libraries(phong
+                      glfw
+                      ${GLAD_LIBRARIES}
+                      ${SOIL_LIBRARIES}
+                      glm
+                      fmt::fmt)
 
-# On linux/unix systems we also need to link against the dynamic loader libraries
-IF(UNIX)
-    TARGET_LINK_LIBRARIES(phong ${CMAKE_DL_LIBS})
-ENDIF(UNIX)
+# On linux/unix systems we also need to link against the dynamic loader
+# libraries
+if(UNIX)
+  target_link_libraries(phong ${CMAKE_DL_LIBS})
+endif(UNIX)

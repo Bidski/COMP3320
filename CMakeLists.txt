@@ -1,35 +1,38 @@
 # Set the minimum cmake version that we need to function properly
-CMAKE_MINIMUM_REQUIRED(VERSION 3.0)
+cmake_minimum_required(VERSION 3.0)
 
 # Set the name of the project and the languages that we need
-PROJECT(COMP3320 LANGUAGES C CXX)
+project(COMP3320 LANGUAGES C CXX)
 
 # We use the C++14 standard
-SET(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 14)
 
 # Force enable diagnostic colours for clang and gcc
-IF(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
-    ADD_COMPILE_OPTIONS(-fdiagnostics-color=always)
-ELSEIF(${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
-    ADD_COMPILE_OPTIONS(-fcolor-diagnostics)
-ENDIF()
+if(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
+  add_compile_options(-fdiagnostics-color=always)
+elseif(${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
+  add_compile_options(-fcolor-diagnostics)
+endif()
 
 # We use additional modules that cmake needs to know about
-SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake/Modules/")
-SET(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${CMAKE_SOURCE_DIR}/3rdparty/build)
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH}
+                      "${PROJECT_SOURCE_DIR}/cmake/Modules/")
+set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${CMAKE_SOURCE_DIR}/3rdparty/build)
 
 # Now find all of our dependencies
-FIND_PACKAGE(glfw3 REQUIRED)
-FIND_PACKAGE(glm REQUIRED)
-FIND_PACKAGE(assimp REQUIRED)
-FIND_PACKAGE(glew REQUIRED)
-FIND_PACKAGE(fmt REQUIRED)
-FIND_PACKAGE(SOIL REQUIRED)
-FIND_PACKAGE(GLAD REQUIRED)
+find_package(glfw3 REQUIRED)
+find_package(glm REQUIRED)
+find_package(glew REQUIRED)
+find_package(fmt REQUIRED)
+find_package(SOIL REQUIRED)
+find_package(GLAD REQUIRED)
+find_package(assimp REQUIRED)
+find_package(OpenAL REQUIRED)
+find_package(SndFile REQUIRED)
 
 # Add tutorials
-ADD_SUBDIRECTORY(introduction)
+add_subdirectory(introduction)
 
-ADD_SUBDIRECTORY(lighting)
+add_subdirectory(lighting)
 
-ADD_SUBDIRECTORY(assets)
+add_subdirectory(assets)

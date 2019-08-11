@@ -71,7 +71,7 @@ std::string opengl_error_category_t::message(int code) const noexcept {
         case GL_INVALID_VALUE: return "Invalid value";
         case GL_INVALID_OPERATION: return "Invalid operation";
         case GL_INVALID_FRAMEBUFFER_OPERATION: return "Invalid framebuffer operation";
-        case GL_OUT_OF_MEMORY: return "Of memory";
+        case GL_OUT_OF_MEMORY: return "Out of memory";
         default: return "Unknown error";
     }
 }

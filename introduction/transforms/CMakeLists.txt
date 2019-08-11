@@ -1,39 +1,49 @@
 # Include a function to make it easier for us to copy files
-INCLUDE(CopyFiles)
+include(CopyFiles)
 
 # Find all shader files
-FILE(GLOB_RECURSE shader_files
-    "${CMAKE_CURRENT_SOURCE_DIR}/shaders/**.vert"
-    "${CMAKE_CURRENT_SOURCE_DIR}/shaders/**.frag"
-)
+file(GLOB_RECURSE
+     shader_files
+     "${CMAKE_CURRENT_SOURCE_DIR}/shaders/**.vert"
+     "${CMAKE_CURRENT_SOURCE_DIR}/shaders/**.frag")
 
 # Copy shader files to build directory
-COPY_FILES("${shader_files}" "${CMAKE_BINARY_DIR}" shaders)
+copy_files("${shader_files}" "${CMAKE_BINARY_DIR}" shaders)
 
 # Find all texture files
-FILE(GLOB_RECURSE texture_files
-    "${CMAKE_CURRENT_SOURCE_DIR}/textures/**.png"
-    "${CMAKE_CURRENT_SOURCE_DIR}/textures/**.jpg"
-    "${CMAKE_CURRENT_SOURCE_DIR}/textures/**.jpeg"
-)
+file(GLOB_RECURSE
+     texture_files
+     "${CMAKE_CURRENT_SOURCE_DIR}/textures/**.png"
+     "${CMAKE_CURRENT_SOURCE_DIR}/textures/**.jpg"
+     "${CMAKE_CURRENT_SOURCE_DIR}/textures/**.jpeg")
 
 # Copy texture files to build directory
-COPY_FILES("${texture_files}" "${CMAKE_BINARY_DIR}" textures)
+copy_files("${texture_files}" "${CMAKE_BINARY_DIR}" textures)
 
-# Create our executable 
-ADD_EXECUTABLE(transforms transforms.cpp ${shaders} ${textures})
+add_custom_target(transforms_data_files DEPENDS ${shaders} ${textures})
+
+# Create our executable
+add_executable(transforms transforms.cpp)
+add_dependencies(transforms transforms_data_files)
 
 # Build the executable into bin folder
-SET_TARGET_PROPERTIES(transforms
-  PROPERTIES
-  RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
-)
+set_target_properties(transforms
+                      PROPERTIES RUNTIME_OUTPUT_DIRECTORY
+                                 "${CMAKE_BINARY_DIR}/bin")
 
 # Specify include paths and libraries needed to build our executable
-TARGET_INCLUDE_DIRECTORIES(transforms PRIVATE ${GLAD_INCLUDE_DIRS} ${SOIL_INCLUDE_DIRS} ${CMAKE_SOURCE_DIR})
-TARGET_LINK_LIBRARIES(transforms glfw ${GLAD_LIBRARIES} ${SOIL_LIBRARIES} glm fmt::fmt)
+target_include_directories(transforms
+                           PRIVATE ${GLAD_INCLUDE_DIRS} ${SOIL_INCLUDE_DIRS}
+                                   ${CMAKE_SOURCE_DIR})
+target_link_libraries(transforms
+                      glfw
+                      ${GLAD_LIBRARIES}
+                      ${SOIL_LIBRARIES}
+                      glm
+                      fmt::fmt)
 
-# On linux/unix systems we also need to link against the dynamic loader libraries
-IF(UNIX)
-    TARGET_LINK_LIBRARIES(transforms ${CMAKE_DL_LIBS})
-ENDIF(UNIX)
+# On linux/unix systems we also need to link against the dynamic loader
+# libraries
+if(UNIX)
+  target_link_libraries(transforms ${CMAKE_DL_LIBS})
+endif(UNIX)

@@ -56,8 +56,8 @@ int main() {
 
     // glfw window creation
     // --------------------
-    GLFWwindow* window = glfwCreateWindow(
-        SCREEN_WIDTH, SCREEN_HEIGHT, "COMP3320 OpenGL Introduction: Keyboard and Mouse Input", NULL, NULL);
+    GLFWwindow* window =
+        glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "COMP3320 OpenGL Introduction: Light Casters", NULL, NULL);
     if (window == NULL) {
         std::cerr << fmt::format("Failed to create GLFW window with dimension {}x{}", SCREEN_WIDTH, SCREEN_HEIGHT)
                   << std::endl;

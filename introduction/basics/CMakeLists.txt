@@ -1,17 +1,20 @@
-# Create our executable 
-ADD_EXECUTABLE(basics basics.cpp)
+# Create our executable
+add_executable(basics basics.cpp)
 
 # Build the executable into bin folder
-SET_TARGET_PROPERTIES(basics
-  PROPERTIES
-  RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
-)
+set_target_properties(basics
+                      PROPERTIES RUNTIME_OUTPUT_DIRECTORY
+                                 "${CMAKE_BINARY_DIR}/bin")
 
 # Specify include paths and libraries needed to build our executable
-TARGET_INCLUDE_DIRECTORIES(basics PRIVATE ${GLAD_INCLUDE_DIRS})
-TARGET_LINK_LIBRARIES(basics glfw ${GLAD_LIBRARIES} fmt::fmt)
+target_include_directories(basics PRIVATE ${GLAD_INCLUDE_DIRS})
+target_link_libraries(basics
+                      glfw
+                      ${GLAD_LIBRARIES}
+                      fmt::fmt)
 
-# On linux/unix systems we also need to link against the dynamic loader libraries
-IF(UNIX)
-    TARGET_LINK_LIBRARIES(basics ${CMAKE_DL_LIBS})
-ENDIF(UNIX)
+# On linux/unix systems we also need to link against the dynamic loader
+# libraries
+if(UNIX)
+  target_link_libraries(basics ${CMAKE_DL_LIBS})
+endif(UNIX)

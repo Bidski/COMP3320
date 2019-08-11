@@ -1,29 +1,36 @@
 # Include a function to make it easier for us to copy files
-INCLUDE(CopyFiles)
+include(CopyFiles)
 
 # Find all shader files
-FILE(GLOB_RECURSE shader_files
-    "${CMAKE_CURRENT_SOURCE_DIR}/shaders/**.vert"
-    "${CMAKE_CURRENT_SOURCE_DIR}/shaders/**.frag"
-)
+file(GLOB_RECURSE
+     shader_files
+     "${CMAKE_CURRENT_SOURCE_DIR}/shaders/**.vert"
+     "${CMAKE_CURRENT_SOURCE_DIR}/shaders/**.frag")
 
 # Copy shader files to build directory
-COPY_FILES("${shader_files}" "${CMAKE_BINARY_DIR}" shaders)
+copy_files("${shader_files}" "${CMAKE_BINARY_DIR}" shaders)
 
-# Create our executable 
-ADD_EXECUTABLE(indexing indexing.cpp ${shaders})
+add_custom_target(indexing_data_files DEPENDS ${shaders})
+
+# Create our executable
+add_executable(indexing indexing.cpp)
+add_dependencies(indexing indexing_data_files)
 
 # Build the executable into bin folder
-SET_TARGET_PROPERTIES(indexing
-  PROPERTIES
-  RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
-)
+set_target_properties(indexing
+                      PROPERTIES RUNTIME_OUTPUT_DIRECTORY
+                                 "${CMAKE_BINARY_DIR}/bin")
 
 # Specify include paths and libraries needed to build our executable
-TARGET_INCLUDE_DIRECTORIES(indexing PRIVATE ${GLAD_INCLUDE_DIRS} ${CMAKE_SOURCE_DIR})
-TARGET_LINK_LIBRARIES(indexing glfw ${GLAD_LIBRARIES} fmt::fmt)
+target_include_directories(indexing
+                           PRIVATE ${GLAD_INCLUDE_DIRS} ${CMAKE_SOURCE_DIR})
+target_link_libraries(indexing
+                      glfw
+                      ${GLAD_LIBRARIES}
+                      fmt::fmt)
 
-# On linux/unix systems we also need to link against the dynamic loader libraries
-IF(UNIX)
-    TARGET_LINK_LIBRARIES(indexing ${CMAKE_DL_LIBS})
-ENDIF(UNIX)
+# On linux/unix systems we also need to link against the dynamic loader
+# libraries
+if(UNIX)
+  target_link_libraries(indexing ${CMAKE_DL_LIBS})
+endif(UNIX)

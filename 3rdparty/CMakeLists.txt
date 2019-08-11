@@ -1,173 +1,266 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 3.0)
-PROJECT(COMP3320_External LANGUAGES C CXX)
+cmake_minimum_required(VERSION 3.0)
+project(COMP3320_External LANGUAGES C CXX)
 
-SET(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 14)
 
-IF(UNIX)
-    # Make sure X11 is found and components are available
-    FIND_PACKAGE(X11 REQUIRED)
+if(UNIX)
+  # Make sure X11 is found and components are available
+  find_package(X11 REQUIRED)
 
-    IF(NOT X11_Xinerama_FOUND)
-        MESSAGE(FATAL_ERROR "Unable to find X11 Xinerama. You must install this first.")
-    ENDIF(NOT X11_Xinerama_FOUND)
+  if(NOT X11_Xinerama_FOUND)
+    message(
+      FATAL_ERROR "Unable to find X11 Xinerama. You must install this first.")
+  endif(NOT X11_Xinerama_FOUND)
 
-    IF(NOT X11_Xi_FOUND)
-        MESSAGE(FATAL_ERROR "Unable to find X11 Xi. You must install this first.")
-    ENDIF(NOT X11_Xi_FOUND)
+  if(NOT X11_Xi_FOUND)
+    message(FATAL_ERROR "Unable to find X11 Xi. You must install this first.")
+  endif(NOT X11_Xi_FOUND)
 
-    IF(NOT X11_Xcursor_FOUND)
-        MESSAGE(FATAL_ERROR "Unable to find X11 Xcursor. You must install this first.")
-    ENDIF(NOT X11_Xcursor_FOUND)
-ENDIF(UNIX)
+  if(NOT X11_Xcursor_FOUND)
+    message(
+      FATAL_ERROR "Unable to find X11 Xcursor. You must install this first.")
+  endif(NOT X11_Xcursor_FOUND)
+endif(UNIX)
 
 # Download and build all of our dependencies
-INCLUDE("${CMAKE_ROOT}/Modules/ExternalProject.cmake")
+include("${CMAKE_ROOT}/Modules/ExternalProject.cmake")
+
+ExternalProject_Add(GLFW3
+                    GIT_REPOSITORY "https://github.com/glfw/glfw.git"
+                    GIT_TAG "master"
+                    UPDATE_COMMAND ""
+                    PATCH_COMMAND ""
+                    SOURCE_DIR "${CMAKE_SOURCE_DIR}/GLFW3"
+                    CMAKE_ARGS -DCMAKE_INSTALL_LIBDIR=lib
+                               -DBUILD_SHARED_LIBS=ON
+                               -DGLFW_BUILD_EXAMPLES=ON
+                               -DGLFW_BUILD_TESTS=ON
+                               -DGLFW_BUILD_DOCS=ON
+                               -DCMAKE_BUILD_TYPE=Release
+                               -DGLFW_INSTALL=ON
+                               -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}
+                    BUILD_COMMAND make
+                    INSTALL_DIR "${CMAKE_BINARY_DIR}"
+                    INSTALL_COMMAND make install
+                    TEST_COMMAND "")
+
+ExternalProject_Add(GLM
+                    GIT_REPOSITORY "https://github.com/g-truc/glm.git"
+                    GIT_TAG "master"
+                    UPDATE_COMMAND ""
+                    PATCH_COMMAND ""
+                    SOURCE_DIR "${CMAKE_SOURCE_DIR}/GLM"
+                    CMAKE_ARGS -DCMAKE_INSTALL_LIBDIR=lib
+                               -DBUILD_SHARED_LIBS=ON
+                               -DBUILD_STATIC_LIBS=ON
+                               -DGLM_TEST_ENABLE_CXX_14=ON
+                               -DGLM_TEST_ENABLE_LANG_EXTENSIONS=ON
+                               -DGLM_TEST_ENABLE_FAST_MATH=ON
+                               -DGLM_TEST_ENABLE=ON
+                               -DCMAKE_BUILD_TYPE=Release
+                               -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}
+                    BUILD_COMMAND make
+                    INSTALL_DIR "${CMAKE_BINARY_DIR}"
+                    INSTALL_COMMAND make install
+                    TEST_COMMAND "")
 
 ExternalProject_Add(
-    GLFW3
-
-    GIT_REPOSITORY "https://github.com/glfw/glfw.git"
-    GIT_TAG "master"
-
-    UPDATE_COMMAND ""
-    PATCH_COMMAND ""
-
-    SOURCE_DIR "${CMAKE_SOURCE_DIR}/GLFW3"
-    CMAKE_ARGS -DCMAKE_INSTALL_LIBDIR=lib -DBUILD_SHARED_LIBS=ON -DGLFW_BUILD_EXAMPLES=ON -DGLFW_BUILD_TESTS=ON -DGLFW_BUILD_DOCS=ON -DCMAKE_BUILD_TYPE=Release -DGLFW_INSTALL=ON -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}
-
-    BUILD_COMMAND make
-
-    INSTALL_DIR "${CMAKE_BINARY_DIR}"
-    INSTALL_COMMAND make install
-
-    TEST_COMMAND ""
-)
+  GLUT
+  SVN_REPOSITORY
+    "http://svn.code.sf.net/p/freeglut/code/trunk/freeglut/freeglut"
+  UPDATE_COMMAND ""
+  PATCH_COMMAND ""
+  SOURCE_DIR "${CMAKE_SOURCE_DIR}/GLUT"
+  CMAKE_ARGS -DCMAKE_INSTALL_LIBDIR=lib
+             -DFREEGLUT_BUILD_SHARED_LIBS=ON
+             -DFREEGLUT_BUILD_STATIC_LIBS=ON
+             -DCMAKE_BUILD_TYPE=Release
+             -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}
+  BUILD_COMMAND make
+  INSTALL_DIR "${CMAKE_BINARY_DIR}"
+  INSTALL_COMMAND make install
+  TEST_COMMAND "")
 
 ExternalProject_Add(
-    GLM
+  ASSIMP
+  DEPENDS GLUT
+  GIT_REPOSITORY "https://github.com/assimp/assimp.git"
+  GIT_TAG "v4.1.0"
+  UPDATE_COMMAND ""
+  PATCH_COMMAND ""
+  SOURCE_DIR "${CMAKE_SOURCE_DIR}/ASSIMP"
+  CMAKE_ARGS -DCMAKE_INSTALL_LIBDIR=lib
+             -DBUILD_SHARED_LIBS=ON
+             -DASSIMP_DOUBLE_PRECISION=ON
+             -DASSIMP_BUILD_ASSIMP_TOOLS=ON
+             -DASSIMP_BUILD_SAMPLES=ON
+             -DASSIMP_BUILD_TESTS=ON
+             -DBUILD_DOCS=ON
+             -DCMAKE_BUILD_TYPE=Release
+             -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}
+             -DGLUT_INCLUDE_DIR=${CMAKE_BINARY_DIR}/include
+             -DGLUT_glut_LIBRARY=${CMAKE_BINARY_DIR}/lib/libglut.so
+  BUILD_COMMAND make
+  INSTALL_DIR "${CMAKE_BINARY_DIR}"
+  INSTALL_COMMAND make install
+  TEST_COMMAND "")
 
-    GIT_REPOSITORY "https://github.com/g-truc/glm.git"
-    GIT_TAG "master"
-
-    UPDATE_COMMAND ""
-    PATCH_COMMAND ""
-
-    SOURCE_DIR "${CMAKE_SOURCE_DIR}/GLM"
-    CMAKE_ARGS -DCMAKE_INSTALL_LIBDIR=lib -DBUILD_SHARED_LIBS=ON -DBUILD_STATIC_LIBS=ON -DGLM_TEST_ENABLE_CXX_14=ON -DGLM_TEST_ENABLE_LANG_EXTENSIONS=ON -DGLM_TEST_ENABLE_FAST_MATH=ON -DGLM_TEST_ENABLE=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}
-
-    BUILD_COMMAND make
-
-    INSTALL_DIR "${CMAKE_BINARY_DIR}"
-    INSTALL_COMMAND make install
-
-    TEST_COMMAND ""
-)
-
-ExternalProject_Add(
-    GLUT
-
-    SVN_REPOSITORY "http://svn.code.sf.net/p/freeglut/code/trunk/freeglut/freeglut"
-
-    UPDATE_COMMAND ""
-    PATCH_COMMAND ""
-
-    SOURCE_DIR "${CMAKE_SOURCE_DIR}/GLUT"
-    CMAKE_ARGS -DCMAKE_INSTALL_LIBDIR=lib -DFREEGLUT_BUILD_SHARED_LIBS=ON -DFREEGLUT_BUILD_STATIC_LIBS=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}
-
-    BUILD_COMMAND make
-
-    INSTALL_DIR "${CMAKE_BINARY_DIR}"
-    INSTALL_COMMAND make install
-
-    TEST_COMMAND ""
-)
-
-ExternalProject_Add(
-    ASSIMP
-    DEPENDS GLUT
-
-    GIT_REPOSITORY "https://github.com/assimp/assimp.git"
-    GIT_TAG "v4.1.0"
-
-    UPDATE_COMMAND ""
-    PATCH_COMMAND ""
-
-    SOURCE_DIR "${CMAKE_SOURCE_DIR}/ASSIMP"
-    CMAKE_ARGS -DCMAKE_INSTALL_LIBDIR=lib -DBUILD_SHARED_LIBS=ON -DASSIMP_DOUBLE_PRECISION=ON -DASSIMP_BUILD_ASSIMP_TOOLS=ON -DASSIMP_BUILD_SAMPLES=ON -DASSIMP_BUILD_TESTS=ON -DBUILD_DOCS=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR} -DGLUT_INCLUDE_DIR=${CMAKE_BINARY_DIR}/include -DGLUT_glut_LIBRARY=${CMAKE_BINARY_DIR}/lib/libglut.so
-
-    BUILD_COMMAND make
-
-    INSTALL_DIR "${CMAKE_BINARY_DIR}"
-    INSTALL_COMMAND make install
-
-    TEST_COMMAND ""
-)
+ExternalProject_Add(GLEW
+                    GIT_REPOSITORY "https://github.com/nigels-com/glew.git"
+                    GIT_TAG "master"
+                    UPDATE_COMMAND ""
+                    PATCH_COMMAND make extensions
+                    SOURCE_DIR "${CMAKE_SOURCE_DIR}/GLEW"
+                    SOURCE_SUBDIR "build/cmake"
+                    CMAKE_ARGS -DCMAKE_INSTALL_LIBDIR=lib
+                               -DOpenGL_GL_PREFERENCE=GLVND
+                               -DBUILD_UTILS=ON
+                               -DCMAKE_BUILD_TYPE=Release
+                               -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}
+                    BUILD_COMMAND make
+                    INSTALL_DIR "${CMAKE_BINARY_DIR}"
+                    INSTALL_COMMAND make install
+                    TEST_COMMAND "")
 
 ExternalProject_Add(
-    GLEW
+  SOIL
+  GIT_REPOSITORY "https://github.com/kbranigan/Simple-OpenGL-Image-Library.git"
+  GIT_TAG "master"
+  UPDATE_COMMAND ""
+  PATCH_COMMAND ""
+  SOURCE_DIR "${CMAKE_SOURCE_DIR}/SOIL"
+  CMAKE_ARGS -DOpenGL_GL_PREFERENCE=GLVND -DCMAKE_BUILD_TYPE=Release
+             -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}
+  BUILD_COMMAND make
+  INSTALL_DIR "${CMAKE_BINARY_DIR}"
+  INSTALL_COMMAND make install
+  TEST_COMMAND "")
 
-    GIT_REPOSITORY "https://github.com/nigels-com/glew.git"
-    GIT_TAG "master"
+ExternalProject_Add(FMT
+                    GIT_REPOSITORY "https://github.com/fmtlib/fmt.git"
+                    GIT_TAG "master"
+                    UPDATE_COMMAND ""
+                    PATCH_COMMAND ""
+                    SOURCE_DIR "${CMAKE_SOURCE_DIR}/FMT"
+                    CMAKE_ARGS -DCMAKE_INSTALL_LIBDIR=lib
+                               -DFMT_DOC=ON
+                               -DFMT_INSTALL=ON
+                               -DBUILD_SHARED_LIBS=ON
+                               -DCMAKE_BUILD_TYPE=Release
+                               -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}
+                    INSTALL_DIR "${CMAKE_BINARY_DIR}"
+                    INSTALL_COMMAND make install
+                    TEST_COMMAND "")
 
-    UPDATE_COMMAND ""
-    PATCH_COMMAND make extensions
+ExternalProject_Add(OPENAL
+                    GIT_REPOSITORY "https://github.com/kcat/openal-soft.git"
+                    GIT_TAG "openal-soft-1.19.1"
+                    UPDATE_COMMAND ""
+                    PATCH_COMMAND ""
+                    SOURCE_DIR "${CMAKE_SOURCE_DIR}/OPENAL"
+                    CMAKE_ARGS -DALSOFT_UTILS=ON
+                               -DALSOFT_EXAMPLES=OFF
+                               -DALSOFT_TESTS=ON
+                               -DALSOFT_INSTALL=ON
+                               -DCMAKE_INSTALL_LIBDIR=lib
+                               -DCMAKE_BUILD_TYPE=Release
+                               -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}
+                    INSTALL_DIR "${CMAKE_BINARY_DIR}"
+                    INSTALL_COMMAND make install
+                    TEST_COMMAND "")
 
-    SOURCE_DIR "${CMAKE_SOURCE_DIR}/GLEW"
-    SOURCE_SUBDIR "build/cmake"
-    CMAKE_ARGS -DCMAKE_INSTALL_LIBDIR=lib -DOpenGL_GL_PREFERENCE=GLVND -DBUILD_UTILS=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}
+ExternalProject_Add(OPUS
+                    GIT_REPOSITORY "https://git.xiph.org/opus.git"
+                    GIT_TAG "master"
+                    UPDATE_COMMAND ""
+                    PATCH_COMMAND ""
+                    SOURCE_DIR "${CMAKE_SOURCE_DIR}/OPUS"
+                    CMAKE_ARGS -DCMAKE_INSTALL_LIBDIR=lib
+                               -DCMAKE_BUILD_TYPE=Release
+                               -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}
+                               -DBUILD_SHARED_LIBS=ON
+                               -DBUILD_PROGRAMS=ON
+                               -DBUILD_TESTING=ON
+                    INSTALL_DIR "${CMAKE_BINARY_DIR}"
+                    INSTALL_COMMAND make install
+                    TEST_COMMAND "")
 
-    BUILD_COMMAND make
+ExternalProject_Add(OGG
+                    GIT_REPOSITORY "https://git.xiph.org/ogg.git"
+                    GIT_TAG "master"
+                    UPDATE_COMMAND ""
+                    PATCH_COMMAND ""
+                    SOURCE_DIR "${CMAKE_SOURCE_DIR}/OGG"
+                    CMAKE_ARGS -DCMAKE_INSTALL_LIBDIR=lib
+                               -DCMAKE_BUILD_TYPE=Release
+                               -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}
+                               -DBUILD_SHARED_LIBS=ON
+                               -DBUILD_TESTING=ON
+                    INSTALL_DIR "${CMAKE_BINARY_DIR}"
+                    INSTALL_COMMAND make install
+                    TEST_COMMAND "")
 
-    INSTALL_DIR "${CMAKE_BINARY_DIR}"
-    INSTALL_COMMAND make install
+ExternalProject_Add(FLAC
+                    DEPENDS OGG
+                    GIT_REPOSITORY "https://git.xiph.org/flac.git"
+                    GIT_TAG "master"
+                    UPDATE_COMMAND ""
+                    PATCH_COMMAND ""
+                    SOURCE_DIR "${CMAKE_SOURCE_DIR}/FLAC"
+                    CMAKE_ARGS -DCMAKE_INSTALL_LIBDIR=lib
+                               -DCMAKE_BUILD_TYPE=Release
+                               -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}
+                               -DBUILD_SHARED_LIBS=ON
+                               -DWITH_OGG=ON
+                               -DBUILD_CXXLIBS=ON
+                               -DBUILD_EXAMPLES=ON
+                               -DBUILD_TESTING=ON
+                               -DCMAKE_C_FLAGS="-lm"
+                               -DCMAKE_CXX_FLAGS="-lm"
+                    INSTALL_DIR "${CMAKE_BINARY_DIR}"
+                    INSTALL_COMMAND make install
+                    TEST_COMMAND "")
 
-    TEST_COMMAND ""
-)
+ExternalProject_Add(VORBIS
+                    DEPENDS OGG
+                    GIT_REPOSITORY "https://git.xiph.org/vorbis.git"
+                    GIT_TAG "master"
+                    UPDATE_COMMAND ""
+                    PATCH_COMMAND ""
+                    SOURCE_DIR "${CMAKE_SOURCE_DIR}/VORBIS"
+                    CMAKE_ARGS -DCMAKE_INSTALL_LIBDIR=lib
+                               -DCMAKE_BUILD_TYPE=Release
+                               -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}
+                               -DBUILD_SHARED_LIBS=ON
+                    INSTALL_DIR "${CMAKE_BINARY_DIR}"
+                    INSTALL_COMMAND make install
+                    TEST_COMMAND "")
 
-ExternalProject_Add(
-    SOIL
+ExternalProject_Add(LIBSNDFILE
+                    DEPENDS OGG
+                            VORBIS
+                            FLAC
+                            OPUS
+                    GIT_REPOSITORY "https://github.com/erikd/libsndfile.git"
+                    GIT_TAG "master"
+                    UPDATE_COMMAND ""
+                    PATCH_COMMAND ""
+                    SOURCE_DIR "${CMAKE_SOURCE_DIR}/LIBSNDFILE"
+                    CMAKE_ARGS -DCMAKE_INSTALL_LIBDIR=lib
+                               -DCMAKE_BUILD_TYPE=Release
+                               -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}
+                               -DENABLE_EXTERNAL_LIBS=OFF
+                               -DENABLE_EXPERIMENTAL=OFF
+                    INSTALL_DIR "${CMAKE_BINARY_DIR}"
+                    INSTALL_COMMAND make install
+                    TEST_COMMAND "")
 
-    GIT_REPOSITORY "https://github.com/kbranigan/Simple-OpenGL-Image-Library.git"
-    GIT_TAG "master"
-
-    UPDATE_COMMAND ""
-    PATCH_COMMAND ""
-
-    SOURCE_DIR "${CMAKE_SOURCE_DIR}/SOIL"
-    CMAKE_ARGS -DOpenGL_GL_PREFERENCE=GLVND -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}
-
-    BUILD_COMMAND make
-
-    INSTALL_DIR "${CMAKE_BINARY_DIR}"
-    INSTALL_COMMAND make install
-
-    TEST_COMMAND ""
-)
-
-ExternalProject_Add(
-    FMT
-
-    GIT_REPOSITORY "https://github.com/fmtlib/fmt.git"
-    GIT_TAG "master"
-
-    UPDATE_COMMAND ""
-    PATCH_COMMAND ""
-
-    SOURCE_DIR "${CMAKE_SOURCE_DIR}/FMT"
-    CMAKE_ARGS -DCMAKE_INSTALL_LIBDIR=lib -DFMT_DOC=ON -DFMT_INSTALL=ON -DBUILD_SHARED_LIBS=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}
-
-    INSTALL_DIR "${CMAKE_BINARY_DIR}"
-    INSTALL_COMMAND make install
-
-    TEST_COMMAND ""
-)
-
-# Build the GLAD library
-# This depends on sources that need to be manually downloaded
-IF(EXISTS "${CMAKE_SOURCE_DIR}/GLAD")
-    ADD_LIBRARY(GLAD ${CMAKE_SOURCE_DIR}/GLAD/src/glad.c)
-    TARGET_INCLUDE_DIRECTORIES(GLAD PUBLIC ${CMAKE_SOURCE_DIR}/GLAD/include)
-ELSE()
-    MESSAGE(FATAL_ERROR "Unable to find GLAD. You must install this first.")
-    MESSAGE(FATAL_ERROR "Go to https://glad.dav1d.de/ and generate GLAD files.")
-ENDIF(EXISTS "${CMAKE_SOURCE_DIR}/GLAD")
+# Build the GLAD library This depends on sources that need to be manually
+# downloaded
+if(EXISTS "${CMAKE_SOURCE_DIR}/GLAD")
+  add_library(GLAD ${CMAKE_SOURCE_DIR}/GLAD/src/glad.c)
+  target_include_directories(GLAD PUBLIC ${CMAKE_SOURCE_DIR}/GLAD/include)
+else()
+  message(FATAL_ERROR "Unable to find GLAD. You must install this first.")
+  message(FATAL_ERROR "Go to https://glad.dav1d.de/ and generate GLAD files.")
+endif(EXISTS "${CMAKE_SOURCE_DIR}/GLAD")
