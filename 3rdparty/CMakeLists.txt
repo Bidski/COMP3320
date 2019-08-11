@@ -85,7 +85,7 @@ ExternalProject_Add(
   ASSIMP
   DEPENDS GLUT
   GIT_REPOSITORY "https://github.com/assimp/assimp.git"
-  GIT_TAG "v4.1.0"
+  GIT_TAG "v.5.0.0.rc1"
   UPDATE_COMMAND ""
   PATCH_COMMAND ""
   SOURCE_DIR "${CMAKE_SOURCE_DIR}/ASSIMP"

@@ -51,7 +51,7 @@ target_link_libraries(openal_audio
                       ${SOIL_LIBRARIES}
                       glm
                       fmt::fmt
-                      ${ASSIMP_LIBRARIES}
+                      assimp::assimp
                       ${OPENAL_LIBRARY}
                       SndFile::sndfile)
 
