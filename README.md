@@ -3,9 +3,11 @@ COMP3320 OpenGL Tutorials
 
 This repository contains some example code for using OpenGL in a C++ environment using a CMake build system.
 
+This code is heavily based on the tutorials provided at [learnopengl.com](https://learnopengl.com).
+
 Getting Started
 ---------------
-
+https://learnopengl.com/
 1. Build 3rdparty dependencies
 
 ```bash
