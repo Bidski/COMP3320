@@ -17,6 +17,18 @@
 
 3rdparty/SOIL/
 
+3rdparty/FLAC/
+
+3rdparty/LIBSNDFILE/
+
+3rdparty/OGG/
+
+3rdparty/OPENAL/
+
+3rdparty/OPUS/
+
+3rdparty/VORBIS/
+
 tags
 
 slides/*/*.aux
