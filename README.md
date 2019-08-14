@@ -30,3 +30,34 @@ make
 ```bash
 ./bin/movement
 ```
+
+Folder Structure
+----------------
+
+```
+COMP3320
+├── 3rdparty        3rd party libraries
+├── cmake
+│   └── Modules     Extra CMake utilities and Find modules
+├── introduction    Basic introductory examples
+│   ├── basics      Setting up a simple OpenGL window and context
+│   ├── triangle    Rendering our first triangle
+│   ├── indexing    Rendering multiple triangles with element buffers
+│   ├── uniforms    Using uniforms to add colour
+│   ├── attributes  Using vertex attributes to add more colour
+│   ├── textures    Using images to texture objects
+│   ├── transforms  How to transform objects
+│   ├── mvp         Setting up the model, view, and projection transforms
+│   ├── multi_cube  Using multiple model transforms to create multiple objects
+│   └── movement    Adding a camera and moving around the scene
+├── lighting        Examples showing how to add lighting
+│   ├── phong       Setting up the basic lighting equations for ambient, diffuse, and specular lighting
+│   ├── materials   Setting up material objects
+│   ├── maps        Using textures to determine lighting colours and effects
+│   └── casters     Using multiple different types of light (directional, point lights, spot lights)
+├── assets          Examples showing how to load in assets
+│   ├── assimp      Example showing how to use Open Asset Importer library for loading 3D models
+│   └── openal      Example showing how to use OpenAL and libsndfile for loading audio
+├── utility         Utility classes
+└── slides          Lecture slides
+```
