@@ -210,13 +210,10 @@ ExternalProject_Add(FLAC
                     CMAKE_ARGS -DCMAKE_INSTALL_LIBDIR=lib
                                -DCMAKE_BUILD_TYPE=Release
                                -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}
-                               -DBUILD_SHARED_LIBS=ON
                                -DWITH_OGG=ON
                                -DBUILD_CXXLIBS=ON
                                -DBUILD_EXAMPLES=ON
                                -DBUILD_TESTING=ON
-                               -DCMAKE_C_FLAGS="-lm"
-                               -DCMAKE_CXX_FLAGS="-lm"
                     INSTALL_DIR "${CMAKE_BINARY_DIR}"
                     INSTALL_COMMAND make install
                     TEST_COMMAND "")
