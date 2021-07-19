@@ -29,6 +29,10 @@
 
 3rdparty/VORBIS/
 
+3rdparty/LAME/
+
+3rdparty/MPG123/
+
 tags
 
 slides/*/*.aux

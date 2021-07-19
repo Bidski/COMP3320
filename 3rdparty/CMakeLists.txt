@@ -29,44 +29,50 @@ endif(UNIX)
 # Download and build all of our dependencies
 include("${CMAKE_ROOT}/Modules/ExternalProject.cmake")
 
-ExternalProject_Add(GLFW3
-                    GIT_REPOSITORY "https://github.com/glfw/glfw.git"
-                    GIT_TAG "master"
-                    UPDATE_COMMAND ""
-                    PATCH_COMMAND ""
-                    SOURCE_DIR "${CMAKE_SOURCE_DIR}/GLFW3"
-                    CMAKE_ARGS -DCMAKE_INSTALL_LIBDIR=lib
-                               -DBUILD_SHARED_LIBS=ON
-                               -DGLFW_BUILD_EXAMPLES=ON
-                               -DGLFW_BUILD_TESTS=ON
-                               -DGLFW_BUILD_DOCS=ON
-                               -DCMAKE_BUILD_TYPE=Release
-                               -DGLFW_INSTALL=ON
-                               -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}
-                    BUILD_COMMAND make
-                    INSTALL_DIR "${CMAKE_BINARY_DIR}"
-                    INSTALL_COMMAND make install
-                    TEST_COMMAND "")
+ExternalProject_Add(
+  GLFW3
+  GIT_REPOSITORY "https://github.com/glfw/glfw.git"
+  GIT_TAG "master"
+  UPDATE_COMMAND ""
+  PATCH_COMMAND ""
+  SOURCE_DIR "${CMAKE_SOURCE_DIR}/GLFW3"
+  CMAKE_ARGS -DCMAKE_INSTALL_LIBDIR=lib
+             -DBUILD_SHARED_LIBS=ON
+             -DGLFW_BUILD_EXAMPLES=ON
+             -DGLFW_BUILD_TESTS=ON
+             -DGLFW_BUILD_DOCS=ON
+             -DCMAKE_BUILD_TYPE=Release
+             -DGLFW_INSTALL=ON
+             -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}
+             -G
+             "Unix Makefiles"
+  BUILD_COMMAND make
+  INSTALL_DIR "${CMAKE_BINARY_DIR}"
+  INSTALL_COMMAND make install
+  TEST_COMMAND "")
 
-ExternalProject_Add(GLM
-                    GIT_REPOSITORY "https://github.com/g-truc/glm.git"
-                    GIT_TAG "master"
-                    UPDATE_COMMAND ""
-                    PATCH_COMMAND ""
-                    SOURCE_DIR "${CMAKE_SOURCE_DIR}/GLM"
-                    CMAKE_ARGS -DCMAKE_INSTALL_LIBDIR=lib
-                               -DBUILD_SHARED_LIBS=ON
-                               -DBUILD_STATIC_LIBS=ON
-                               -DGLM_TEST_ENABLE_CXX_14=ON
-                               -DGLM_TEST_ENABLE_LANG_EXTENSIONS=ON
-                               -DGLM_TEST_ENABLE_FAST_MATH=ON
-                               -DGLM_TEST_ENABLE=ON
-                               -DCMAKE_BUILD_TYPE=Release
-                               -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}
-                    BUILD_COMMAND make
-                    INSTALL_DIR "${CMAKE_BINARY_DIR}"
-                    INSTALL_COMMAND make install
-                    TEST_COMMAND "")
+ExternalProject_Add(
+  GLM
+  GIT_REPOSITORY "https://github.com/g-truc/glm.git"
+  GIT_TAG "master"
+  UPDATE_COMMAND ""
+  PATCH_COMMAND ""
+  SOURCE_DIR "${CMAKE_SOURCE_DIR}/GLM"
+  CMAKE_ARGS -DCMAKE_INSTALL_LIBDIR=lib
+             -DBUILD_SHARED_LIBS=ON
+             -DBUILD_STATIC_LIBS=ON
+             -DGLM_TEST_ENABLE_CXX_14=ON
+             -DGLM_TEST_ENABLE_LANG_EXTENSIONS=ON
+             -DGLM_TEST_ENABLE_FAST_MATH=ON
+             -DGLM_TEST_ENABLE=ON
+             -DCMAKE_BUILD_TYPE=Release
+             -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}
+             -G
+             "Unix Makefiles"
+  BUILD_COMMAND make
+  INSTALL_DIR "${CMAKE_BINARY_DIR}"
+  INSTALL_COMMAND make install
+  TEST_COMMAND "")
 
 ExternalProject_Add(
   GLUT
@@ -80,6 +86,8 @@ ExternalProject_Add(
              -DFREEGLUT_BUILD_STATIC_LIBS=ON
              -DCMAKE_BUILD_TYPE=Release
              -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}
+             -G
+             "Unix Makefiles"
   BUILD_COMMAND make
   INSTALL_DIR "${CMAKE_BINARY_DIR}"
   INSTALL_COMMAND make install
@@ -104,27 +112,32 @@ ExternalProject_Add(
              -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}
              -DGLUT_INCLUDE_DIR=${CMAKE_BINARY_DIR}/include
              -DGLUT_glut_LIBRARY=${CMAKE_BINARY_DIR}/lib/libglut.so
+             -G
+             "Unix Makefiles"
   BUILD_COMMAND make
   INSTALL_DIR "${CMAKE_BINARY_DIR}"
   INSTALL_COMMAND make install
   TEST_COMMAND "")
 
-ExternalProject_Add(GLEW
-                    GIT_REPOSITORY "https://github.com/nigels-com/glew.git"
-                    GIT_TAG "master"
-                    UPDATE_COMMAND ""
-                    PATCH_COMMAND make extensions
-                    SOURCE_DIR "${CMAKE_SOURCE_DIR}/GLEW"
-                    SOURCE_SUBDIR "build/cmake"
-                    CMAKE_ARGS -DCMAKE_INSTALL_LIBDIR=lib
-                               -DOpenGL_GL_PREFERENCE=GLVND
-                               -DBUILD_UTILS=ON
-                               -DCMAKE_BUILD_TYPE=Release
-                               -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}
-                    BUILD_COMMAND make
-                    INSTALL_DIR "${CMAKE_BINARY_DIR}"
-                    INSTALL_COMMAND make install
-                    TEST_COMMAND "")
+ExternalProject_Add(
+  GLEW
+  GIT_REPOSITORY "https://github.com/nigels-com/glew.git"
+  GIT_TAG "master"
+  UPDATE_COMMAND ""
+  PATCH_COMMAND make extensions
+  SOURCE_DIR "${CMAKE_SOURCE_DIR}/GLEW"
+  SOURCE_SUBDIR "build/cmake"
+  CMAKE_ARGS -DCMAKE_INSTALL_LIBDIR=lib
+             -DOpenGL_GL_PREFERENCE=GLVND
+             -DBUILD_UTILS=OFF
+             -DCMAKE_BUILD_TYPE=Release
+             -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}
+             -G
+             "Unix Makefiles"
+  BUILD_COMMAND make
+  INSTALL_DIR "${CMAKE_BINARY_DIR}"
+  INSTALL_COMMAND make install
+  TEST_COMMAND "")
 
 ExternalProject_Add(
   SOIL
@@ -134,127 +147,169 @@ ExternalProject_Add(
   PATCH_COMMAND ""
   SOURCE_DIR "${CMAKE_SOURCE_DIR}/SOIL"
   CMAKE_ARGS -DOpenGL_GL_PREFERENCE=GLVND -DCMAKE_BUILD_TYPE=Release
-             -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}
+             -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR} -G "Unix Makefiles"
   BUILD_COMMAND make
   INSTALL_DIR "${CMAKE_BINARY_DIR}"
   INSTALL_COMMAND make install
   TEST_COMMAND "")
 
-ExternalProject_Add(FMT
-                    GIT_REPOSITORY "https://github.com/fmtlib/fmt.git"
-                    GIT_TAG "master"
-                    UPDATE_COMMAND ""
-                    PATCH_COMMAND ""
-                    SOURCE_DIR "${CMAKE_SOURCE_DIR}/FMT"
-                    CMAKE_ARGS -DCMAKE_INSTALL_LIBDIR=lib
-                               -DFMT_DOC=ON
-                               -DFMT_INSTALL=ON
-                               -DBUILD_SHARED_LIBS=ON
-                               -DCMAKE_BUILD_TYPE=Release
-                               -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}
-                    INSTALL_DIR "${CMAKE_BINARY_DIR}"
-                    INSTALL_COMMAND make install
-                    TEST_COMMAND "")
+ExternalProject_Add(
+  FMT
+  GIT_REPOSITORY "https://github.com/fmtlib/fmt.git"
+  GIT_TAG "master"
+  UPDATE_COMMAND ""
+  PATCH_COMMAND ""
+  SOURCE_DIR "${CMAKE_SOURCE_DIR}/FMT"
+  CMAKE_ARGS -DCMAKE_INSTALL_LIBDIR=lib
+             -DFMT_DOC=ON
+             -DFMT_INSTALL=ON
+             -DBUILD_SHARED_LIBS=ON
+             -DCMAKE_BUILD_TYPE=Release
+             -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}
+             -G
+             "Unix Makefiles"
+  INSTALL_DIR "${CMAKE_BINARY_DIR}"
+  INSTALL_COMMAND make install
+  TEST_COMMAND "")
 
-ExternalProject_Add(OPENAL
-                    GIT_REPOSITORY "https://github.com/kcat/openal-soft.git"
-                    GIT_TAG "openal-soft-1.19.1"
-                    UPDATE_COMMAND ""
-                    PATCH_COMMAND ""
-                    SOURCE_DIR "${CMAKE_SOURCE_DIR}/OPENAL"
-                    CMAKE_ARGS -DALSOFT_UTILS=ON
-                               -DALSOFT_EXAMPLES=OFF
-                               -DALSOFT_TESTS=ON
-                               -DALSOFT_INSTALL=ON
-                               -DCMAKE_INSTALL_LIBDIR=lib
-                               -DCMAKE_BUILD_TYPE=Release
-                               -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}
-                    INSTALL_DIR "${CMAKE_BINARY_DIR}"
-                    INSTALL_COMMAND make install
-                    TEST_COMMAND "")
+ExternalProject_Add(
+  OPENAL
+  GIT_REPOSITORY "https://github.com/kcat/openal-soft.git"
+  GIT_TAG "1.21.1"
+  UPDATE_COMMAND ""
+  PATCH_COMMAND ""
+  SOURCE_DIR "${CMAKE_SOURCE_DIR}/OPENAL"
+  CMAKE_ARGS -DALSOFT_UTILS=ON
+             -DALSOFT_EXAMPLES=OFF
+             -DALSOFT_TESTS=ON
+             -DALSOFT_INSTALL=ON
+             -DCMAKE_INSTALL_LIBDIR=lib
+             -DCMAKE_BUILD_TYPE=Release
+             -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}
+             -G
+             "Unix Makefiles"
+  INSTALL_DIR "${CMAKE_BINARY_DIR}"
+  INSTALL_COMMAND make install
+  TEST_COMMAND "")
 
-ExternalProject_Add(OPUS
-                    GIT_REPOSITORY "https://git.xiph.org/opus.git"
-                    GIT_TAG "master"
-                    UPDATE_COMMAND ""
-                    PATCH_COMMAND ""
-                    SOURCE_DIR "${CMAKE_SOURCE_DIR}/OPUS"
-                    CMAKE_ARGS -DCMAKE_INSTALL_LIBDIR=lib
-                               -DCMAKE_BUILD_TYPE=Release
-                               -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}
-                               -DBUILD_SHARED_LIBS=ON
-                               -DBUILD_PROGRAMS=ON
-                               -DBUILD_TESTING=ON
-                    INSTALL_DIR "${CMAKE_BINARY_DIR}"
-                    INSTALL_COMMAND make install
-                    TEST_COMMAND "")
+ExternalProject_Add(
+  OPUS
+  GIT_REPOSITORY "https://gitlab.xiph.org/xiph/opus.git"
+  GIT_TAG "master"
+  UPDATE_COMMAND ""
+  PATCH_COMMAND ""
+  SOURCE_DIR "${CMAKE_SOURCE_DIR}/OPUS"
+  CMAKE_ARGS -DCMAKE_INSTALL_LIBDIR=lib
+             -DCMAKE_BUILD_TYPE=Release
+             -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}
+             -DBUILD_SHARED_LIBS=ON
+             -DBUILD_PROGRAMS=ON
+             -DBUILD_TESTING=ON
+             -G
+             "Unix Makefiles"
+  INSTALL_DIR "${CMAKE_BINARY_DIR}"
+  INSTALL_COMMAND make install
+  TEST_COMMAND "")
 
-ExternalProject_Add(OGG
-                    GIT_REPOSITORY "https://git.xiph.org/ogg.git"
-                    GIT_TAG "master"
-                    UPDATE_COMMAND ""
-                    PATCH_COMMAND ""
-                    SOURCE_DIR "${CMAKE_SOURCE_DIR}/OGG"
-                    CMAKE_ARGS -DCMAKE_INSTALL_LIBDIR=lib
-                               -DCMAKE_BUILD_TYPE=Release
-                               -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}
-                               -DBUILD_SHARED_LIBS=ON
-                               -DBUILD_TESTING=ON
-                    INSTALL_DIR "${CMAKE_BINARY_DIR}"
-                    INSTALL_COMMAND make install
-                    TEST_COMMAND "")
+ExternalProject_Add(
+  OGG
+  GIT_REPOSITORY "https://gitlab.xiph.org/xiph/ogg.git"
+  GIT_TAG "master"
+  UPDATE_COMMAND ""
+  PATCH_COMMAND ""
+  SOURCE_DIR "${CMAKE_SOURCE_DIR}/OGG"
+  CMAKE_ARGS -DCMAKE_INSTALL_LIBDIR=lib
+             -DCMAKE_BUILD_TYPE=Release
+             -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}
+             -DBUILD_SHARED_LIBS=ON
+             -DBUILD_TESTING=ON
+             -G
+             "Unix Makefiles"
+  INSTALL_DIR "${CMAKE_BINARY_DIR}"
+  INSTALL_COMMAND make install
+  TEST_COMMAND "")
 
-ExternalProject_Add(FLAC
-                    DEPENDS OGG
-                    GIT_REPOSITORY "https://git.xiph.org/flac.git"
-                    GIT_TAG "master"
-                    UPDATE_COMMAND ""
-                    PATCH_COMMAND ""
-                    SOURCE_DIR "${CMAKE_SOURCE_DIR}/FLAC"
-                    CMAKE_ARGS -DCMAKE_INSTALL_LIBDIR=lib
-                               -DCMAKE_BUILD_TYPE=Release
-                               -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}
-                               -DWITH_OGG=ON
-                               -DBUILD_CXXLIBS=ON
-                               -DBUILD_EXAMPLES=ON
-                               -DBUILD_TESTING=ON
-                    INSTALL_DIR "${CMAKE_BINARY_DIR}"
-                    INSTALL_COMMAND make install
-                    TEST_COMMAND "")
+ExternalProject_Add(
+  FLAC
+  DEPENDS OGG
+  GIT_REPOSITORY "https://gitlab.xiph.org/xiph/flac.git"
+  GIT_TAG "master"
+  UPDATE_COMMAND ""
+  PATCH_COMMAND ""
+  SOURCE_DIR "${CMAKE_SOURCE_DIR}/FLAC"
+  CMAKE_ARGS -DCMAKE_INSTALL_LIBDIR=lib
+             -DCMAKE_BUILD_TYPE=Release
+             -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}
+             -DWITH_OGG=ON
+             -DBUILD_CXXLIBS=ON
+             -DBUILD_EXAMPLES=ON
+             -DBUILD_TESTING=ON
+             -G
+             "Unix Makefiles"
+  INSTALL_DIR "${CMAKE_BINARY_DIR}"
+  INSTALL_COMMAND make install
+  TEST_COMMAND "")
 
-ExternalProject_Add(VORBIS
-                    DEPENDS OGG
-                    GIT_REPOSITORY "https://git.xiph.org/vorbis.git"
-                    GIT_TAG "master"
-                    UPDATE_COMMAND ""
-                    PATCH_COMMAND ""
-                    SOURCE_DIR "${CMAKE_SOURCE_DIR}/VORBIS"
-                    CMAKE_ARGS -DCMAKE_INSTALL_LIBDIR=lib
-                               -DCMAKE_BUILD_TYPE=Release
-                               -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}
-                               -DBUILD_SHARED_LIBS=ON
-                    INSTALL_DIR "${CMAKE_BINARY_DIR}"
-                    INSTALL_COMMAND make install
-                    TEST_COMMAND "")
+ExternalProject_Add(
+  VORBIS
+  DEPENDS OGG
+  GIT_REPOSITORY "https://gitlab.xiph.org/xiph/vorbis.git"
+  GIT_TAG "master"
+  UPDATE_COMMAND ""
+  PATCH_COMMAND ""
+  SOURCE_DIR "${CMAKE_SOURCE_DIR}/VORBIS"
+  CMAKE_ARGS -DCMAKE_INSTALL_LIBDIR=lib -DCMAKE_BUILD_TYPE=Release
+             -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR} -DBUILD_SHARED_LIBS=ON
+             -G "Unix Makefiles"
+  INSTALL_DIR "${CMAKE_BINARY_DIR}"
+  INSTALL_COMMAND make install
+  TEST_COMMAND "")
 
-ExternalProject_Add(LIBSNDFILE
-                    DEPENDS OGG
-                            VORBIS
-                            FLAC
-                            OPUS
-                    GIT_REPOSITORY "https://github.com/erikd/libsndfile.git"
-                    GIT_TAG "master"
-                    UPDATE_COMMAND ""
-                    PATCH_COMMAND ""
-                    SOURCE_DIR "${CMAKE_SOURCE_DIR}/LIBSNDFILE"
-                    CMAKE_ARGS -DCMAKE_INSTALL_LIBDIR=lib
-                               -DCMAKE_BUILD_TYPE=Release
-                               -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}
-                               -DENABLE_EXTERNAL_LIBS=OFF
-                               -DENABLE_EXPERIMENTAL=OFF
-                    INSTALL_DIR "${CMAKE_BINARY_DIR}"
-                    INSTALL_COMMAND make install
-                    TEST_COMMAND "")
+ExternalProject_Add(
+  MPG123
+  SVN_REPOSITORY "svn://scm.orgis.org/mpg123/trunk"
+  UPDATE_COMMAND ""
+  PATCH_COMMAND "autoreconf" "-iv"
+  SOURCE_DIR "${CMAKE_SOURCE_DIR}/MPG123"
+  CONFIGURE_COMMAND "${CMAKE_SOURCE_DIR}/MPG123/configure"
+                    "--prefix=${CMAKE_BINARY_DIR}" "--with-optimization=3"
+  BUILD_COMMAND make
+  INSTALL_DIR "${CMAKE_BINARY_DIR}"
+  INSTALL_COMMAND make install
+  TEST_COMMAND "")
+
+ExternalProject_Add(
+  LAME
+  DEPENDS VORBIS
+  SVN_REPOSITORY "https://svn.code.sf.net/p/lame/svn/trunk/lame"
+  PATCH_COMMAND ""
+  SOURCE_DIR "${CMAKE_SOURCE_DIR}/LAME"
+  CONFIGURE_COMMAND
+    "${CMAKE_SOURCE_DIR}/LAME/configure" "--prefix=${CMAKE_BINARY_DIR}"
+    "--with-vorbis" "--with-vorbis-prefix=${CMAKE_BINARY_DIR}"
+  BUILD_COMMAND make
+  INSTALL_DIR "${CMAKE_BINARY_DIR}"
+  INSTALL_COMMAND make install
+  TEST_COMMAND "")
+
+ExternalProject_Add(
+  LIBSNDFILE
+  DEPENDS OGG VORBIS FLAC OPUS MPG123 LAME
+  GIT_REPOSITORY "https://github.com/erikd/libsndfile.git"
+  GIT_TAG "master"
+  UPDATE_COMMAND ""
+  PATCH_COMMAND ""
+  SOURCE_DIR "${CMAKE_SOURCE_DIR}/LIBSNDFILE"
+  CMAKE_ARGS -DCMAKE_INSTALL_LIBDIR=lib
+             -DCMAKE_BUILD_TYPE=Release
+             -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}
+             -DENABLE_EXTERNAL_LIBS=OFF
+             -DENABLE_EXPERIMENTAL=OFF
+             -G
+             "Unix Makefiles"
+  INSTALL_DIR "${CMAKE_BINARY_DIR}"
+  INSTALL_COMMAND make install
+  TEST_COMMAND "")
 
 # Build the GLAD library This depends on sources that need to be manually
 # downloaded
