@@ -1,0 +1,103 @@
+\documentclass{beamer}
+\usepackage[latin1]{inputenc}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{graphicx}
+
+\usetheme{default}
+\usecolortheme{default}
+
+\title{COMP3320 Introduction to OpenGL}
+\author{Alex Biddulph}
+\institute{
+    The University of Newcastle, Australia
+    \and
+    Based on the work provided at \url{www.learnopengl.com}
+}
+\date{Semester 2, 2021}
+
+\begin{document}
+
+\begin{frame}
+    \titlepage
+\end{frame}
+
+\begin{frame}{What is OpenGL?}
+    \begin{itemize}
+        \item A standard, maintained by the Khronos Group~\footnote{The Khronos Group Inc: \url{www.khronos.org}},
+              specifying how graphics operations should behave
+              \begin{itemize}
+                  \item Each operation is specified to generate a certain result
+                  \item Graphics card manufacturers are free to implement operations however they please, provided the result
+                        complies with the standard
+              \end{itemize}
+        \item An API (Application Programming Interface)
+              \begin{itemize}
+                  \item Operating system agnostic
+                  \item Window system agnostic
+              \end{itemize}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{What is OpenGL?}
+    \begin{itemize}
+        \item A rendering library
+              \begin{itemize}
+                  \item An external library is needed to create a window that OpenGL can render on to
+              \end{itemize}
+        \item A state machine
+              \begin{itemize}
+                  \item OpenGL only knows about triangles
+                  \item The current state tells OpenGL how to render those triangles
+              \end{itemize}
+    \end{itemize}
+\end{frame}
+
+% \begin{frame}{OpenGL Extensions}
+%     \begin{itemize}
+%         \item Graphics card manufacturers can implement extensions to the OpenGL specification
+%               \begin{itemize}
+%                   \item Not available on all devices
+%                   \item Need to query the drivers to see if a specific extension is available
+%                   \item Create a shader program using {\color{blue}\verb"glCreateProgram"}
+%                   \item Use {\color{blue}\verb"GL_ARB_extension_name"} to check for {\color{blue}\verb"extension_name"}
+%                   \item For example, {\color{blue}\verb"GL_ARB_transpose_matrix"} adds new functions allowing application matrices to be stored in row-major order
+%               \end{itemize}
+%     \end{itemize}
+% \end{frame}
+
+\begin{frame}{Common OpenGL Libraries}
+    \begin{itemize}
+        \setlength{\itemindent}{1em}
+        \item[GLFW~\footnote{GLFW: \url{www.glfw.org}}:] Allows you to:
+            \begin{itemize}
+                \item Create and manage windows and OpenGL contexts
+                \item Handle keyboard, mouse, and joystick inputs
+            \end{itemize}
+        \item[GLAD~\footnote{GLAD: \url{glad.dav1d.de}}:] OS-specific library abstracting away from the graphics card's
+            implementation of the OpenGL functions
+        \item[GLM~\footnote{OpenGL Mathematics: \url{glm.g-truc.net/0.9.9/index.html}}:] OpenGL C++ Mathematics library
+            based on the OpenGL Shading Language (GLSL)
+        \item[SOIL~\footnote{Simple OpenGL Image Library: \url{www.lonesock.net/soil.html}}:] Simple OpenGL Image
+            Library - a small C library useful for uploading image textures into OpenGL
+        \item[ASSIMP~\footnote{The Open-Asset-Importer-Lib: \url{www.assimp.org}}:] Open Asset Import Library - useful for loading 3D models from various common formats
+    \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{OpenGL Workflow with GLFW and GLAD}
+    \begin{enumerate}
+        \item Initialise GLFW and set OpenGL context version and profile to use
+              \begin{itemize}
+                  \item We will use OpenGL context version 3.3 and the core profile in these examples
+              \end{itemize}
+        \item Create a window and set its width, height, and title
+        \item Make the window's context the main context for the current thread
+        \item Initialise GLAD and set it up to find all of the OpenGL function pointers (this is OS specific)
+        \item Set up callback functions to handle window resizing and user inputs
+        \item Set up rendering objects and textures
+        \item Enter a rendering loop that handles updating the screen
+        \item Clean up
+    \end{enumerate}
+\end{frame}
+
+\end{document}

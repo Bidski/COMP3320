@@ -16,12 +16,12 @@
     \and
     Based on the work provided at \url{www.learnopengl.com}
 }
-\date{Semester 2, 2019}
+\date{Semester 2, 2021}
 
 \begin{document}
 
 \begin{frame}
-\titlepage
+    \titlepage
 \end{frame}
 
 \begin{frame}{OpenGL Coordinates}
@@ -29,33 +29,54 @@
         \item OpenGL uses a right-handed coordinate system
         \item OpenGL uses normalised device coordinates
         \item[]
-        \begin{tikzpicture}[baseline={([yshift=-1em] current bounding box.north)}]
-            % Grid lines
-            \draw[step=0.5,lightgray,thin] (-1.5, -1.5) grid (1.5, 1.5);
+            \begin{tikzpicture}[baseline={([yshift=-1em] current bounding box.north)}]
+                % Grid lines
+                \draw[step=0.5,lightgray,thin] (-1.5, -1.5) grid (1.5, 1.5);
 
-            % Window edges
-            \draw[thick] (-1.5, -1.5) -- (-1.5, 1.5) -- (1.5, 1.5) -- (1.5, -1.5) -- cycle;
+                % Window edges
+                \draw[thick] (-1.5, -1.5) -- (-1.5, 1.5) -- (1.5, 1.5) -- (1.5, -1.5) -- cycle;
 
-            % Coordinates
-            \draw (-1.5, -1.5) node[below left]{$\left(-1, -1\right)$};
-            \draw (1.5, 1.5) node[above right]{$\left(1, 1\right)$};
-            \draw (0, 0) node{\textbullet};
-            \draw (0, 0) node[above right]{$\left(0, 0\right)$};
+                % Coordinates
+                \draw (-1.5, -1.5) node[below left]{$\left(-1, -1\right)$};
+                \draw (1.5, 1.5) node[above right]{$\left(1, 1\right)$};
+                \draw (0, 0) node{\textbullet};
+                \draw (0, 0) node[above right]{$\left(0, 0\right)$};
 
-            % The axes
-            \draw[thick,red,->]   (xyz cs:x=0.0) -- (xyz cs:x=1.0) node[above] {$x$};
-            \draw[thick,green,->] (xyz cs:y=0.0) -- (xyz cs:y=1.0) node[right] {$y$};
-            \draw[thick,blue,->]  (xyz cs:z=0.0) -- (xyz cs:z=1.0) node[above] {$z$};
-        \end{tikzpicture}
+                % The axes
+                \draw[thick,red,->]   (xyz cs:x=0.0) -- (xyz cs:x=1.0) node[above] {$x$};
+                \draw[thick,green,->] (xyz cs:y=0.0) -- (xyz cs:y=1.0) node[right] {$y$};
+                \draw[thick,blue,->]  (xyz cs:z=0.0) -- (xyz cs:z=1.0) node[above] {$z$};
+            \end{tikzpicture}
         \item OpenGL will map the normalised device coordinates to the viewport dimensions
-        \begin{itemize}
-            \item $\left(-1, -1\right) \to \left(0, 0\right)$
-            \item $\left(1, 1\right) \to \left(800, 600\right)$
-        \end{itemize}
+              \begin{itemize}
+                  \item $\left(-1, -1\right) \to \left(0, 0\right)$
+                  \item $\left(1, 1\right) \to \left(800, 600\right)$
+              \end{itemize}
     \end{itemize}
 \end{frame}
 
-\begin{frame}{OpenGL Shaders}
+\begin{frame}{OpenGL Coordinate Spaces}
+    \begin{itemize}
+        \item Local Space: 3D coordinates which are local to an object
+        \item World Space: 3D coordinates within the world. The model matrix is used to transform coordinates from local space to world space
+        \item View Space: Also known as camera space or eye space. View space is the camera's perspective of your world. The view matrix is used to transform coordinates from world space to view space
+        \item Clip Space: A projection from view space to normalised device coordinates. The projection matrix is used to perform this projection. OpenGL expects the output of the vertex shader to be in clip space
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{OpenGL Shaders - Pipeline 1}
+    \begin{itemize}
+        \item Vertex Data: A list of 3D vertex coordinates and associated vertex attributes (we will come back to these later)
+        \item Vertex Shader: Transforms vertex coordinates from model space to clip space
+        \item Shape Assembly: Assembles transformed vertices into a given primitive shape (e.g. triangles)
+        \item Geometry Shader: Transforms shape geometry by emitting new vertices
+        \item Rasterization: Maps primitives to pixel space and creates fragments
+        \item Fragment Shader: Calculates the final colour for a fragment
+        \item Tests and Blending: Performs depth testing and alpha blending
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{OpenGL Shaders - Pipeline 2}
     \begin{figure}
         \includegraphics{images/pipeline.png}
         \caption{Graphics pipeline stages.}
@@ -64,29 +85,17 @@
     Image sourced from \url{learnopengl.com/Getting-started/Hello-Triangle}
 \end{frame}
 
-\begin{frame}{OpenGL Shaders}
-    \begin{itemize}
-        \item Vertex Data: A list of 3D vertex coordinates and associated vertex attributes
-        \item Vertex Shader: Transforms vertex coordinates from model space to clip space
-        \item Shape Assembly: Assembles transformed vertices into a given primitive shape (e.g. triangles)
-        \item Geometry Shader: Transforms shape geometry by emitting new vertices
-        \item Rasterization: Maps primitives to pixel space and creates fragments
-        \item Fragment Shader: Calculates the final colour for a pixel
-        \item Tests and Blending: Performs depth testing and alpha blending
-    \end{itemize}
-\end{frame}
-
 \begin{frame}[fragile]{OpenGL Shaders}
     \begin{itemize}
         \item Written in OpenGL Shader Language (GLSL)
         \item A simple vertex shader
-\begin{minted}{glsl}
+              \begin{minted}{glsl}
 #version 330 core
 layout (location = 0) in vec3 aPosition;
 void main() { gl_Position = vec4(aPosition, 1.0); }
 \end{minted}
         \item A simple fragment shader
-\begin{minted}{glsl}
+              \begin{minted}{glsl}
 #version 330 core
 out vec4 FragColour;
 void main() {
@@ -102,11 +111,11 @@ void main() {
 \begin{frame}[fragile]{OpenGL Shader Programs}
     \begin{itemize}
         \item Consists of multiple OpenGL shaders
-        \begin{itemize}
-            \item If you have a vertex shader, you must have a fragment shader
-            \item If you have a fragment shader, you must have a vertex shader
-            \item Geometry shader is optional
-        \end{itemize}
+              \begin{itemize}
+                  \item If you have a vertex shader, you must have a fragment shader
+                  \item If you have a fragment shader, you must have a vertex shader
+                  \item Geometry shader is optional
+              \end{itemize}
         \item Create a shader program using {\color{blue}\verb"glCreateProgram"}
         \item Attach shaders to the program using {\color{blue}\verb"glAttachShader"}
         \item Link attached shaders together into the final program using {\color{blue}\verb"glLinkProgram"}
@@ -119,9 +128,9 @@ void main() {
         \item Stores vertex data in GPU memory
         \item To create a vertex buffer use {\color{blue}\verb"glGenBuffers"}
         \item Program could consist of multiple different vertex buffers. To make a vertex buffer active use
-            {\color{blue}\verb"glBindBuffer"}
+                  {\color{blue}\verb"glBindBuffer"}
         \item Vertex data is defined as a list of 3D coordinates (and optionally vertex attributes)
- \begin{minted}{c++}
+              \begin{minted}{c++}
     float vertices[] = {-0.5f, -0.5f, 0.0f,
                          0.5f, -0.5f, 0.0f,
                          0.0f,  0.5f, 0.0f };
@@ -135,12 +144,12 @@ void main() {
         \item Manages vertex buffer objects and vertex attributes
         \item To create a vertex array use {\color{blue}\verb"glGenVertexArrays"}
         \item Program could consist of multiple different vertex arrays. To make a vertex array active use
-            {\color{blue}\verb"glBindVertexArray"}
+                  {\color{blue}\verb"glBindVertexArray"}
         \item Bind and configure vertex buffer objects after binding the vertex array
         \item To configure and enable a vertex attribute use {\color{blue}\verb"glVertexAttribPointer"} followed by
-            {\color{blue}\verb"glEnableVertexAttribArray"}
+                  {\color{blue}\verb"glEnableVertexAttribArray"}
         \item To render a vertex array use {\color{blue}\verb"glBindVertexArray"} followed by
-            {\color{blue}\verb"glDrawArrays"} or another OpenGL drawing command
+                  {\color{blue}\verb"glDrawArrays"} or another OpenGL drawing command
     \end{itemize}
 \end{frame}
 
@@ -148,26 +157,26 @@ void main() {
     \begin{itemize}
         \item Stores indexes into the list of vertex data
         \item Makes it easy to draw shapes which share vertices
-        \begin{itemize}
-            \item An easy example is a square, which contains 2 triangles
-            \begin{tikzpicture}[baseline={([yshift=-1em] current bounding box.north)}]
-                % Grid lines
-                \draw[step=0.5,lightgray,thin] (-1.5, -1.5) grid (1.5, 1.5);
+              \begin{itemize}
+                  \item An easy example is a square, which contains 2 triangles
+                        \begin{tikzpicture}[baseline={([yshift=-1em] current bounding box.north)}]
+                            % Grid lines
+                            \draw[step=0.5,lightgray,thin] (-1.5, -1.5) grid (1.5, 1.5);
 
-                % Window edges
-                \draw[thick] (-1.5, -1.5) -- (-1.5, 1.5) -- (1.5, 1.5) -- (1.5, -1.5) -- cycle;
-                \draw[thick] (-1.5, 1.5) -- (1.5, -1.5);
+                            % Window edges
+                            \draw[thick] (-1.5, -1.5) -- (-1.5, 1.5) -- (1.5, 1.5) -- (1.5, -1.5) -- cycle;
+                            \draw[thick] (-1.5, 1.5) -- (1.5, -1.5);
 
-                % Coordinates
-                \draw (-1.5, -1.5) node[below left]{$\left(-0.5, -0.5\right)$};
-                \draw (-1.5, 1.5) node[above left]{$\left(-0.5, 0.5\right)$};
-                \draw (1.5, 1.5) node[above right]{$\left(0.5, 0.5\right)$};
-                \draw (1.5, -1.5) node[below right]{$\left(0.5, -0.5\right)$};
-            \end{tikzpicture}
-            \item The naive way to draw this square would be to draw two triangles by specifying six vertices. Two of
-                the vertices would be repeated
-            \item The better way would be to list the four vertices in the square and use an element buffer object
-        \end{itemize}
+                            % Coordinates
+                            \draw (-1.5, -1.5) node[below left]{$\left(-0.5, -0.5\right)$};
+                            \draw (-1.5, 1.5) node[above left]{$\left(-0.5, 0.5\right)$};
+                            \draw (1.5, 1.5) node[above right]{$\left(0.5, 0.5\right)$};
+                            \draw (1.5, -1.5) node[below right]{$\left(0.5, -0.5\right)$};
+                        \end{tikzpicture}
+                  \item The naive way to draw this square would be to draw two triangles by specifying six vertices. Two of
+                        the vertices would be repeated
+                  \item The better way would be to list the four vertices in the square and use an element buffer object
+              \end{itemize}
     \end{itemize}
 \end{frame}
 
@@ -175,9 +184,9 @@ void main() {
     \begin{itemize}
         \item To create an element buffer use {\color{blue}\verb"glGenBuffers"}
         \item Program could consist of multiple different element buffers. To make an element buffer active use
-            {\color{blue}\verb"glBindBuffer"}
+                  {\color{blue}\verb"glBindBuffer"}
         \item Element data is defined as a list of integer indices
- \begin{minted}{c++}
+              \begin{minted}{c++}
     float vertices[] = {-0.5f, -0.5f, 0.0f,
                          0.5f, -0.5f, 0.0f,
                          0.5f,  0.5f, 0.0f,
