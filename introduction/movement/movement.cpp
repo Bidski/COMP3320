@@ -17,9 +17,8 @@
 #include "GLFW/glfw3.h"
 // clang-format on
 
-#include "utility/opengl_utils.hpp"
-
 #include "utility/camera.hpp"
+#include "utility/opengl_utils.hpp"
 
 void process_input(GLFWwindow* window, const float& delta_time, utility::camera::Camera& camera);
 void render(GLFWwindow* window, utility::camera::Camera& camera);
@@ -132,31 +131,31 @@ void render(GLFWwindow* window, utility::camera::Camera& camera) {
          -0.5f, -0.5f,  0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, // front face: bottom left
          -0.5f,  0.5f,  0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, // front face: top left
           0.0f,  0.0f,  0.5f, 1.0f, 1.0f, 1.0f, 0.5f, 0.5f, // front face: center
-          
+
           0.5f,  0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, // back face: top right
           0.5f, -0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, // back face: bottom right
          -0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, // back face: bottom left
          -0.5f,  0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, // back face: top left
           0.0f,  0.0f, -0.5f, 1.0f, 1.0f, 1.0f, 0.5f, 0.5f, // back face: center
-          
+
           0.5f,  0.5f,  0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, // top face: front right
           0.5f,  0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, // top face: back right
          -0.5f,  0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, // top face: back left
          -0.5f,  0.5f,  0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, // top face: front left
           0.0f,  0.5f,  0.0f, 1.0f, 1.0f, 1.0f, 0.5f, 0.5f, // top face: center
-          
+
           0.5f, -0.5f,  0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, // bottom face: front right
           0.5f, -0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, // bottom face: back right
          -0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, // bottom face: back left
          -0.5f, -0.5f,  0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, // bottom face: front left
           0.0f, -0.5f,  0.0f, 1.0f, 1.0f, 1.0f, 0.5f, 0.5f, // bottom face: center
-          
+
          -0.5f,  0.5f,  0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, // left face: front top
          -0.5f,  0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, // left face: back top
          -0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, // left face: back bottom
          -0.5f, -0.5f,  0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, // left face: front bottom
          -0.5f,  0.0f,  0.0f, 1.0f, 1.0f, 1.0f, 0.5f, 0.5f, // left face: center
-          
+
           0.5f,  0.5f,  0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, // right face: front top
           0.5f,  0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, // right face: back top
           0.5f, -0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, // right face: back bottom
@@ -173,27 +172,27 @@ void render(GLFWwindow* window, utility::camera::Camera& camera) {
         0, 1, 4, // front right
         0, 3, 4, // front top
         2, 3, 4, // front left
-        
+
         6, 7, 9, // back bottom
         5, 6, 9, // back right
         5, 8, 9, // back top
         7, 8, 9, // back left
-        
+
         11, 12, 14, // top back
         10, 11, 14, // top right
         10, 13, 14, // top front
         12, 13, 14, // top left
-        
+
         16, 17, 19, // bottom back
         15, 16, 19, // bottom right
         15, 18, 19, // bottom front
         17, 18, 19, // bottom left
-        
+
         21, 22, 24, // left back
         20, 21, 24, // left bottom
         20, 23, 24, // left front
         22, 23, 24, // left top
-        
+
         26, 27, 29, // right back
         25, 26, 29, // right bottom
         25, 28, 29, // right front
@@ -221,8 +220,8 @@ void render(GLFWwindow* window, utility::camera::Camera& camera) {
     // load, compile, and link the vertex and fragment shaders
     // -------------------------------------------------------
     utility::gl::shader_program program;
-    program.add_shader("shaders/movement.vert", GL_VERTEX_SHADER);
-    program.add_shader("shaders/movement.frag", GL_FRAGMENT_SHADER);
+    program.add_shader("shaders/movement/movement.vert", GL_VERTEX_SHADER);
+    program.add_shader("shaders/movement/movement.frag", GL_FRAGMENT_SHADER);
     program.link();
 
     // create a vertex buffer object
@@ -239,14 +238,14 @@ void render(GLFWwindow* window, utility::camera::Camera& camera) {
 
     // load textures
     // -------------
-    utility::gl::texture wall_texture("textures/wall.jpg", GL_TEXTURE_2D);
+    utility::gl::texture wall_texture("textures/movement/wall.jpg", GL_TEXTURE_2D);
     wall_texture.bind(GL_TEXTURE0);
     wall_texture.generate(0, GL_RGB);
     wall_texture.generate_mipmap();
     wall_texture.texture_wrap(GL_REPEAT, GL_REPEAT);
     wall_texture.texture_filter(GL_LINEAR, GL_LINEAR);
 
-    utility::gl::texture face_texture("textures/awesomeface.png", GL_TEXTURE_2D);
+    utility::gl::texture face_texture("textures/movement/awesomeface.png", GL_TEXTURE_2D);
     face_texture.bind(GL_TEXTURE1);
     face_texture.generate(0, GL_RGBA);
     face_texture.generate_mipmap();

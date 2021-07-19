@@ -97,8 +97,8 @@ void render(GLFWwindow* window) {
     // load, compile, and link the vertex and fragment shaders
     // -------------------------------------------------------
     utility::gl::shader_program program;
-    program.add_shader("shaders/uniforms.vert", GL_VERTEX_SHADER);
-    program.add_shader("shaders/uniforms.frag", GL_FRAGMENT_SHADER);
+    program.add_shader("shaders/uniforms/uniforms.vert", GL_VERTEX_SHADER);
+    program.add_shader("shaders/uniforms/uniforms.frag", GL_FRAGMENT_SHADER);
     program.link();
 
     // create a vertex buffer object

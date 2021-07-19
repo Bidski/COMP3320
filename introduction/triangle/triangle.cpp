@@ -87,8 +87,8 @@ void render(GLFWwindow* window) {
     // load, compile, and link the vertex and fragment shaders
     // -------------------------------------------------------
     utility::gl::shader_program program;
-    program.add_shader("shaders/triangle.vert", GL_VERTEX_SHADER);
-    program.add_shader("shaders/triangle.frag", GL_FRAGMENT_SHADER);
+    program.add_shader("shaders/triangle/triangle.vert", GL_VERTEX_SHADER);
+    program.add_shader("shaders/triangle/triangle.frag", GL_FRAGMENT_SHADER);
     program.link();
 
     // create a vertex buffer object

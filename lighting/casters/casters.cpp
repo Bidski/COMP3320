@@ -17,9 +17,8 @@
 #include "GLFW/glfw3.h"
 // clang-format on
 
-#include "utility/opengl_utils.hpp"
-
 #include "utility/camera.hpp"
+#include "utility/opengl_utils.hpp"
 
 struct PointLight {
     glm::vec3 position;
@@ -248,8 +247,8 @@ void render(GLFWwindow* window, utility::camera::Camera& camera) {
     // load, compile, and link the vertex and fragment shaders
     // -------------------------------------------------------
     utility::gl::shader_program program;
-    program.add_shader("shaders/casters.vert", GL_VERTEX_SHADER);
-    program.add_shader("shaders/casters.frag", GL_FRAGMENT_SHADER);
+    program.add_shader("shaders/casters/casters.vert", GL_VERTEX_SHADER);
+    program.add_shader("shaders/casters/casters.frag", GL_FRAGMENT_SHADER);
     program.link();
 
     // create a vertex buffer object
@@ -266,14 +265,14 @@ void render(GLFWwindow* window, utility::camera::Camera& camera) {
 
     // load textures
     // -------------
-    utility::gl::texture diffuse_texture("textures/container_diffuse.png", GL_TEXTURE_2D);
+    utility::gl::texture diffuse_texture("textures/casters/container_diffuse.png", GL_TEXTURE_2D);
     diffuse_texture.bind(GL_TEXTURE0);
     diffuse_texture.generate(0);
     diffuse_texture.generate_mipmap();
     diffuse_texture.texture_wrap(GL_REPEAT, GL_REPEAT);
     diffuse_texture.texture_filter(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
 
-    utility::gl::texture specular_texture("textures/container_specular.png", GL_TEXTURE_2D);
+    utility::gl::texture specular_texture("textures/casters/container_specular.png", GL_TEXTURE_2D);
     specular_texture.bind(GL_TEXTURE1);
     specular_texture.generate(0);
     specular_texture.generate_mipmap();

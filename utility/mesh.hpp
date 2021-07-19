@@ -62,7 +62,6 @@ namespace mesh {
         }
         ~Mesh() {
             if (initialised) {
-                std::cout << "Deleting mesh" << std::endl;
                 vertices.clear();
                 indices.clear();
                 textures.clear();

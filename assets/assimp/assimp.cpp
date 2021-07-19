@@ -17,11 +17,9 @@
 #include "GLFW/glfw3.h"
 // clang-format on
 
-#include "utility/opengl_utils.hpp"
-
 #include "utility/camera.hpp"
-
 #include "utility/model.hpp"
+#include "utility/opengl_utils.hpp"
 
 struct PointLight {
     glm::vec3 position;
@@ -154,8 +152,8 @@ void render(GLFWwindow* window, utility::camera::Camera& camera) {
     // load, compile, and link the vertex and fragment shaders
     // -------------------------------------------------------
     utility::gl::shader_program program;
-    program.add_shader("shaders/assimp.vert", GL_VERTEX_SHADER);
-    program.add_shader("shaders/assimp.frag", GL_FRAGMENT_SHADER);
+    program.add_shader("shaders/assimp/assimp.vert", GL_VERTEX_SHADER);
+    program.add_shader("shaders/assimp/assimp.frag", GL_FRAGMENT_SHADER);
     program.link();
 
     // make sure OpenGL will perform depth testing
@@ -165,7 +163,7 @@ void render(GLFWwindow* window, utility::camera::Camera& camera) {
     // load nanosuit model
     // -------------------
     program.use();
-    utility::model::Model nanosuit("models/nanosuit.obj");
+    utility::model::Model nanosuit("models/assimp/nanosuit.obj");
 
     // keep track of frame rendering times
     // -----------------------------------

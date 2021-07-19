@@ -101,8 +101,8 @@ void render(GLFWwindow* window) {
     // load, compile, and link the vertex and fragment shaders
     // -------------------------------------------------------
     utility::gl::shader_program program;
-    program.add_shader("shaders/textures.vert", GL_VERTEX_SHADER);
-    program.add_shader("shaders/textures.frag", GL_FRAGMENT_SHADER);
+    program.add_shader("shaders/textures/textures.vert", GL_VERTEX_SHADER);
+    program.add_shader("shaders/textures/textures.frag", GL_FRAGMENT_SHADER);
     program.link();
 
     // create a vertex buffer object
@@ -119,14 +119,14 @@ void render(GLFWwindow* window) {
 
     // load textures
     // -------------
-    utility::gl::texture wall_texture("textures/wall.jpg", GL_TEXTURE_2D);
+    utility::gl::texture wall_texture("textures/textures/wall.jpg", GL_TEXTURE_2D);
     wall_texture.bind(GL_TEXTURE0);
     wall_texture.generate(0, GL_RGB);
     wall_texture.generate_mipmap();
     wall_texture.texture_wrap(GL_REPEAT, GL_REPEAT);
     wall_texture.texture_filter(GL_LINEAR, GL_LINEAR);
 
-    utility::gl::texture face_texture("textures/awesomeface.png", GL_TEXTURE_2D);
+    utility::gl::texture face_texture("textures/textures/awesomeface.png", GL_TEXTURE_2D);
     face_texture.bind(GL_TEXTURE1);
     face_texture.generate(0, GL_RGBA);
     face_texture.generate_mipmap();

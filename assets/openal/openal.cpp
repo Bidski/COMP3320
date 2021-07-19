@@ -19,13 +19,10 @@
 #include "GLFW/glfw3.h"
 // clang-format on
 
-#include "utility/openal_utils.hpp"
-
-#include "utility/opengl_utils.hpp"
-
 #include "utility/camera.hpp"
-
 #include "utility/model.hpp"
+#include "utility/openal_utils.hpp"
+#include "utility/opengl_utils.hpp"
 
 struct PointLight {
     glm::vec3 position;
@@ -167,8 +164,8 @@ void render(GLFWwindow* window, utility::camera::Camera& camera) {
     // load, compile, and link the vertex and fragment shaders
     // -------------------------------------------------------
     utility::gl::shader_program program;
-    program.add_shader("shaders/openal.vert", GL_VERTEX_SHADER);
-    program.add_shader("shaders/openal.frag", GL_FRAGMENT_SHADER);
+    program.add_shader("shaders/openal/openal.vert", GL_VERTEX_SHADER);
+    program.add_shader("shaders/openal/openal.frag", GL_FRAGMENT_SHADER);
     program.link();
 
     // make sure OpenGL will perform depth testing
@@ -178,7 +175,7 @@ void render(GLFWwindow* window, utility::camera::Camera& camera) {
     // load nanosuit model
     // -------------------
     program.use();
-    utility::model::Model nanosuit("models/nanosuit.obj");
+    utility::model::Model nanosuit("models/openal/nanosuit.obj");
     glm::vec3 nanosuit_position(0.0f, -1.75f, -2.0f);
 
     // keep track of frame rendering times
@@ -189,7 +186,7 @@ void render(GLFWwindow* window, utility::camera::Camera& camera) {
     // load up sound file
     // ------------------
     utility::al::OpenAL sound_bite(glm::vec3(0.0f, -1.75f, -2.0f));
-    sound_bite.load_audio("audio/bugs_02.wav");
+    sound_bite.load_audio("audio/openal/bugs_02.wav");
 
     // render loop
     // -----------
