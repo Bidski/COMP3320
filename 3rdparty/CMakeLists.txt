@@ -20,6 +20,10 @@ if(UNIX)
     message(
       FATAL_ERROR "Unable to find X11 Xcursor. You must install this first.")
   endif(NOT X11_Xcursor_FOUND)
+
+  if(NOT X11_Xmu_FOUND)
+    message(FATAL_ERROR "Unable to find X11 Xmu. You must install this first.")
+  endif(NOT X11_Xmu_FOUND)
 endif(UNIX)
 
 # Download and build all of our dependencies
