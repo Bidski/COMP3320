@@ -1,7 +1,7 @@
 #version 330 core
 
 // Fragment shader output
-out vec4 FragColor;
+layout(location = 0) out vec4 FragColor;
 
 // Colour from the vertex shader
 in vec3 ourColour;
