@@ -159,7 +159,7 @@ void render(GLFWwindow* window) {
         // Update the uniform
         float time_value  = glfwGetTime();
         float green_value = std::sin(time_value) * 0.5f + 0.5f;
-        program.set_uniform("ourColour", std::array<float, 4>{0.0f, green_value, 0.0f, 1.0f});
+        program.set_uniform("frag_colour", std::array<float, 4>{0.0f, green_value, 0.0f, 1.0f});
 
         // seeing as we only have a single VAO there's no need to bind it every time, but we'll
         // do so to keep things a bit more organized
