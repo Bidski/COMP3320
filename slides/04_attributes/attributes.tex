@@ -5,10 +5,15 @@
 \usepackage{minted}
 \usepackage{graphicx}
 \usepackage{tikz}
-\usetikzlibrary{fadings}
+\usetikzlibrary{fadings,tikzmark,calc,positioning,decorations.pathreplacing}
+\usepackage{bbding} % For \HandRight
+\usepackage{fancyvrb} % For \UseVerb \SaveVerb
 
-\usetheme{default}
+\usetheme{Madrid}
 \usecolortheme{default}
+
+% Command that embeds a hand pointing to the right in a href label
+\newcommand{\hrefhand}[2]{\raisebox{-0.4ex}{\HandRight}\,\href{#1}{#2}}
 
 \title{COMP3320 Introduction to OpenGL}
 \author{Alex Biddulph}
@@ -17,31 +22,42 @@
     \and
     Based on the work provided at \url{www.learnopengl.com}
 }
-\date{Semester 2, 2019}
+\date{Semester 2, 2021}
 
 \begin{document}
 
 \begin{frame}
-\titlepage
+    \titlepage
 \end{frame}
 
 \begin{frame}[fragile]{Vertex Attributes}
+    \SaveVerb{glVertexAttribPointer}|glVertexAttribPointer|
     \begin{itemize}
-        \item Allows us to specify auxilliary data for each vertex
-        \item Colour, texture coordinates, etc.
+        \item Allows us to specify auxiliary data for each vertex
+        \item Specify offset and stride using \hrefhand{https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glVertexAttribPointer.xhtml}{\color{blue}\UseVerb{glVertexAttribPointer}}
         \item An example specifying vertex colour information
-\begin{minted}{c++}
+              \footnotesize{
+                  \begin{minted}{c++}
     float vertices[] = {
-        // positions         // colors
          0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f,
         -0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,
          0.0f,  0.5f, 0.0f,  0.0f, 0.0f, 1.0f };
 \end{minted}
-        \item Must specify offset and stride for {\color{blue}\verb"glVertexAttribPointer"}
-        \item[] \includegraphics[width=0.90\textwidth]{images/vertex_attribute_pointer_interleaved.png}
+              }
     \end{itemize}
-    \vfill{}
-    {\footnotesize{Image sourced from \url{learnopengl.com/Getting-started/Shaders}}}
+
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.90\linewidth,keepaspectratio=true]{images/vertex_attribute_pointer_interleaved.png}
+        \caption{\footnotesize{Image sourced from \url{learnopengl.com/Getting-started/Shaders}}}
+    \end{figure}
+
+    \begin{tikzpicture}[remember picture, overlay]
+        \node[rectangle,minimum width=3.25cm,minimum height=1.25cm,draw=red,ultra thick] at (3.65cm, 5.45cm) (P) {};
+        \node[rectangle,minimum width=3.20cm,minimum height=1.25cm,draw=green,ultra thick] at (7.00cm, 5.45cm) (C) {};
+        \draw[ultra thick,red,->] (P.south west) -- (2.50cm, 3.90cm);
+        \draw[ultra thick,green,->] (C.south west) -- (4.50cm, 3.90cm);
+    \end{tikzpicture}
 \end{frame}
 
 \begin{frame}[fragile]{Vertex Attributes}
@@ -60,47 +76,68 @@
         \item Rather than using colours to add detail to an object, use an image
         \item Easier to add a lot of detail to an object
         \item To apply a texture we just need to assign texture coordinates to each vertex
-\footnotesize{
-\begin{minted}{c++}
+              \footnotesize{
+                  \begin{minted}{c++}
 float vertices[] = {
-    // positions         // colors         // textures
-     0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 
-    -0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 
+     0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
+    -0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f, 0.0f, 0.0f,
      0.0f,  0.5f, 0.0f,  0.0f, 0.0f, 1.0f, 0.5f, 1.0f };
 \end{minted}
-}
-        \item[] \includegraphics[width=0.90\textwidth]{images/vertex_attribute_pointer_interleaved_textures.png}
+              }
     \end{itemize}
-    \vfill{}
-    {\footnotesize{Image sourced from \url{learnopengl.com/Getting-started/Textures}}}
+
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.90\linewidth,keepaspectratio=true]{images/vertex_attribute_pointer_interleaved_textures.png}
+        \caption{\footnotesize{Image sourced from \url{learnopengl.com/Getting-started/Textures}}}
+    \end{figure}
+
+    \begin{tikzpicture}[remember picture, overlay]
+        \node[rectangle,minimum width=3.25cm,minimum height=1.25cm,draw=red,ultra thick] at (3.00cm, 5.85cm) {};
+        \node[rectangle,minimum width=3.00cm,minimum height=1.25cm,draw=green,ultra thick] at (6.25cm, 5.85cm) {};
+        \node[rectangle,minimum width=1.90cm,minimum height=1.25cm,draw=blue,ultra thick] at (8.80cm, 5.85cm) {};
+    \end{tikzpicture}
 \end{frame}
 
 \begin{frame}[fragile]{Texture Wrapping}
+    \SaveVerb{glTexParameteri}|glTexParameteri|
+    \SaveVerb{glTexParameterfv}|glTexParameterfv|
     \begin{itemize}
         \item Texture coordinates range from $\left(0, 0\right) \to \left(1, 1\right)$
         \item What should happen if coordinates outside this range are specified?
-        \item[] \includegraphics[width=0.90\textwidth]{images/texture_wrapping.png}
-        \item Specify behaviour using {\color{blue}\verb"glTexParameteri"}
-        \item Specify border colour using {\color{blue}\verb"glTexParameterfv"}
     \end{itemize}
-    \vfill{}
-    {\footnotesize{Image sourced from \url{learnopengl.com/Getting-started/Textures}}}
+
+    \begin{examples}
+        Specify texture wrapping behaviour using \hrefhand{https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glTexParameter.xhtml}{\color{blue}\UseVerb{glTexParameteri}}
+    \end{examples}
+    \begin{examples}
+        Specify texture border colour using \hrefhand{https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glTexParameter.xhtml}{\color{blue}\UseVerb{glTexParameterfv}}
+    \end{examples}
+
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.90\linewidth,keepaspectratio=true]{images/texture_wrapping.png}
+        \caption{\footnotesize{Image sourced from \url{learnopengl.com/Getting-started/Textures}}}
+    \end{figure}
 \end{frame}
 
 \begin{frame}[fragile]{Texture Filtering}
     \begin{itemize}
-        \item Floating-point texture coordinates are mapped to integer pixel coordinates
-        \item What should happen if texture coordinates have a fractional component?
-        \begin{itemize}
-            \item For example, texture coordinates $\left(0.75, 0.0\right)$ maps to pixel coordinates 
-                $\left(480.3, 300\right)$
-        \end{itemize}
-        \item[] \begin{center}\includegraphics[width=0.40\textheight]{images/texture_filtering.png}\end{center}
-        \item Specify behaviour using {\color{blue}\verb"glTexParameteri"}
+        \item Floating-point coordinates are mapped to integer coordinates
+        \item What should happen if texture coordinates have a fractional component? For example, $\left(0.75, 0.0\right) \rightarrow \left(480.3, 300\right)$
         \item Behaviour can be specified for both minifying and magnifying operations
     \end{itemize}
-    \vfill{}
-    {\footnotesize{Image sourced from \url{learnopengl.com/Getting-started/Textures}}}
+
+    \SaveVerb{glTexParameteri}|glTexParameteri|
+    \begin{examples}
+        Specify texture filtering behaviour using \hrefhand{https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glTexParameter.xhtml}{\color{blue}\UseVerb{glTexParameteri}}
+    \end{examples}
+
+    \begin{figure}
+        \centering
+        \includegraphics[height=0.25\textwidth,keepaspectratio=true]{images/texture_filtering.png}
+        \caption{\footnotesize{Image sourced from \url{learnopengl.com/Getting-started/Textures}}}
+    \end{figure}
 \end{frame}
 
 \begin{frame}[fragile]{MipMaps}
@@ -108,40 +145,68 @@ float vertices[] = {
         \item No need to use a high resolution image to texture an object a long distance away
         \item Can also result in undesirable artifacts on small objects
         \item The solution?
-        \begin{itemize}
-            \item Create multiple scaled down versions of the high resolution image
-            \item Select a different scaled down texture based on the distance from the camera
-        \end{itemize}
-        \item[] \begin{center}\includegraphics[width=0.40\textheight]{images/mipmaps.png}\end{center}
-        \item Generating mipmaps is cumbersome, use {\color{blue}\verb"glGenerateMipmaps"}
-        \item Can change mipmap filtering behaviour for minifying and magnifying operations as well
+              \begin{itemize}
+                  \item Create multiple scaled down versions of the high resolution image
+                  \item Select a different scaled down texture based on the distance from the camera
+              \end{itemize}
+        \item Behaviour can be specified for both minifying and magnifying operations
     \end{itemize}
-    \vfill{}
-    {\footnotesize{Image sourced from \url{learnopengl.com/Getting-started/Textures}}}
+
+    \SaveVerb{glGenerateMipmaps}|glGenerateMipmaps|
+    \begin{examples}
+        OpenGL will generate mipmaps for you. Use \hrefhand{https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glGenerateMipmap.xhtml}{\color{blue}\UseVerb{glGenerateMipmaps}}
+    \end{examples}
+\end{frame}
+
+\begin{frame}[fragile]{MipMaps}
+    \begin{figure}
+        \centering
+        \includegraphics[height=0.75\textheight,keepaspectratio=true]{images/mipmaps.png}
+        \caption{\footnotesize{Image sourced from \url{learnopengl.com/Getting-started/Textures}}}
+    \end{figure}
 \end{frame}
 
 \begin{frame}[fragile]{Loading Textures}
     \begin{itemize}
-        \item A number of C/C++ libraries available for loading images 
+        \item A number of C/C++ libraries available for loading images
         \item SOIL is a common library specifically targetting OpenGL
-        \item Use {\color{blue}\verb"glGenTexture"} to generate a texture object
-        \item Use {\color{blue}\verb"glBindTexture"} to bind a texture object and make it active, be sure to do this 
-            before rendering objects
-        \item Use {\color{blue}\verb"glTexImage2D"} to attach the raw texture data to the texture object
-        \item Generate mipmaps after attaching the raw texture data
-        \item It is now safe to delete any pointers to the raw texture data
-        \item It is possible to use multiple textures in a single program, use {\color{blue}\verb"glActiveTexture"} to 
-            select which texture unit to use before binding
-        \begin{itemize}
-            \item Should be a minimum of $16$ texture units available
-        \end{itemize}
     \end{itemize}
+
+    \SaveVerb{glGenTextures}|glGenTextures|
+    \SaveVerb{glBindTexture}|glBindTexture|
+    \SaveVerb{glTexImage2D}|glTexImage2D|
+    \begin{examples}
+        Generate a OpenGL texture object using \hrefhand{https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glGenTextures.xhtml}{\color{blue}\UseVerb{glGenTextures}}
+    \end{examples}
+    \begin{examples}
+        Bind a texture object and make it the active texture using \hrefhand{https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glBindTexture.xhtml}{\color{blue}\UseVerb{glBindTexture}}
+    \end{examples}
+    \begin{examples}
+        Use \hrefhand{https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glTexImage2D.xhtml}{\color{blue}\UseVerb{glTexImage2D}} to attach the raw texture data to the currently active texture unit. After this you can delete any pointers to your raw texture data
+    \end{examples}
+\end{frame}
+
+\begin{frame}[fragile]{Texture Units}
+    \begin{itemize}
+        \item Multiple textures can be used in a single program
+        \item Each texture needs to be attached to a different texture unit
+    \end{itemize}
+
+    \SaveVerb{glGetIntegerv}|glGetIntegerv|
+    \SaveVerb{glActiveTexture}|glActiveTexture|
+    \begin{examples}
+        Query {\color{blue}\verb"GL_MAX_TEXTURE_IMAGE_UNITS"} using \hrefhand{https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glGet.xhtml}{\color{blue}\UseVerb{glGetIntegerv}} to find the maximum available on your hardware
+    \end{examples}
+    \begin{examples}
+        Use \hrefhand{https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glActiveTexture.xhtml}{\color{blue}\UseVerb{glActiveTexture}} to select currently active texture unit
+    \end{examples}
 \end{frame}
 
 \begin{frame}[fragile]{Textures}
     Result should look like this
 
-    \begin{center}
+    \begin{figure}
+        \centering
         \begin{tikzpicture}[baseline={([yshift=-1em] current bounding box.north)}]
             % Grid lines
             \draw[step=0.5,lightgray,thin] (-1.5, -1.5) grid (1.5, 1.5);
@@ -163,9 +228,8 @@ float vertices[] = {
             \draw (-1.5,  1.5) node[above left]{$\left(0, 1\right)$};
             \draw ( 1.5, -1.5) node[below right]{$\left(1, 0\right)$};
         \end{tikzpicture}
-    \end{center}
-    \vfill{}
-    {\footnotesize{Brick wall image sourced from \url{learnopengl.com/Getting-started/Textures}}}
+        \caption{\footnotesize{Brick wall image sourced from \url{learnopengl.com/Getting-started/Textures}}}
+    \end{figure}
 \end{frame}
 
 \end{document}

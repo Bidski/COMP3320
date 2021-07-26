@@ -5,9 +5,14 @@
 \usepackage{minted}
 \usepackage{tikz}
 \usepackage{graphicx}
+\usepackage{bbding} % For \HandRight
+\usepackage{fancyvrb} % For \UseVerb \SaveVerb
 
-\usetheme{default}
+\usetheme{Madrid}
 \usecolortheme{default}
+
+% Command that embeds a hand pointing to the right in a href label
+\newcommand{\hrefhand}[2]{\raisebox{-0.4ex}{\HandRight}\,\href{#1}{#2}}
 
 \title{COMP3320 Introduction to OpenGL}
 \author{Alex Biddulph}
@@ -16,12 +21,12 @@
     \and
     Based on the work provided at \url{www.learnopengl.com}
 }
-\date{Semester 2, 2019}
+\date{Semester 2, 2021}
 
 \begin{document}
 
 \begin{frame}
-\titlepage
+    \titlepage
 \end{frame}
 
 \begin{frame}[fragile]{More on Shaders}
@@ -47,20 +52,20 @@
 
 \begin{frame}[fragile]{More on Shaders}
     \begin{itemize}
-        \item The first line specifies OpenGL version. In this case version 3.3 using the core profile
-            \mint{glsl}|#version 330 core|
+        \item The first line specifies OpenGL version. In these examples we use version 3.3 using the core profile
+              \mint{glsl}|#version 330 core|
         \item We can then specify inputs, outputs, and uniforms in any order.
-        \item {\color{blue}\verb"type"} can be any of the following with {\color{blue}\verb"n"} and
-            {\color{blue}\verb"m"} one of $2, 3, \textrm{or }4$
-            \begin{tabular}{c c c c c c}
-                {\color{blue}\verb"bool"} & {\color{blue}\verb"int"} & {\color{blue}\verb"uint"} &
-                    {\color{blue}\verb"float"} & {\color{blue}\verb"double"} & {\color{blue}\verb"bvecn"} \\
-                {\color{blue}\verb"ivecn"} & {\color{blue}\verb"uvecn"} & {\color{blue}\verb"vecn"} &
-                    {\color{blue}\verb"dvecn"} & {\color{blue}\verb"matn"} & {\color{blue}\verb"matnxm"} \\
-            \end{tabular}
+        \item {\color{blue}\verb"type"} can be any of the following with {\color{red}\verb"n"} and
+                  {\color{red}\verb"m"} one of $2, 3, \textrm{or }4$
+              \begin{tabular}{c c c c c c}
+                  {\color{blue}\verb"bool"}                                      & {\color{blue}\verb"int"}                                      & {\color{blue}\verb"uint"}                                      & {\color{blue}\verb"float"} & {\color{blue}\verb"double"} & {\color{blue}\verb"bvec"}{\color{red}\verb"n"} \\
+                  {\color{blue}\verb"ivec"}{\color{red}\verb"n"} & {\color{blue}\verb"uvec"}{\color{red}\verb"n"} & {\color{blue}\verb"vec"}{\color{red}\verb"n"} &
+                  {\color{blue}\verb"dvec"}{\color{red}\verb"n"} & {\color{blue}\verb"mat"}{\color{red}\verb"n"} &
+                  {\color{blue}\verb"mat"}{\color{red}\verb"n"}{\color{blue}\verb"x"}{\color{red}\verb"m"}                                                                                                                                                                                                                                         \\
+              \end{tabular}
         \item Arrays of these types are also permitted
         \item Vectors can be \emph{swizzled}
-            \begin{minted}{glsl}
+              \begin{minted}{glsl}
                 vec3 pos;
                 vec2 pos2 = pos.xy;
                 vec4 pos4 = pos2.xyyx;
@@ -71,41 +76,54 @@
 \end{frame}
 
 \begin{frame}[fragile]{Shader Inputs and Outputs}
+    \SaveVerb{gl_Position}|gl_Position|
+    \SaveVerb{glGetIntegerv}|glGetIntegerv|
     \begin{itemize}
         \item Inputs and outputs allow you to pass data in to and get data out of your shaders. They also facilitate
-            passing data between shader stages
+              passing data between shader stages
         \item In a vertex shader the inputs are also known as vertex attributes. OpenGL guarantees the existence of at
-            least $16$ $4$-component vertex attributes. Query {\color{blue}\verb"GL_MAX_VERTEX_ATTRIBS"} using
-            {\color{blue}\verb"glGetIntegerv"} to find the maximum available on your hardware
-        \item For vertex attributes you can also decorate the declaration with a {\color{blue}\verb"layout"}
-            \mint{glsl}|layout(location = 0) in vec3 aPosition;|
-        \item Location layout simplifies linking vertex attributes in the main program
-        \item Built-in vertex shader output {\color{blue}\verb"gl_Position"}
+              least $16$ $4$-component vertex attributes.
+              \begin{examples}
+                  Query {\color{blue}\verb"GL_MAX_VERTEX_ATTRIBS"} using \hrefhand{https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glGet.xhtml}{\color{blue}\UseVerb{glGetIntegerv}} to find the maximum available on your hardware
+              \end{examples}
+        \item Built-in vertex shader output \hrefhand{https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/gl_Position.xhtml}{\color{blue}\UseVerb{gl_Position}}
         \item Fragments shaders require a {\color{blue}\verb"vec4"} colour output variable
     \end{itemize}
 \end{frame}
 
 \begin{frame}[fragile]{Shader Inputs and Outputs}
+    \SaveVerb{layout}|layout|
     \begin{itemize}
+        \item Variable declarations can be decorated with the \hrefhand{https://www.khronos.org/opengl/wiki/Layout_Qualifier_(GLSL)}{\color{blue}\UseVerb{layout}} specifier
+              \mint{glsl}|layout(location = 0) in vec3 aPosition;|
+        \item Location layout simplifies linking vertex attributes and fragment shader outputs in the main program
         \item If an input and an output share the same type and name in two consecutive shaders, OpenGL will link them
-            together
-        \item In the vertex shader \mint{glsl}|out vec4 frag_colour;|
-        \item In the fragment shader \mint{glsl}|in vec4 frag_colour;|
-        \item These two variables will be linked together allowing you to pass data between the shader stages
-        \item Layout decorations can be used to circumvent the matching requirement
+              together
+              \begin{minted}{glsl}
+                // In the vertex shader
+                out vec4 ourColour;
+                // In the fragment shader
+                in vec4 ourColour;
+            \end{minted}
     \end{itemize}
 \end{frame}
 
 \begin{frame}[fragile]{Uniforms}
+    \SaveVerb{glGetUniformLocation}|glGetUniformLocation|
+    \SaveVerb{glUniform}|glUniform|
     \begin{itemize}
         \item Allows for setting arbitrary data in a shader program
         \item Global to a shader program
         \item Can be accessed by any shader at any stage in the program
         \item Maintain their value until you change it
         \item If you declare a uniform and don't use it in your GLSL shader code it will be silently removed
-        \item Need to find the uniforms location in the shader program using {\color{blue}\verb"glGetUniformLocation"}
-        \item Set a uniforms value using {\color{blue}\verb"glUniform"}
     \end{itemize}
+    \begin{examples}
+        Find the location of a uniform in the shader program using \hrefhand{https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glGetUniformLocation.xhtml}{\color{blue}\UseVerb{glGetUniformLocation}}
+    \end{examples}
+    \begin{examples}
+        Set the value of a uniform using \hrefhand{https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glUniform.xhtml}{\color{blue}\UseVerb{glUniform}}
+    \end{examples}
 \end{frame}
 
 \end{document}
