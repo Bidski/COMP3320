@@ -78,13 +78,14 @@
 \begin{frame}[fragile]{Shader Inputs and Outputs}
     \SaveVerb{gl_Position}|gl_Position|
     \SaveVerb{glGetIntegerv}|glGetIntegerv|
+    \SaveVerb{GL_MAX_VERTEX_ATTRIBS}|GL_MAX_VERTEX_ATTRIBS|
     \begin{itemize}
         \item Inputs and outputs allow you to pass data in to and get data out of your shaders. They also facilitate
               passing data between shader stages
         \item In a vertex shader the inputs are also known as vertex attributes. OpenGL guarantees the existence of at
               least $16$ $4$-component vertex attributes.
               \begin{examples}
-                  Query {\color{blue}\verb"GL_MAX_VERTEX_ATTRIBS"} using \hrefhand{https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glGet.xhtml}{\color{blue}\UseVerb{glGetIntegerv}} to find the maximum available on your hardware
+                  Query {\color{blue}\UseVerb{GL_MAX_VERTEX_ATTRIBS}} using \hrefhand{https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glGet.xhtml}{\color{blue}\UseVerb{glGetIntegerv}} to find the maximum available on your hardware
               \end{examples}
         \item Built-in vertex shader output \hrefhand{https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/gl_Position.xhtml}{\color{blue}\UseVerb{gl_Position}}
         \item Fragments shaders require a {\color{blue}\verb"vec4"} colour output variable
