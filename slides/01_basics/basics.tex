@@ -3,9 +3,14 @@
 \usepackage{xcolor}
 \usepackage{hyperref}
 \usepackage{graphicx}
+\usepackage{bbding} % For \HandRight
+\usepackage{fancyvrb} % For \UseVerb \SaveVerb
 
-\usetheme{default}
+\usetheme{Madrid}
 \usecolortheme{default}
+
+% Command that embeds a hand pointing to the right in a href label
+\newcommand{\hrefhand}[2]{\raisebox{-0.4ex}{\HandRight}\,\href{#1}{#2}}
 
 \title{COMP3320 Introduction to OpenGL}
 \author{Alex Biddulph}
@@ -24,7 +29,7 @@
 
 \begin{frame}{What is OpenGL?}
     \begin{itemize}
-        \item A standard, maintained by the Khronos Group~\footnote{The Khronos Group Inc: \url{www.khronos.org}},
+        \item A standard, maintained by the \hrefhand{www.khronos.org}{\color{blue}Khronos Group},
               specifying how graphics operations should behave
               \begin{itemize}
                   \item Each operation is specified to generate a certain result
@@ -53,22 +58,22 @@
     \end{itemize}
 \end{frame}
 
-% \begin{frame}{OpenGL Extensions}
-%     \begin{itemize}
-%         \item Graphics card manufacturers can implement extensions to the OpenGL specification
-%               \begin{itemize}
-%                   \item Not available on all devices
-%                   \item Need to query the drivers to see if a specific extension is available
-%                   \item Create a shader program using {\color{blue}\verb"glCreateProgram"}
-%                   \item Use {\color{blue}\verb"GL_ARB_extension_name"} to check for {\color{blue}\verb"extension_name"}
-%                   \item For example, {\color{blue}\verb"GL_ARB_transpose_matrix"} adds new functions allowing application matrices to be stored in row-major order
-%               \end{itemize}
-%     \end{itemize}
-% \end{frame}
+\begin{frame}[fragile]{OpenGL Extensions}
+    \begin{itemize}
+        \item Graphics card manufacturers can implement extensions to the OpenGL specification
+              \begin{itemize}
+                  \item Not available on all devices
+                  \item Need to query the drivers to see if a specific extension is available
+                  \item Create a shader program using {\color{blue}\verb"glCreateProgram"}
+                  \item Use {\color{blue}\verb"GL_ARB_extension_name"} to check for {\color{blue}\verb"extension_name"}
+                  \item For example, {\color{blue}\verb"GL_ARB_transpose_matrix"} adds new functions allowing application matrices to be stored in row-major order
+              \end{itemize}
+    \end{itemize}
+\end{frame}
 
 \begin{frame}{Common OpenGL Libraries}
     \begin{itemize}
-        \setlength{\itemindent}{1em}
+        \setlength{\itemindent}{1cm}
         \item[GLFW~\footnote{GLFW: \url{www.glfw.org}}:] Allows you to:
             \begin{itemize}
                 \item Create and manage windows and OpenGL contexts
