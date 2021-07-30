@@ -185,20 +185,31 @@ void render(GLFWwindow* window, utility::camera::Camera& camera) {
 
     // load up sound file
     // ------------------
-    utility::al::OpenAL sound_bite(glm::vec3(0.0f, -1.75f, -2.0f));
+    const glm::vec3 sound_position(0.0f, 1.75f, -2.0f);
+    utility::al::OpenAL sound_bite(sound_position);
     sound_bite.load_audio("audio/openal/bugs_02.wav");
+
+    // track camera velocity
+    // ---------------------
+    glm::vec3 camera_velocity(glm::vec3(0.0f));
+    glm::vec3 camera_position(camera.get_position());
 
     // render loop
     // -----------
     while (!glfwWindowShouldClose(window)) {
-        // update sound listener and source positions
-        // ------------------------------------------
-        sound_bite.set_listener_position(camera.get_position());
-        sound_bite.set_source_position(nanosuit_position);
-
+        // calculate frame time
+        // --------------------
         float current_frame = glfwGetTime();
         float delta_time    = current_frame - last_frame;
         float last_frame    = current_frame;
+
+        // update sound listener and source positions
+        // ------------------------------------------
+        camera_velocity = (camera.get_position() - camera_position) / delta_time;
+        camera_position = camera.get_position();
+        sound_bite.set_listener_position(camera_position, camera_velocity, camera.get_up());
+        sound_bite.set_source_position(sound_position);
+
         // input
         // -----
         process_input(window, delta_time, camera, sound_bite);

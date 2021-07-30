@@ -127,6 +127,12 @@ namespace camera {
             return position;
         }
 
+        // Return the camera up direction
+        // --------------------------
+        glm::vec3 get_up() {
+            return up;
+        }
+
         // Return the camera view direction
         // --------------------------------
         glm::vec3 get_view_direction() {

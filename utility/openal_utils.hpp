@@ -18,9 +18,7 @@
 #include "AL/al.h"
 #include "AL/alc.h"
 #include "sndfile.h"
-
 #include "utility/openal_error_category.hpp"
-
 #include "utility/sndfile_error_category.hpp"
 
 namespace utility {
@@ -75,7 +73,7 @@ namespace al {
             }
 
             // Configure the listener
-            set_listener_position(glm::vec3(0.0f, 0.0f, 1.0f));
+            set_listener_position(glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
             // Configure the source
             alGenSources(1, &audio_source);
@@ -93,6 +91,7 @@ namespace al {
             alGenBuffers(1, &audio_buffer);
             throw_al_error(alGetError(), "Failed to create an audio buffer");
         }
+
         ~OpenAL() {
             alDeleteSources(1, &audio_source);
             alDeleteBuffers(1, &audio_buffer);
@@ -101,12 +100,12 @@ namespace al {
             alcCloseDevice(audio_device);
         }
 
-        void set_listener_position(const glm::vec3& position) {
+        void set_listener_position(const glm::vec3& position, const glm::vec3& velocity, const glm::vec3& up) {
             alListener3f(AL_POSITION, position.x, position.y, position.z);
             throw_al_error(alGetError(), "Failed to set listener position");
-            alListener3f(AL_VELOCITY, 0.0f, 0.0f, 0.0f);
+            alListener3f(AL_VELOCITY, velocity.x, velocity.y, velocity.z);
             throw_al_error(alGetError(), "Failed to set listener velocity");
-            const std::array<float, 6> orientation = {position.x, position.y, position.z, 0.0f, 1.0f, 0.0f};
+            const std::array<float, 6> orientation = {position.x, position.y, position.z, up.x, up.y, up.z};
             alListenerfv(AL_ORIENTATION, orientation.data());
             throw_al_error(alGetError(), "Failed to set listener orientation");
         }
@@ -138,7 +137,7 @@ namespace al {
             }
             alBufferData(audio_buffer,
                          info.channels == 1 ? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16,
-                         &data.front(),
+                         data.data(),
                          data.size() * sizeof(uint16_t),
                          info.samplerate);
             throw_al_error(alGetError(), "Failed to load audio data");
