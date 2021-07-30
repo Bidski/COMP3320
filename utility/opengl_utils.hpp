@@ -475,6 +475,11 @@ namespace gl {
         // uniform: The name of the uniform to set
         // value: The value to set the uniform to
         // ---------------------------------------------------------------------
+        void set_uniform(const std::string& uniform, const bool& value) {
+            glUniform1i(get_uniform_location(uniform), value ? 1 : 0);
+            throw_gl_error(glGetError(),
+                           fmt::format("Failed to set bool uniform '{}' at location {}", uniform, uniforms[uniform]));
+        }
         void set_uniform(const std::string& uniform, const int& value) {
             glUniform1i(get_uniform_location(uniform), value);
             throw_gl_error(glGetError(),
@@ -770,10 +775,9 @@ namespace gl {
             }
             else {
 #ifndef NDEBUG
-                std::cout
-                    << fmt::format(
-                           "File: {} == Data: ({}, {}, {}) -> '{}'", image, width, height, channels, SOIL_last_result())
-                    << std::endl;
+                std::cout << fmt::format(
+                    "File: {} == Data: ({}, {}, {}) -> '{}'", image, width, height, channels, SOIL_last_result())
+                          << std::endl;
 #endif
                 texture_data.assign(data, data + (width * height * channels));
                 SOIL_free_image_data(data);

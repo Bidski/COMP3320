@@ -50,6 +50,9 @@ struct SpotLight {
     // Radius of the inner and outer light cones
     float phi;
     float gamma;
+
+    // Whether or not we should fade the spotlight out
+    bool fade;
 };
 
 // *****************
@@ -224,7 +227,14 @@ vec3 calculateSpotLight(SpotLight light, vec3 normal, vec3 viewDirection) {
 
     // Calculate and apply intensity drop-off
     float theta     = dot(normalize(light.position - fragmentPosition), normalize(-light.direction));
-    float intensity = clamp((theta - light.gamma) / (light.phi - light.gamma), 0.0f, 1.0f);
+    float intensity = 0.0f;
+    if (light.fade) {
+        intensity = clamp((theta - light.gamma) / (light.phi - light.gamma), 0.0f, 1.0f);
+    }
+    else {
+        intensity = theta > light.phi ? 1.0f : 0.0f;
+    }
+
     diffuse *= intensity;
     specular *= intensity;
 

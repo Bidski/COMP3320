@@ -110,7 +110,7 @@ int main() {
 
 // process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
 // ---------------------------------------------------------------------------------------------------------
-void process_input(GLFWwindow* window, const float& delta_time, utility::camera::Camera& camera) {
+void process_input(GLFWwindow* window, const float& delta_time, utility::camera::Camera& camera, bool& spotlight_fade) {
     camera.set_movement_sensitivity(0.005f * delta_time);
 
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
@@ -133,6 +133,9 @@ void process_input(GLFWwindow* window, const float& delta_time, utility::camera:
     }
     else if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS) {
         camera.move_down();
+    }
+    else if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
+        spotlight_fade = true;
     }
 }
 
@@ -326,13 +329,15 @@ void render(GLFWwindow* window, utility::camera::Camera& camera) {
 
     // render loop
     // -----------
+    size_t spotlight_fade_counter = 0;
     while (!glfwWindowShouldClose(window)) {
         float current_frame = glfwGetTime();
         float delta_time    = current_frame - last_frame;
         float last_frame    = current_frame;
+        bool spotlight_fade = false;
         // input
         // -----
-        process_input(window, delta_time, camera);
+        process_input(window, delta_time, camera, spotlight_fade);
 
         // clear the screen and the depth buffer
         // -------------------------------------
@@ -378,6 +383,7 @@ void render(GLFWwindow* window, utility::camera::Camera& camera) {
         program.set_uniform("lamp.specular", glm::vec3(1.0f));
         program.set_uniform("lamp.phi", std::cos(glm::radians(12.5f)));
         program.set_uniform("lamp.gamma", std::cos(glm::radians(15.0f)));
+        program.set_uniform("lamp.fade", spotlight_fade);
         program.set_uniform("lamp.Kc", 1.000f);
         program.set_uniform("lamp.Kl", 0.090f);
         program.set_uniform("lamp.Kq", 0.032f);
