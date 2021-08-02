@@ -49,6 +49,19 @@ namespace camera {
             movement_sensitivity = 0.005f;
         }
 
+        void update_camera_basis() {
+            // calculate pitch and yaw
+            const float cos_yaw   = std::cos(glm::radians(orientation.x));
+            const float sin_yaw   = std::sin(glm::radians(orientation.x));
+            const float cos_pitch = std::cos(glm::radians(orientation.y));
+            const float sin_pitch = std::sin(glm::radians(orientation.y));
+
+            // update camera forward, right, and up vectors
+            forward = glm::normalize(glm::vec3(cos_pitch * cos_yaw, sin_pitch, cos_pitch * sin_yaw));
+            right   = glm::normalize(glm::cross(forward, world_up));
+            up      = glm::normalize(glm::cross(right, forward));
+        }
+
         // Callback function so GLFW can tell us about mouse scroll events
         // ---------------------------------------------------------------
         void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
@@ -68,7 +81,7 @@ namespace camera {
                 // get the current position of the mouse
                 glm::vec2 current_mouse_pos(static_cast<float>(xpos), static_cast<float>(ypos));
 
-                // invert y-ccordinates since they range from top to bottom
+                // invert y-coordinates since they range from top to bottom
                 glm::vec2 offset(current_mouse_pos.x - last_mouse_pos.x, last_mouse_pos.y - current_mouse_pos.y);
 
                 // update the last mouse position
@@ -83,19 +96,6 @@ namespace camera {
 
                 update_camera_basis();
             }
-        }
-
-        void update_camera_basis() {
-            // calculate pitch and yaw
-            const float cos_yaw   = std::cos(glm::radians(orientation.x));
-            const float sin_yaw   = std::sin(glm::radians(orientation.x));
-            const float cos_pitch = std::cos(glm::radians(orientation.y));
-            const float sin_pitch = std::sin(glm::radians(orientation.y));
-
-            // update camera forward, right, and up vectors
-            forward = glm::normalize(glm::vec3(cos_pitch * cos_yaw, sin_pitch, cos_pitch * sin_yaw));
-            right   = glm::normalize(glm::cross(forward, world_up));
-            up      = glm::normalize(glm::cross(right, forward));
         }
 
         // Callback function so GLFW can tell us about window resize events

@@ -18,7 +18,7 @@ void main() {
     // Set colour based on information from vertex attributes
     ourColour = aColour;
 
-    // Set coitexture coordinate based on information from vertex attributes
+    // Set texture coordinate based on information from vertex attributes
     TexCoord = aTexCoord;
 
     gl_Position = transform * vec4(aPosition.xyz, 1.0f);

@@ -136,13 +136,11 @@ void main() {
     // *******************************
     vec3 spot_light = calculateSpotLight(lamp, normalize(fragmentNormal), normalize(viewPosition - fragmentPosition));
 
-    // Calculate result
+    // Calculate result and set it as the output fragment colour
     vec3 result = vec3(0.0f);
     result      = result + sun_light;
     result      = result + point_light;
     result      = result + spot_light;
-
-    // Mix the two texture value and blend our colour in
     FragColor = vec4(result, 1.0f);
 }
 
