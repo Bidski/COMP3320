@@ -148,12 +148,12 @@ vec3  result      = specular * object_colour;
     \begin{figure}
         \centering
         \includegraphics[height=0.30\textheight]{images/specular_shininess.png}
-        \caption{The effect of {\color{blue}\UseVerb{strength}} (the shininess factor) on the specular highlight. \footnotesize{Images sourced from \url{learnopengl.com/Lighting/Basic-Lighting}}}
+        \caption{The effect of the shininess factor on the specular highlight. \footnotesize{Images sourced from \url{learnopengl.com/Lighting/Basic-Lighting}}}
     \end{figure}
 
     \begin{tikzpicture}[remember picture, overlay]
         \node[rectangle,minimum width=0.95cm,minimum height=0.35cm,draw=red,ultra thick] at (11.65cm, 5.80cm) (P) {};
-        \draw[ultra thick,red,<-] (P.south) -- (11.00cm, 5.00cm) node[anchor=north] {Shininess};
+        \draw[ultra thick,red,<-] (P.south) -- (11.00cm, 5.00cm) node[anchor=north] {Shininess Factor};
     \end{tikzpicture}
 \end{frame}
 
@@ -198,7 +198,7 @@ vec3  result      = specular * object_colour;
         \item A common formula for attentuation is
               $$F_{att} = \frac{1}{K_{c} + K_{l}d + K_{q}d^{2}}$$
         \item $K_{c}$ represents a constant amount of attentuation regardless of listance
-        \item $K_{d}$ represents a attentuation that is linearly proportional to distance
+        \item $K_{l}$ represents a attentuation that is linearly proportional to distance
         \item $K_{q}$ represents a attentuation that is quadratically proportional to distance
         \item Use trial and error to find some good values or use some \hrefhand{https://wiki.ogre3d.org/tiki-index.php?page=-Point+Light+Attenuation}{\color{blue}pre-calculated values}
     \end{itemize}
