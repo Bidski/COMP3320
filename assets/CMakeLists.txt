@@ -1,4 +1,4 @@
 # Add tutorials
-ADD_SUBDIRECTORY(assimp)
+add_subdirectory(15_assimp)
 
-ADD_SUBDIRECTORY(openal)
+add_subdirectory(16_openal)

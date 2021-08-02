@@ -1,20 +1,20 @@
 # Add tutorials
-ADD_SUBDIRECTORY(basics)
+add_subdirectory(01_basics)
 
-ADD_SUBDIRECTORY(triangle)
+add_subdirectory(02_triangle)
 
-ADD_SUBDIRECTORY(indexing)
+add_subdirectory(03_indexing)
 
-ADD_SUBDIRECTORY(uniforms)
+add_subdirectory(04_uniforms)
 
-ADD_SUBDIRECTORY(attributes)
+add_subdirectory(05_attributes)
 
-ADD_SUBDIRECTORY(textures)
+add_subdirectory(06_textures)
 
-ADD_SUBDIRECTORY(transforms)
+add_subdirectory(07_transforms)
 
-ADD_SUBDIRECTORY(mvp)
+add_subdirectory(08_mvp)
 
-ADD_SUBDIRECTORY(multi_cube)
+add_subdirectory(09_multi_cube)
 
-ADD_SUBDIRECTORY(movement)
+add_subdirectory(10_movement)

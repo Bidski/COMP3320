@@ -1,8 +1,8 @@
 # Add tutorials
-ADD_SUBDIRECTORY(phong)
+add_subdirectory(11_phong)
 
-ADD_SUBDIRECTORY(materials)
+add_subdirectory(12_materials)
 
-ADD_SUBDIRECTORY(maps)
+add_subdirectory(13_maps)
 
-ADD_SUBDIRECTORY(casters)
+add_subdirectory(14_casters)
